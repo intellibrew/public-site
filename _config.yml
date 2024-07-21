@@ -1,15 +1,14 @@
 # Setup
-title:            Hyde
-tagline:          'A Jekyll theme'
-description:      'A brazen two-column <a href="https://jekyllrb.com" target="_blank">Jekyll</a> theme that pairs a prominent sidebar with uncomplicated content. Made by <a href="https://twitter.com/mdo" target="_blank">@mdo</a>.'
-url:              https://hyde.getpoole.com
+title:            Henry
+tagline:          'Helping you build you'
+description:      'Henry is an assistant that helps you build and monitor manufacturing lines. It lets you go from the horse to the automobile in no-time'
+url:              https://intellibrew.github.io/public-site/
 baseurl:          ''
 paginate:         5
 
 # About and contact
 author:
-  name:           'Mark Otto'
-  url:            https://twitter.com/mdo
+  name:           'Carl Saldanha'
 
 # Gems
 plugins:
@@ -17,4 +16,4 @@ plugins:
   - jekyll-gist
 
 # Custom vars
-version:          3.0.0
+version:          Alpha
