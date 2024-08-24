@@ -8,7 +8,7 @@ const Frame = styled.div`
   background: ${props => props.theme.colors.background};
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   overflow: hidden;
 `;
@@ -23,25 +23,36 @@ const GradientOverlay = styled(motion.div)`
   mix-blend-mode: overlay;
 `;
 
+const TextContainer = styled.div`
+  position: relative;
+  width: 70%; /* Increased width to make it longer on the right */
+  padding-left: 2rem; /* Space from the left edge */
+  background: transparent; /* Makes the box invisible */
+`;
+
 const ContentWrapper = styled(motion.div)`
-  text-align: center;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 `;
 
 const AnimatedText = styled(motion.h1)`
-  font-size: 4rem;
+  font-size: 4rem; /* Adjust this size as needed */
   background: ${props => props.theme.colors.gradients.secondary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: ${props => props.theme.fonts.headings};
-  margin-bottom: 2rem;
+  margin-bottom: 1rem; /* Space between main text and subtext */
+  text-align: left;
 `;
 
 const SubText = styled(motion.p)`
   font-size: 1.5rem;
   color: ${props => props.theme.colors.text};
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
+  text-align: left;
 `;
 
 const ScrollPrompt = styled(motion.div)`
@@ -74,22 +85,24 @@ const Frame1: React.FC = () => {
         animate={{ opacity: 0.6 }}
         transition={{ duration: 2 }}
       />
-      <ContentWrapper style={{ y }}>
-        <AnimatedText
-          initial={{ opacity: 0, y: 50 }}
-          animate={controls}
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          AI Manufacturing Service that Transforms Designs to Factories
-        </AnimatedText>
-        <SubText
-          initial={{ opacity: 0 }}
-          animate={controls}
-          transition={{ duration: 1, delay: 1 }}
-        >
-          End-to-End AI Manufacturing Service for SMEs
-        </SubText>
-      </ContentWrapper>
+      <TextContainer>
+        <ContentWrapper style={{ y }}>
+          <AnimatedText
+            initial={{ opacity: 0, y: 50 }}
+            animate={controls}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            AI Manufacturing Service that Transforms Designs to Factories
+          </AnimatedText>
+          <SubText
+            initial={{ opacity: 0 }}
+            animate={controls}
+            transition={{ duration: 1, delay: 1 }}
+          >
+            End-to-End AI Manufacturing Service for SMEs
+          </SubText>
+        </ContentWrapper>
+      </TextContainer>
       {/* <ScrollPrompt
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
