@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import logoImg from '../../assets/images/logo.png';
 
 const HeaderContainer = styled(motion.header)`
   position: fixed;
@@ -17,10 +18,9 @@ const HeaderContainer = styled(motion.header)`
   z-index: 1000;
 `;
 
-const Logo = styled(motion.h1)`
-  font-size: 2rem;
-  color: ${props => props.theme.colors.primary};
-  font-family: ${props => props.theme.fonts.headings};
+const Logo = styled(motion.img)`
+  width: 100px;
+  height: auto;
 `;
 
 const Nav = styled.nav`
@@ -71,12 +71,12 @@ const Header: React.FC = () => {
       style={{ backgroundColor: scrolled ? 'rgba(0, 0, 0, 0.9)' : 'transparent' }}
     >
       <Logo
+        src={logoImg}
+        alt="Logo"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-      >
-        Logo
-      </Logo>
+      />
       <Nav>
         {['Home', 'Product', 'About'].map((item, index) => (
           <NavLink
