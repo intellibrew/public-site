@@ -29,7 +29,7 @@ const ContentWrapper = styled(motion.div)`
 `;
 
 const AnimatedText = styled(motion.h1)`
-  font-size: 6rem;
+  font-size: 4rem;
   background: ${props => props.theme.colors.gradients.secondary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -80,14 +80,14 @@ const Frame1: React.FC = () => {
           animate={controls}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          The Future is Now
+          AI Manufacturing Service that Transforms Designs to Factories
         </AnimatedText>
         <SubText
           initial={{ opacity: 0 }}
           animate={controls}
           transition={{ duration: 1, delay: 1 }}
         >
-          Test website
+          End-to-End AI Manufacturing Service for SMEs
         </SubText>
       </ContentWrapper>
       {/* <ScrollPrompt
