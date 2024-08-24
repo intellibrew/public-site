@@ -85,14 +85,14 @@ const Frame3: React.FC = () => {
           animate={controls}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          Discover Our Products
+          Ready to Transform Your Manufacturing Process?
         </AnimatedText>
         <SubText
           initial={{ opacity: 0 }}
           animate={controls}
           transition={{ duration: 1, delay: 1 }}
         >
-          Experience the future of technology with our cutting-edge solutions
+          Join NEOFAB.AI and experience the future of AI-powered manufacturing
         </SubText>
         <Link to="/product" style={{ textDecoration: 'none' }}>
           <ExploreButton
@@ -102,7 +102,7 @@ const Frame3: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Explore Now
+            Get Started Now
           </ExploreButton>
         </Link>
       </ContentWrapper>
