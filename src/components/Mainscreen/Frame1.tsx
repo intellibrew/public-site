@@ -25,9 +25,9 @@ const GradientOverlay = styled(motion.div)`
 
 const TextContainer = styled.div`
   position: relative;
-  width: 70%; /* Increased width to make it longer on the right */
-  padding-left: 2rem; /* Space from the left edge */
-  background: transparent; /* Makes the box invisible */
+  width: 80%;
+  padding-left: 5rem;
+  background: transparent;
 `;
 
 const ContentWrapper = styled(motion.div)`
@@ -38,12 +38,12 @@ const ContentWrapper = styled(motion.div)`
 `;
 
 const AnimatedText = styled(motion.h1)`
-  font-size: 4rem; /* Adjust this size as needed */
+  font-size: 4rem;
   background: ${props => props.theme.colors.gradients.secondary};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: ${props => props.theme.fonts.headings};
-  margin-bottom: 1rem; /* Space between main text and subtext */
+  margin-bottom: 1rem; 
   text-align: left;
 `;
 

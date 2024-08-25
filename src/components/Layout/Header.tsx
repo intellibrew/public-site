@@ -19,8 +19,10 @@ const HeaderContainer = styled(motion.header)`
 `;
 
 const Logo = styled(motion.img)`
-  width: 100px;
+  width: 5rem;
+  max-width: 100px; 
   height: auto;
+  font-family: ${props => props.theme.fonts.headings};
 `;
 
 const Nav = styled.nav`

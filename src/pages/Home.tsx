@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Frame1 from '../components/Mainscreen/Frame1';
-import Frame2 from '../components/Mainscreen/Frame2';
-import Frame3 from '../components/Mainscreen/Frame3';
+import Frame1 from '../components/mainscreen/Frame1';
+import Frame2 from '../components/mainscreen/Frame2';
+import Frame3 from '../components/mainscreen/Frame3';
 import useCustomScrolling from '../hooks/useCustomScrolling';
 
 const pageVariants = {
