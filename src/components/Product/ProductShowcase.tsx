@@ -30,14 +30,6 @@ const ProductCard = styled(motion.div)`
   cursor: pointer;
 `;
 
-const ProductImage = styled(motion.img)`
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 50%;
-  margin-bottom: 1rem;
-`;
-
 const ProductTitle = styled.h3`
   font-size: 1.5rem;
   color: ${props => props.theme.colors.primary};
@@ -52,15 +44,13 @@ const ProductDescription = styled.p`
 interface Product {
   id: number;
   title: string;
-  image: string;
   description: string;
 }
 
 const products: Product[] = [
-  { id: 1, title: 'Category 1', image: './photo1.png', description: 'Some text' },
-  { id: 2, title: 'Category 2', image: './photo2.png', description: 'Some more text' },
-  { id: 3, title: 'Category 3', image: './photo3.png', description: 'Even more text' },
-  // Add more products as needed
+  { id: 1, title: 'AI Software', description: 'Transforms product designs into optimized factory plans' },
+  { id: 2, title: 'FAB Marketplace', description: 'Connects users to service, machine providers, and contractors' },
+  { id: 3, title: 'FAB Factory Optimizer', description: 'Monitors, gathers feedback, and implements improvements' }
 ];
 
 const ProductShowcase: React.FC = () => {
@@ -73,12 +63,6 @@ const ProductShowcase: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <ProductImage
-              src={product.image}
-              alt={product.title}
-              whileHover={{ rotate: 360 }}
-              transition={{ duration: 0.8 }}
-            />
             <ProductTitle>{product.title}</ProductTitle>
             <ProductDescription>{product.description}</ProductDescription>
           </ProductCard>

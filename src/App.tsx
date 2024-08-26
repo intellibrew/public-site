@@ -7,8 +7,8 @@ import theme from './styles/theme';
 import Home from './pages/Home';
 import Product from './pages/Product';
 import About from './pages/About';
-import Header from './components/Layout/Header';
-import Footer from './components/Layout/Footer';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
 
 const App: React.FC = () => {
   return (

@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import ProductIntro from '../components/Product/productIntro';
-import Categories from '../components/Product/Categories';
-import HorizontalScroll from '../components/Product/HorizontalScroll';
-import ProductShowcase from '../components/Product/ProductShowcase';
+import ProductIntro from '../components/product/productIntro';
+import Categories from '../components/product/Categories';
+import HorizontalScroll from '../components/product/HorizontalScroll';
+import ProductShowcase from '../components/product/ProductShowcase';
 
 const pageVariants = {
   initial: { opacity: 0, y: '100vh' },
