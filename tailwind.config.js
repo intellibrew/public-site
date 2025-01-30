@@ -59,12 +59,27 @@ module.exports = {
       },
       keyframes: {
         "fade-in-up": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "gradient-pulse": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
+      },
+      animation: {
+        "fade-in-up": "fade-in-up 0.8s ease-out",
+        "fade-in": "fade-in 0.6s ease-out",
+        "gradient-pulse": "gradient-pulse 6s ease infinite",
+      },
+      transitionProperty: {
+        "blur": "filter",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
 }
-

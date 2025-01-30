@@ -1,19 +1,48 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Sparkles, ArrowRight, Check } from "lucide-react"
+import { motion } from "framer-motion"
+import { AnimateInView } from "@/components/AnimateInView"
+import { useEffect, useState } from "react"
 
 export default function Home() {
+  const [scrollProgress, setScrollProgress] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
+      const scrolled = (window.scrollY / windowHeight) * 100
+      setScrollProgress(scrolled)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Scroll Progress Indicator */}
+      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-100 z-50">
+        <div 
+          className="h-full bg-[#CCFF66] transition-all duration-300" 
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full px-4 py-4 bg-white/80 backdrop-blur-sm">
+      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full px-4 py-4 bg-white/80 backdrop-blur-sm transition-all duration-300 hover:bg-white/95">
         <div className="flex items-center justify-between w-full max-w-screen-xl">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-[#CCFF66] rounded flex items-center justify-center">
+            <motion.div 
+              whileHover={{ rotate: 15 }} 
+              className="h-8 w-8 bg-[#CCFF66] rounded flex items-center justify-center"
+            >
               <span className="text-black font-bold text-xl">L</span>
-            </div>
+            </motion.div>
             <span className="font-semibold text-xl">Leen</span>
           </Link>
 
@@ -35,7 +64,9 @@ export default function Home() {
 
             {/* CTA Button */}
             <div className="hidden lg:block">
-              <Button className="bg-[#CCFF66] text-black hover:bg-[#CCFF66]/90 font-medium">Schedule a demo</Button>
+              <Button className="bg-[#CCFF66] text-black hover:bg-[#CCFF66]/90 font-medium transform transition-all hover:scale-105">
+                Schedule a demo
+              </Button>
             </div>
 
             {/* Mobile menu button */}
@@ -60,39 +91,62 @@ export default function Home() {
       <main className="pt-28">
         {/* Hero Section */}
         <section className="container mx-auto px-4 mb-32">
-          {/* SOC 2 Banner */}
-          <div className="flex justify-center mb-12">
-            <div className="inline-flex items-center space-x-2 bg-[#F4F0FF] text-[#6E56CF] px-4 py-2 rounded-full">
-              <Sparkles className="h-4 w-4" />
-              <span className="text-sm">Leen is now SOC 2 Type 2 Compliant!</span>
+          <AnimateInView delay={100}>
+            <div className="flex justify-center mb-12">
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="inline-flex items-center space-x-2 bg-[#F4F0FF] text-[#6E56CF] px-4 py-2 rounded-full"
+              >
+                <Sparkles className="h-4 w-4" />
+                <span className="text-sm">Leen is now SOC 2 Type 2 Compliant!</span>
+              </motion.div>
             </div>
-          </div>
+          </AnimateInView>
 
           <div className="text-center max-w-4xl mx-auto space-y-6">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-              The Unified API for
-              <br />
-              Security Data
-            </h1>
-            <p className="text-gray-600 text-lg md:text-xl">
-              Unlock security data from hundreds of tools with a single API
-            </p>
+            <AnimateInView delay={200}>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                The Unified API for
+                <br />
+                Security Data
+              </h1>
+            </AnimateInView>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button className="bg-[#CCFF66] text-black hover:bg-[#CCFF66]/90 px-8">Request access</Button>
-              <Button variant="outline" className="px-8">
-                View Integrations
-              </Button>
-            </div>
+            <AnimateInView delay={300}>
+              <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">
+                Unlock security data from hundreds of tools with a single API
+              </p>
+            </AnimateInView>
+
+            <AnimateInView delay={400}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                <Button 
+                  className="bg-[#CCFF66] text-black hover:bg-[#CCFF66]/90 px-8 transform transition-all hover:scale-105"
+                  size="lg"
+                >
+                  Request access
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="px-8 transform transition-all hover:scale-105"
+                  size="lg"
+                >
+                  View Integrations
+                </Button>
+              </div>
+            </AnimateInView>
           </div>
 
           {/* Logo Cloud */}
-          <div className="mt-24">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16 max-w-4xl mx-auto">
-              {Array(8)
-                .fill(0)
-                .map((_, i) => (
-                  <div key={i} className="flex items-center justify-center">
+          <AnimateInView delay={500}>
+            <div className="mt-24">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16 max-w-4xl mx-auto">
+                {Array(8).fill(0).map((_, i) => (
+                  <motion.div 
+                    key={i} 
+                    whileHover={{ scale: 1.1 }}
+                    className="flex items-center justify-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                  >
                     <Image
                       src={`https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-oOaii2SCuT5Sulz5eFSndMfsKyRRxB.png`}
                       alt={`Partner Logo ${i + 1}`}
@@ -100,31 +154,41 @@ export default function Home() {
                       height={40}
                       className="opacity-50 hover:opacity-100 transition-opacity"
                     />
-                  </div>
+                  </motion.div>
                 ))}
+              </div>
             </div>
-          </div>
+          </AnimateInView>
         </section>
 
         {/* Features Section */}
         <section className="py-24 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">One API for all your security data</h2>
-              <p className="text-gray-600 text-lg">
-                Stop writing custom integrations. Access all your security tools through a single, unified API.
-              </p>
-            </div>
+            <AnimateInView>
+              <div className="max-w-3xl mx-auto text-center mb-16">
+                <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  One API for all your security data
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  Stop writing custom integrations. Access all your security tools through a single, unified API.
+                </p>
+              </div>
+            </AnimateInView>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, i) => (
-                <div key={i} className="bg-white p-6 rounded-lg">
-                  <div className="h-12 w-12 bg-[#F4F0FF] rounded-lg flex items-center justify-center mb-4">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </div>
+                <AnimateInView key={i} delay={i * 100}>
+                  <motion.div 
+                    whileHover={{ y: -5 }}
+                    className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group"
+                  >
+                    <div className="h-12 w-12 bg-[#F4F0FF] rounded-lg flex items-center justify-center mb-4 transition-colors group-hover:bg-[#e6dfff]">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </motion.div>
+                </AnimateInView>
               ))}
             </div>
           </div>
@@ -133,74 +197,108 @@ export default function Home() {
         {/* Integration Section */}
         <section className="py-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Integrate with your existing tools</h2>
-              <p className="text-gray-600 text-lg">
-                Connect with hundreds of security tools and services through our unified API
-              </p>
-            </div>
+            <AnimateInView>
+              <div className="max-w-3xl mx-auto text-center mb-16">
+                <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  Integrate with your existing tools
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  Connect with hundreds of security tools and services through our unified API
+                </p>
+              </div>
+            </AnimateInView>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {Array(12)
-                .fill(0)
-                .map((_, i) => (
-                  <div key={i} className="bg-white border rounded-lg p-6 flex items-center justify-center">
+              {Array(12).fill(0).map((_, i) => (
+                <AnimateInView key={i} delay={i * 50}>
+                  <motion.div 
+                    whileHover={{ scale: 1.05 }}
+                    className="bg-white border rounded-lg p-6 flex items-center justify-center hover:shadow-md transition-shadow"
+                  >
                     <Image
                       src={`https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-oOaii2SCuT5Sulz5eFSndMfsKyRRxB.png`}
                       alt={`Integration ${i + 1}`}
                       width={120}
                       height={40}
                     />
-                  </div>
-                ))}
+                  </motion.div>
+                </AnimateInView>
+              ))}
             </div>
 
-            <div className="text-center mt-12">
-              <Button variant="outline" className="px-8">
-                View all integrations <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            <AnimateInView>
+              <div className="text-center mt-12">
+                <Button 
+                  variant="outline" 
+                  className="px-8 transform transition-all hover:scale-105"
+                >
+                  View all integrations <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </AnimateInView>
           </div>
         </section>
 
         {/* Benefits Section */}
         <section className="py-24 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-4xl font-bold mb-12 text-center">Why developers choose Leen</h2>
+            <AnimateInView>
+              <div className="max-w-3xl mx-auto">
+                <h2 className="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  Why developers choose Leen
+                </h2>
 
-              <div className="space-y-8">
-                {benefits.map((benefit, i) => (
-                  <div key={i} className="flex items-start gap-4">
-                    <div className="h-6 w-6 bg-[#CCFF66] rounded-full flex items-center justify-center flex-shrink-0">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                      <p className="text-gray-600">{benefit.description}</p>
-                    </div>
-                  </div>
-                ))}
+                <div className="space-y-8">
+                  {benefits.map((benefit, i) => (
+                    <AnimateInView key={i} delay={i * 100}>
+                      <motion.div 
+                        whileHover={{ x: 10 }}
+                        className="flex items-start gap-4 p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="h-6 w-6 bg-[#CCFF66] rounded-full flex items-center justify-center flex-shrink-0">
+                          <Check className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
+                          <p className="text-gray-600">{benefit.description}</p>
+                        </div>
+                      </motion.div>
+                    </AnimateInView>
+                  ))}
+                </div>
               </div>
-            </div>
+            </AnimateInView>
           </div>
         </section>
 
         {/* CTA Section */}
         <section className="py-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-4xl font-bold mb-4">Ready to get started?</h2>
-              <p className="text-gray-600 text-lg mb-8">
-                Join leading security teams using Leen to streamline their security operations
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button className="bg-[#CCFF66] text-black hover:bg-[#CCFF66]/90 px-8">Request access</Button>
-                <Button variant="outline" className="px-8">
-                  View documentation
-                </Button>
+            <AnimateInView>
+              <div className="max-w-4xl mx-auto text-center">
+                <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  Ready to get started?
+                </h2>
+                <p className="text-gray-600 text-lg mb-8">
+                  Join leading security teams using Leen to streamline their security operations
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Button 
+                    className="bg-[#CCFF66] text-black hover:bg-[#CCFF66]/90 px-8 transform transition-all hover:scale-105"
+                    size="lg"
+                  >
+                    Request access
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="px-8 transform transition-all hover:scale-105"
+                    size="lg"
+                  >
+                    View documentation
+                  </Button>
+                </div>
               </div>
-            </div>
+            </AnimateInView>
           </div>
         </section>
       </main>
@@ -211,48 +309,57 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
             <div className="col-span-2">
               <Link href="/" className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 bg-[#CCFF66] rounded flex items-center justify-center">
+                <motion.div 
+                  whileHover={{ rotate: 15 }} 
+                  className="h-8 w-8 bg-[#CCFF66] rounded flex items-center justify-center"
+                >
                   <span className="text-black font-bold text-xl">L</span>
-                </div>
+                </motion.div>
                 <span className="font-medium text-xl">Leen</span>
               </Link>
               <p className="text-gray-600 text-sm">The unified API for security data</p>
             </div>
 
             {footerLinks.map((column, i) => (
-              <div key={i}>
-                <h4 className="font-semibold mb-4">{column.title}</h4>
-                <ul className="space-y-2">
-                  {column.links.map((link, j) => (
-                    <li key={j}>
-                      <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <AnimateInView key={i} delay={i * 50}>
+                <div>
+                  <h4 className="font-semibold mb-4">{column.title}</h4>
+                  <ul className="space-y-2">
+                    {column.links.map((link, j) => (
+                      <li key={j}>
+                        <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </AnimateInView>
             ))}
           </div>
 
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-gray-600">© {new Date().getFullYear()} Leen. All rights reserved.</p>
-              <div className="flex items-center space-x-6">
-                <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                  Privacy Policy
-                </Link>
-                <Link href="#" className="text-sm text-gray-600 hover:text-gray-900">
-                  Terms of Service
-                </Link>
+          <AnimateInView>
+            <div className="mt-12 pt-8 border-t border-gray-200">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p className="text-sm text-gray-600">© {new Date().getFullYear()} Leen. All rights reserved.</p>
+                <div className="flex items-center space-x-6">
+                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Privacy Policy
+                  </Link>
+                  <Link href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    Terms of Service
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          </AnimateInView>
         </div>
       </footer>
     </div>
   )
 }
+
+// Rest of the constants (features, benefits, footerLinks) remain the same as original
 
 const features = [
   {
