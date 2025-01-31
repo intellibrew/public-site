@@ -216,7 +216,7 @@ export default function Home() {
                     className="bg-white border rounded-lg p-6 flex items-center justify-center hover:shadow-md transition-shadow"
                   >
                     <Image
-                      src={`https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-oOaii2SCuT5Sulz5eFSndMfsKyRRxB.png`}
+                      src={`https://i.ibb.co/NdjGYH4h/logo512.png`}
                       alt={`Integration ${i + 1}`}
                       width={120}
                       height={40}
