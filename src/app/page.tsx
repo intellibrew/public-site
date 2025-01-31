@@ -41,9 +41,9 @@ export default function Home() {
               whileHover={{ rotate: 15 }} 
               className="h-8 w-8 bg-[#CCFF66] rounded flex items-center justify-center"
             >
-              <span className="text-black font-bold text-xl">L</span>
+              <span className="text-black font-bold text-xl">N</span>
             </motion.div>
-            <span className="font-semibold text-xl">Leen</span>
+            <span className="font-semibold text-xl">NeoFab</span>
           </Link>
 
           <div className="flex items-center gap-4 flex-1 justify-end">
@@ -98,7 +98,7 @@ export default function Home() {
                 className="inline-flex items-center space-x-2 bg-[#F4F0FF] text-[#6E56CF] px-4 py-2 rounded-full"
               >
                 <Sparkles className="h-4 w-4" />
-                <span className="text-sm">Leen is now SOC 2 Type 2 Compliant!</span>
+                <span className="text-sm">NeoFab is now SOC 2 Type 2 Compliant!</span>
               </motion.div>
             </div>
           </AnimateInView>
@@ -148,7 +148,7 @@ export default function Home() {
                     className="flex items-center justify-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
                   >
                     <Image
-                      src={`https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-oOaii2SCuT5Sulz5eFSndMfsKyRRxB.png`}
+                      src={`https://i.ibb.co/NdjGYH4h/logo512.png`}
                       alt={`Partner Logo ${i + 1}`}
                       width={120}
                       height={40}
@@ -245,7 +245,7 @@ export default function Home() {
             <AnimateInView>
               <div className="max-w-3xl mx-auto">
                 <h2 className="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  Why developers choose Leen
+                  Why developers choose NeoFab
                 </h2>
 
                 <div className="space-y-8">
@@ -280,7 +280,7 @@ export default function Home() {
                   Ready to get started?
                 </h2>
                 <p className="text-gray-600 text-lg mb-8">
-                  Join leading security teams using Leen to streamline their security operations
+                  Join leading security teams using NeoFab to streamline their security operations
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button 
@@ -313,9 +313,9 @@ export default function Home() {
                   whileHover={{ rotate: 15 }} 
                   className="h-8 w-8 bg-[#CCFF66] rounded flex items-center justify-center"
                 >
-                  <span className="text-black font-bold text-xl">L</span>
+                  <span className="text-black font-bold text-xl">N</span>
                 </motion.div>
-                <span className="font-medium text-xl">Leen</span>
+                <span className="font-medium text-xl">NeoFab</span>
               </Link>
               <p className="text-gray-600 text-sm">The unified API for security data</p>
             </div>
@@ -341,7 +341,7 @@ export default function Home() {
           <AnimateInView>
             <div className="mt-12 pt-8 border-t border-gray-200">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-sm text-gray-600">© {new Date().getFullYear()} Leen. All rights reserved.</p>
+                <p className="text-sm text-gray-600">© {new Date().getFullYear()} NeoFab. All rights reserved.</p>
                 <div className="flex items-center space-x-6">
                   <Link href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                     Privacy Policy
