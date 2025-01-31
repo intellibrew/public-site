@@ -9,7 +9,7 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: "Leen - The Unified API for Security Data",
+  title: "NeoFab - Unified Factory Planner",
   description: "Unlock security data from hundreds of tools with a single API",
 }
 
