@@ -1,10 +1,13 @@
 {
   "files": {
-    "main.js": "/static/js/main.fbf7ce4b.js",
+    "main.js": "/static/js/main.cf610101.js",
+    "static/media/landingLogo.png": "/static/media/landingLogo.4765d491eea42518786e.png",
+    "static/media/logo512.png": "/static/media/logo512.929a2d46bb71b683341d.png",
+    "static/media/emoEnergy.jpeg": "/static/media/emoEnergy.96514475856f132ff011.jpeg",
     "index.html": "/index.html",
-    "main.fbf7ce4b.js.map": "/static/js/main.fbf7ce4b.js.map"
+    "main.cf610101.js.map": "/static/js/main.cf610101.js.map"
   },
   "entrypoints": [
-    "static/js/main.fbf7ce4b.js"
+    "static/js/main.cf610101.js"
   ]
 }
