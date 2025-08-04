@@ -1,5 +1,5 @@
 {
-  "homepage": "https://intellibrew.github.io",
+  "homepage": "https://neofab.ai",
   "name": "company-website",
   "version": "0.1.0",
   "private": true,
@@ -13,7 +13,7 @@
     "@types/react-dom": "^18.3.0",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.34",
-    "framer-motion": "^11.3.24",
+    "framer-motion": "^11.18.2",
     "lucide-react": "^0.525.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -51,6 +51,9 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^6.1.1"
+    "autoprefixer": "^10.4.21",
+    "gh-pages": "^6.1.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.0"
   }
 }
