@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/static/css/main.dcc2a2b8.css",
-    "main.js": "/static/js/main.a1b73801.js",
+    "main.css": "/static/css/main.6c258e7e.css",
+    "main.js": "/static/js/main.af92d6fc.js",
     "static/media/landingLogo.png": "/static/media/landingLogo.4765d491eea42518786e.png",
     "static/media/logo512.png": "/static/media/logo512.929a2d46bb71b683341d.png",
     "static/media/emoEnergy.jpeg": "/static/media/emoEnergy.96514475856f132ff011.jpeg",
     "index.html": "/index.html",
-    "main.dcc2a2b8.css.map": "/static/css/main.dcc2a2b8.css.map",
-    "main.a1b73801.js.map": "/static/js/main.a1b73801.js.map"
+    "main.6c258e7e.css.map": "/static/css/main.6c258e7e.css.map",
+    "main.af92d6fc.js.map": "/static/js/main.af92d6fc.js.map"
   },
   "entrypoints": [
-    "static/css/main.dcc2a2b8.css",
-    "static/js/main.a1b73801.js"
+    "static/css/main.6c258e7e.css",
+    "static/js/main.af92d6fc.js"
   ]
 }
