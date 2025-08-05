@@ -11,6 +11,7 @@ import { motion, easeOut } from "framer-motion";
 import logo from "../assets/landingLogo.png";
 import emo from "../assets/emoEnergy.jpeg"
 import NeoFab from "../assets/logo512.png"
+import FeedbackPopup from './FeedbackPopup';
 
 const fadeUpInitial = { opacity: 0, y: 60, scale: 0.95 };
 const fadeUpTarget = (i = 0) => ({
@@ -26,6 +27,15 @@ const fadeUpTarget = (i = 0) => ({
 
 const LandingPage = () => {
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
+  const handleFeedbackClick = () => {
+    setShowFeedbackModal(true);
+  };
+
+  const handleCloseFeedbackModal = () => {
+    setShowFeedbackModal(false);
+  };
 
   const handleAboutClick = () => {
     setShowAboutModal(true);
@@ -42,6 +52,9 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white text-gray-900 text-sm sm:text-base">
 
+
+      {showFeedbackModal && <FeedbackPopup onClose={handleCloseFeedbackModal} />}
+      
       {/* About Us */}
       {showAboutModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center px-4">
@@ -309,6 +322,20 @@ const LandingPage = () => {
             Interested in transforming your manufacturing process? Let's talk about how NeoFab can work for you.
           </motion.p>
 
+          <motion.div
+            className="mb-10"
+            initial={fadeUpInitial}
+            whileInView={fadeUpTarget(0.3)}
+            viewport={{ once: true }}
+          >
+            <button
+              onClick={handleFeedbackClick}
+              className="bg-white text-[#203a43] hover:bg-white/90 font-semibold px-6 py-3 rounded-lg text-sm sm:text-base"
+            >
+              Send Us Feedback
+            </button>
+          </motion.div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-left text-white/90">
             {/* Email */}
             <motion.div
@@ -333,7 +360,7 @@ const LandingPage = () => {
               <h4 className="text-lg font-semibold mb-2">Phone</h4>
               <p>
                 <a href="tel:+919820889677" className="hover:underline">
-                  +1-2038956569
+                  (206) 855-5173
                 </a>
               </p>
             </motion.div>
