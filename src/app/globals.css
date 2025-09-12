@@ -1,0 +1,111 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 84 100% 60%;       /* legacy accent */
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 98%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 100% 97%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+
+    --radius: 0.75rem;
+  }
+
+  /* Use CSS vars directly (avoids Tailwind token errors) */
+  * { border-color: hsl(var(--border)); }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Smooth section reveals fallback (AnimateInView enhances) */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(4px);
+}
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition: all .6s cubic-bezier(.2,.8,.2,1);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Static gradient balls background (used by <BackgroundBalls /> in page.tsx) */
+/* -------------------------------------------------------------------------- */
+
+.bg-balls {
+  position: fixed;
+  inset: 0;
+  z-index: -1;        /* stays behind content */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ball {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(42px);
+  opacity: 0.65;
+  transform: translateZ(0);
+}
+
+/* placements tuned for layout safety */
+.ball-1 {
+  top: 8%; left: 12%; width: 22rem; height: 22rem;
+  background: radial-gradient(
+    closest-side,
+    rgba(99,102,241,0.45),
+    rgba(14,165,233,0.35),
+    rgba(8,145,178,0.22),
+    transparent 70%
+  );
+}
+.ball-2 {
+  top: 52%; right: 8%; width: 26rem; height: 26rem;
+  background: radial-gradient(
+    closest-side,
+    rgba(14,165,233,0.35),
+    rgba(56,189,248,0.30),
+    rgba(99,102,241,0.22),
+    transparent 70%
+  );
+}
+.ball-3 {
+  bottom: 6%; left: 28%; width: 24rem; height: 24rem;
+  background: radial-gradient(
+    closest-side,
+    rgba(56,189,248,0.30),
+    rgba(14,165,233,0.26),
+    rgba(99,102,241,0.18),
+    transparent 70%
+  );
+}
