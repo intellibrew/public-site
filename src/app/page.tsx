@@ -220,14 +220,20 @@ export default function Home() {
               </AnimateInView>
               <AnimateInView delay={180}>
                 <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <Button className="neo-btn" onClick={() => setDemoOpen(true)}>
+                  <Button asChild className="neo-btn">
+                    <a
+                       href="https://app.neofab.ai/login"
+                       target="_blank"
+                        >
                     Get started <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" className="neo-btn-outline">
-                    Explore live demo
-                  </Button>
-                </div>
-              </AnimateInView>
+                    </a>
+                   </Button>
+                   <Button variant="outline" className="neo-btn-outline">
+                       Explore live demo
+                     </Button>
+                      </div>
+                    </AnimateInView>
+
             </div>
           </div>
           <div
