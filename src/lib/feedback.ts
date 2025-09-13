@@ -1,7 +1,5 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'https://app.neofab.ai/api';
-
+﻿import axios from "axios";
+const API_BASE_URL = "https://app.neofab.ai/api";
 export const submitFeedback = async (
   name: string,
   email: string,
@@ -15,11 +13,11 @@ export const submitFeedback = async (
       email,
       feedback,
       company,
-      phone
+      phone,
     });
     return response.data;
   } catch (error) {
-    console.error('Error submitting feedback:', error);
+    console.error("Error submitting feedback:", error);
     throw error;
   }
 };
