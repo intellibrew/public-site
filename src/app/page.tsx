@@ -112,7 +112,7 @@ export default function Home() {
     }
   }, [])
 
-  // Demo card copy
+  // Demo card copy (now includes per-card image)
   const DEMOS = useMemo(
     () => [
       {
@@ -120,18 +120,21 @@ export default function Home() {
         caption:
           "Upload CAD files and get optimized lines, aisles, and utilities in minutes.",
         alt: "Auto layout demo",
+        image: "/demo.png",
       },
       {
         title: "Vendors and Quotes in One Flow",
         caption:
           "Turn specs into vetted suppliers. RFQs go from weeks to a single day.",
         alt: "Vendor integration demo",
+        image: "/demo1.png",
       },
       {
         title: "Execution at Scale",
         caption:
           "Export layouts, compliance packs, and push tasks into project management.",
         alt: "Execution & PM demo",
+        image: "/demo2.png",
       },
     ],
     []
@@ -222,17 +225,17 @@ export default function Home() {
                 <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   <Button asChild className="neo-btn">
                     <a
-                       href="https://app.neofab.ai/login"
-                       target="_blank"
-                        >
-                    Get started <ArrowRight className="ml-2 h-4 w-4" />
+                      href="https://app.neofab.ai/login"
+                      target="_blank"
+                    >
+                      Get started <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
-                   </Button>
-                   <Button variant="outline" className="neo-btn-outline">
-                       Explore live demo
-                     </Button>
-                      </div>
-                    </AnimateInView>
+                  </Button>
+                  <Button variant="outline" className="neo-btn-outline">
+                    Explore live demo
+                  </Button>
+                </div>
+              </AnimateInView>
 
             </div>
           </div>
@@ -311,6 +314,7 @@ export default function Home() {
                 title={d.title}
                 caption={d.caption}
                 imageAlt={d.alt}
+                imageSrc={d.image}
                 onEnter={() => onDemoEnter(i)}
                 onLeave={onDemoLeave}
               />
@@ -320,6 +324,7 @@ export default function Home() {
           <HoverPreview
             active={hoveredDemo !== null}
             title={hoveredDemo !== null ? DEMOS[hoveredDemo].title : ""}
+            imageSrc={hoveredDemo !== null ? DEMOS[hoveredDemo].image : undefined}
           />
         </section>
 
@@ -716,12 +721,14 @@ function DemoCard({
   title,
   caption,
   imageAlt,
+  imageSrc,
   onEnter,
   onLeave,
 }: {
   title: string
   caption: string
   imageAlt: string
+  imageSrc: string
   onEnter?: () => void
   onLeave?: () => void
 }) {
@@ -742,7 +749,7 @@ function DemoCard({
         <div className="relative">
           <div className="absolute inset-0 sheen" />
           <Image
-            src="/demo.png"
+            src={imageSrc}
             alt={imageAlt}
             width={1600}
             height={900}
@@ -761,7 +768,7 @@ function DemoCard({
 }
 
 // Fixed overlay preview that fades in when a demo card is hovered
-function HoverPreview({ active, title }: { active: boolean; title: string }) {
+function HoverPreview({ active, title, imageSrc }: { active: boolean; title: string; imageSrc?: string }) {
   return (
     <div
       className={cn(
@@ -786,7 +793,7 @@ function HoverPreview({ active, title }: { active: boolean; title: string }) {
           </div>
           <div className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white">
             <Image
-              src="/demo.png"
+              src={imageSrc ?? "/demo.png"}
               alt="Demo preview"
               width={1920}
               height={1080}
