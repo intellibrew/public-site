@@ -1,4 +1,5 @@
 ﻿"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -13,6 +14,9 @@ import {
   Search,
   Shield,
   Network,
+  HelpCircle,
+  PlusCircle,
+  MinusCircle,
 } from "lucide-react"
 import { submitFeedback } from "../app/api_requests/feedback"
 
@@ -38,7 +42,7 @@ const FEATURES: FeatureItem[] = [
   {
     title: "Workflow Synthesis",
     desc:
-      "AI maps process steps and machine options for takt, throughput, and yield - no spreadsheets, no guesswork.",
+      "AI maps process steps and machine options for takt, throughput, and yield — no spreadsheets, no guesswork.",
     icon: <Layers className="h-5 w-5" />,
   },
   {
@@ -65,12 +69,6 @@ const FEATURES: FeatureItem[] = [
       "Replace fragmented sheets with a unified vendor view for faster, integrated supply chains.",
     icon: <Network className="h-5 w-5" />,
   },
-]
-
-const TRUSTED_BY = [
-  { name: "Emo Energy", url: "https://www.emoenergy.in" },
-  { name: "Seurat", url: "https://www.seurat.com" },
-  { name: "One.AI", url: "https://one.ai" },
 ]
 
 // -----------------------------------------------------------------------------
@@ -112,7 +110,7 @@ export default function Home() {
     }
   }, [])
 
-  // Demo card copy (now includes per-card image)
+  // Demo card copy (per-card images)
   const DEMOS = useMemo(
     () => [
       {
@@ -175,7 +173,7 @@ export default function Home() {
                   ["Demo", "#demos"],
                   ["Features", "#features"],
                   ["FAQ", "#faq"],
-                  ["Contact", "#contact"],
+                  ["About", "#about"], // Contact removed; About added
                 ].map(([label, href]) => (
                   <a
                     key={label}
@@ -187,9 +185,11 @@ export default function Home() {
                 ))}
               </nav>
 
-              <Button className="neo-btn" onClick={() => setDemoOpen(true)}>
-                Schedule a demo
-                <ArrowRight className="ml-2 h-4 w-4" />
+              {/* Header Get started */}
+              <Button asChild className="neo-btn btn-halo">
+                <a href="https://app.neofab.ai/login" target="_blank" rel="noreferrer">
+                  Get started <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
               </Button>
             </div>
           </div>
@@ -223,20 +223,15 @@ export default function Home() {
               </AnimateInView>
               <AnimateInView delay={180}>
                 <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <Button asChild className="neo-btn">
-                    <a
-                      href="https://app.neofab.ai/login"
-                      target="_blank"
-                    >
+                  <Button variant ="outline" asChild className="neo-btn btn-halo">
+
+                    <a href="https://app.neofab.ai/login" target="_blank" rel="noreferrer">
                       Get started <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
-                  <Button variant="outline" className="neo-btn-outline">
-                    Explore live demo
-                  </Button>
+                  
                 </div>
               </AnimateInView>
-
             </div>
           </div>
           <div
@@ -245,24 +240,18 @@ export default function Home() {
           />
         </section>
 
-        {/* Three-step flow */}
-        <section id="flow" className="mx-auto max-w-7xl px-4 pt-8">
+        {/* Flow — pulled up; icon badges */}
+        <section id="flow" className="mx-auto max-w-7xl px-4 -mt-6 md:-mt-8 pt-4">
           <AnimateInView>
             <h2 className="text-center text-3xl md:text-4xl font-bold tracking-tight hover:glow-text">
               Where Planning Meets Production - Instantly
             </h2>
           </AnimateInView>
 
-          {/* static connector bar */}
-          <div
-            aria-hidden
-            className="relative mx-auto mt-10 hidden h-[6px] w-full max-w-5xl rounded-full bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200 md:block"
-          />
-
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <div className="mt-7 md:mt-9 grid gap-5 md:grid-cols-3">
             <FlowCard
-              index="1."
               title="Input"
+              icon={<Layers className="h-5 w-5 text-sky-600" />}
               bullets={[
                 "Product specifications",
                 "Facility constraints",
@@ -271,8 +260,8 @@ export default function Home() {
               ]}
             />
             <FlowCard
-              index="2."
               title="Fab Inference"
+              icon={<Network className="h-5 w-5 text-indigo-600" />}
               bullets={[
                 "Smart workflow design",
                 "AI-driven machine selection",
@@ -281,8 +270,8 @@ export default function Home() {
               ]}
             />
             <FlowCard
-              index="3."
               title="Output"
+              icon={<LineChart className="h-5 w-5 text-cyan-600" />}
               bullets={[
                 "Ready-to-use factory layout",
                 "Curated machine purchase list",
@@ -293,16 +282,71 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ABOUT — simple, no paragraph animations; gradient background behind text */}
+        <section id="about" className="mx-auto max-w-7xl px-4 pt-14 md:pt-18">
+          <div
+            className="
+              relative overflow-hidden rounded-[36px] border
+              border-zinc-200/80 bg-white/85 backdrop-blur-md
+              shadow-[0_60px_160px_-60px_rgba(30,58,138,0.18),0_24px_72px_-36px_rgba(2,132,199,0.16)]
+            "
+          >
+            {/* soft static gradient behind the paragraphs */}
+            <div
+              aria-hidden
+              className="
+                absolute inset-0 -z-10
+                bg-[radial-gradient(700px_300px_at_15%_10%,rgba(99,102,241,0.10),transparent_60%),radial-gradient(800px_320px_at_85%_8%,rgba(56,189,248,0.10),transparent_65%),radial-gradient(700px_280px_at_50%_100%,rgba(6,182,212,0.10),transparent_70%)]
+                blur-[2px]
+              "
+            />
+            <div className="px-6 py-10 md:px-10 md:py-14">
+              <h2 className="text-center text-3xl md:text-4xl font-bold tracking-tight">
+                About NeoFab <span className="brand-ai">AI</span>
+              </h2>
+              <div
+                aria-hidden
+                className="mx-auto mt-3 h-1.5 w-28 md:w-40 rounded-full bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200"
+              />
+              <div className="mx-auto mt-8 max-w-4xl text-zinc-700 text-lg md:text-xl leading-[1.75] space-y-5">
+                <p>
+                  NeoFabAI is an end-to-end software solution for modern manufacturers looking to scale
+                  quickly and efficiently. Founded by three entrepreneurs with backgrounds in engineering,
+                  AI and management, NeoFabAI represents a revolution in manufacturing planning and execution.
+                </p>
+                <p>
+                  Our platform allows companies to upload their designs and drawings to instantly generate
+                  full-scale factory layouts and detailed execution plans. This innovation reduces the time
+                  and cost of scaling production, making it a game-changer for startups and established
+                  manufacturers alike.
+                </p>
+                <p>
+                  What sets NeoFabAI apart is its comprehensive approach - we support manufacturers from start
+                  to finish with plans, suppliers, layouts and even become the Manufacturing Execution System
+                  (MES) once the factory is operational, creating a continuous improvement cycle.
+                </p>
+                <p className="font-semibold text-[#203a43]">
+                  What a team of 5 would take 4 weeks to accomplish, NeoFabAI can deliver in just 30 minutes -
+                  with higher precision and greater detail.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Demo cards + hover preview */}
         <section
           id="demos"
-          className="mx-auto max-w-7xl px-4 pt-20 md:pt-28 pb-6 scroll-mt-28"
+          className="mx-auto max-w-7xl px-4 pt-20 md:pt-24 pb-6 scroll-mt-28"
         >
           <AnimateInView>
             <h2 className="text-center text-3xl md:text-4xl font-bold tracking-tight hover:glow-text">
               See NeoFab in Action
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-zinc-600">
+          </AnimateInView>
+          <div aria-hidden className="mx-auto mt-3 h-1.5 w-40 md:w-56 rounded-full animated-underline" />
+          <AnimateInView delay={80}>
+            <p className="mx-auto mt-4 max-w-2xl text-center text-zinc-600">
               Three moments that collapse months of planning into minutes.
             </p>
           </AnimateInView>
@@ -311,6 +355,7 @@ export default function Home() {
             {DEMOS.map((d, i) => (
               <DemoCard
                 key={d.title}
+                index={i}
                 title={d.title}
                 caption={d.caption}
                 imageAlt={d.alt}
@@ -349,39 +394,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Logos / trust */}
-        <section className="mx-auto max-w-7xl px-4 pt-4 pb-24">
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 md:p-8 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.25)]">
-            <div className="text-center text-xs uppercase tracking-widest text-zinc-500">
-              Trusted by people at
-            </div>
-            <div className="mt-5 grid grid-cols-1 items-center justify-items-center gap-6 sm:grid-cols-3">
-              {TRUSTED_BY.map((c) => (
-                <a
-                  key={c.name}
-                  href={c.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50/60 px-4 py-3 text-sm font-medium text-zinc-700 hover:bg-white hover:shadow-[0_18px_60px_-24px_rgba(2,132,199,0.25)] transition"
-                >
-                  <span className="bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 bg-clip-text text-transparent">
-                    {c.name}
-                  </span>
-                  <ArrowRight className="h-4 w-4 opacity-60 group-hover:translate-x-0.5 group-hover:opacity-100 transition" />
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section
-          id="faq"
-          className="py-24 bg-[linear-gradient(180deg,#F6FAFF_0%,#FFFFFF_100%)]"
-        >
+        {/* FAQ (upgraded animated accordion) */}
+        <section id="faq" className="py-24 bg-[linear-gradient(180deg,#F6FAFF_0%,#FFFFFF_100%)]">
           <div className="mx-auto max-w-4xl px-4">
-            <SectionHeader eyebrow="FAQ" title="Answers to real questions" />
-            <div className="mt-8 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
+            {/* 🔁 Updated heading text here */}
+            <SectionHeader eyebrow="FAQ" title="Your questions, answered" />
+
+            <div className="mt-8 space-y-4">
               {[
                 {
                   q: "How accurate are the layouts NeoFab generates?",
@@ -404,14 +423,27 @@ export default function Home() {
                   a: "By automating planning, vendor selection, and layout optimization, companies cut setup costs by up to 50%.",
                 },
               ].map((f, i) => (
-                <details key={i} className="group px-5 py-4">
-                  <summary className="flex cursor-pointer list-none items-center justify-between py-2 text-base font-medium">
-                    {f.q}
-                    <span className="ml-4 rounded-full border border-zinc-300 px-2 text-xs text-zinc-600 group-open:rotate-180">
-                      ▼
+                <details key={i} className="faq-item group">
+                  <summary className="faq-summary">
+                    <span className="faq-left">
+                      <span className="q-icon">
+                        <HelpCircle className="h-4 w-4 text-sky-700/80" />
+                      </span>
+                      <span className="q-text">{f.q}</span>
+                    </span>
+
+                    {/* ✅ Tailwind-only icon swap (no custom CSS needed) */}
+                    <span className="relative grid h-6 w-6 place-items-center">
+                      <PlusCircle className="h-5 w-5 text-sky-600 transition-all duration-300 group-open:opacity-0 group-open:scale-75" />
+                      <MinusCircle className="absolute h-5 w-5 text-sky-600 opacity-0 scale-75 transition-all duration-300 group-open:opacity-100 group-open:scale-100" />
                     </span>
                   </summary>
-                  <p className="pb-4 text-zinc-600">{f.a}</p>
+
+                  <div className="faq-content">
+                    <div className="faq-inner">
+                      <p className="text-zinc-600">{f.a}</p>
+                    </div>
+                  </div>
                 </details>
               ))}
             </div>
@@ -430,9 +462,7 @@ export default function Home() {
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button className="neo-btn" onClick={() => setDemoOpen(true)}>Request a demo</Button>
-              <Button variant="outline" onClick={() => setDemoOpen(true)} className="neo-btn-outline">
-                Contact sales
-              </Button>
+              
             </div>
           </div>
         </section>
@@ -463,7 +493,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Inline styles for glow/background/buttons */}
+      {/* Inline styles */}
       <style jsx>{`
         /* Brand accents */
         .brand-ai {
@@ -474,82 +504,34 @@ export default function Home() {
           text-shadow: 0 0 18px rgba(56, 189, 248, 0.35),
             0 0 6px rgba(2, 132, 199, 0.35);
         }
-        .brand-glow {
-          text-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
-        }
-        .glow-header:hover {
-          text-shadow: 0 0 28px rgba(56, 189, 248, 0.35);
-        }
-        .hover\\:glow-text:hover {
-          text-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
-        }
+        .brand-glow { text-shadow: 0 0 12px rgba(56, 189, 248, 0.25); }
+        .glow-header:hover { text-shadow: 0 0 28px rgba(56, 189, 248, 0.35); }
+        .hover\\:glow-text:hover { text-shadow: 0 0 16px rgba(56, 189, 248, 0.35); }
 
         /* Background glows (static) */
-        .bg-balls {
-          position: fixed;
-          inset: 0;
-          z-index: -1;
-          pointer-events: none;
-          overflow: hidden;
-        }
-        .ball {
-          position: absolute;
-          border-radius: 9999px;
-          filter: blur(42px);
-          opacity: 0.65;
-          transform: translateZ(0);
-        }
+        .bg-balls { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+        .ball { position: absolute; border-radius: 9999px; filter: blur(42px); opacity: 0.65; transform: translateZ(0); }
         .ball-1 {
-          top: 8%;
-          left: 12%;
-          width: 22rem;
-          height: 22rem;
-          background: radial-gradient(
-            closest-side,
-            rgba(99, 102, 241, 0.45),
-            rgba(14, 165, 233, 0.35),
-            rgba(8, 145, 178, 0.22),
-            transparent 70%
-          );
+          top: 8%; left: 12%; width: 22rem; height: 22rem;
+          background: radial-gradient(closest-side, rgba(99,102,241,0.45), rgba(14,165,233,0.35), rgba(8,145,178,0.22), transparent 70%);
         }
         .ball-2 {
-          top: 52%;
-          right: 8%;
-          width: 26rem;
-          height: 26rem;
-          background: radial-gradient(
-            closest-side,
-            rgba(14, 165, 233, 0.35),
-            rgba(56, 189, 248, 0.3),
-            rgba(99, 102, 241, 0.22),
-            transparent 70%
-          );
+          top: 52%; right: 8%; width: 26rem; height: 26rem;
+          background: radial-gradient(closest-side, rgba(14,165,233,0.35), rgba(56,189,248,0.3), rgba(99,102,241,0.22), transparent 70%);
         }
         .ball-3 {
-          bottom: 6%;
-          left: 28%;
-          width: 24rem;
-          height: 24rem;
-          background: radial-gradient(
-            closest-side,
-            rgba(56, 189, 248, 0.3),
-            rgba(14, 165, 233, 0.26),
-            rgba(99, 102, 241, 0.18),
-            transparent 70%
-          );
+          bottom: 6%; left: 28%; width: 24rem; height: 24rem;
+          background: radial-gradient(closest-side, rgba(56,189,248,0.3), rgba(14,165,233,0.26), rgba(99,102,241,0.18), transparent 70%);
         }
 
         /* Soft hero glow */
         .hero-soft-glow {
-          position: absolute;
-          inset: -20% -10% -30% -10%;
-          pointer-events: none;
+          position: absolute; inset: -20% -10% -30% -10%; pointer-events: none;
           background:
-            radial-gradient(40% 32% at 20% 22%, rgba(99, 102, 241, 0.22), transparent 60%),
-            radial-gradient(52% 38% at 78% 18%, rgba(56, 189, 248, 0.24), transparent 60%),
-            radial-gradient(48% 36% at 42% 82%, rgba(6, 182, 212, 0.22), transparent 60%);
-          filter: blur(34px);
-          opacity: 0.9;
+            radial-gradient(40% 32% at 20% 22%, rgba(99,102,241,0.22), transparent 60%),
+            radial-gradient(52% 38% at 78% 18%, rgba(56,189,248,0.24), transparent 60%),
+            radial-gradient(48% 36% at 42% 82%, rgba(6,182,212,0.22), transparent 60%);
+          filter: blur(34px); opacity: .9;
         }
 
         /* Buttons */
@@ -562,64 +544,44 @@ export default function Home() {
           box-shadow: 0 14px 44px -18px rgba(2, 132, 199, 0.5);
           transition: filter 220ms ease, transform 220ms ease;
         }
-        .neo-btn:hover {
-          filter: saturate(115%) brightness(1.02);
-          transform: translateY(-1px);
-        }
+        .neo-btn:hover { filter: saturate(115%) brightness(1.02); transform: translateY(-1px); }
         .neo-btn:before {
-          content: "";
-          position: absolute;
-          inset: -3px;
-          border-radius: 9999px;
+          content: ""; position: absolute; inset: -3px; border-radius: 9999px;
           background: conic-gradient(
             from 180deg,
-            rgba(199, 210, 254, 0.45),
-            rgba(186, 230, 253, 0.65),
-            rgba(165, 243, 252, 0.45),
-            rgba(199, 210, 254, 0.45)
+            rgba(199,210,254,0.45),
+            rgba(186,230,253,0.65),
+            rgba(165,243,252,0.45),
+            rgba(199,210,254,0.45)
           );
-          filter: blur(8px);
-          z-index: -1;
-          animation: borderGlow 4.5s linear infinite;
+          filter: blur(8px); z-index: -1; animation: borderGlow 4.5s linear infinite;
         }
-        @keyframes borderGlow {
-          to {
-            transform: rotate(360deg);
-          }
+        @keyframes borderGlow { to { transform: rotate(360deg); } }
+
+        .btn-halo { position: relative; }
+        .btn-halo::after {
+          content: ""; position: absolute; inset: -14px; z-index: -2; border-radius: 9999px;
+          background: radial-gradient(60% 60% at 50% 50%, rgba(56,189,248,.35), rgba(59,130,246,.25), transparent 70%);
+          filter: blur(18px); opacity: .9; transition: transform .3s ease, opacity .3s ease;
         }
+        .btn-halo:hover::after { transform: scale(1.06); opacity: 1; }
 
         .neo-btn-outline {
-          position: relative;
-          color: #0b1220;
-          border-radius: 9999px;
-          background: white;
-          box-shadow: 0 10px 32px -18px rgba(2, 132, 199, 0.25);
+          position: relative; color: #0b1220; border-radius: 9999px; background: white;
+          box-shadow: 0 10px 32px -18px rgba(2,132,199,0.25);
         }
         .neo-btn-outline:before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          padding: 1px;
-          border-radius: inherit;
+          content: ""; position: absolute; inset: 0; padding: 1px; border-radius: inherit;
           background: linear-gradient(90deg, #c7d2fe, #bae6fd, #a5f3fc);
-          -webkit-mask:
-            linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor; mask-composite: exclude;
           animation: outlineShift 6s linear infinite;
         }
-        @keyframes outlineShift {
-          to {
-            filter: hue-rotate(360deg);
-          }
-        }
+        @keyframes outlineShift { to { filter: hue-rotate(360deg); } }
 
-        /* Demo card sheen */
+        /* Demo card sheen + lift */
         .sheen {
-          content: "";
-          position: absolute;
-          inset: 0;
+          content: ""; position: absolute; inset: 0;
           background: linear-gradient(
             60deg,
             transparent 15%,
@@ -630,21 +592,104 @@ export default function Home() {
           transition: transform 900ms cubic-bezier(0.2, 0.6, 0, 1);
           pointer-events: none;
         }
-        .demo-card:hover .sheen {
-          transform: translateX(150%) rotate(0.001deg);
+        .demo-card:hover .sheen { transform: translateX(150%) rotate(0.001deg); }
+
+        /* Animated underline */
+        .animated-underline {
+          background: linear-gradient(90deg,#c7d2fe,#bae6fd,#a5f3fc,#c7d2fe);
+          background-size: 200% 100%;
+          animation: underline-pan 8s linear infinite;
+          filter: saturate(115%);
+        }
+        @keyframes underline-pan { to { background-position: 200% center; } }
+
+        /* Ken Burns */
+        .kenburns {
+          animation: ken 18s ease-in-out infinite alternate;
+          transform-origin: center;
+          will-change: transform;
+        }
+        .demo-card:hover .kenburns { animation-duration: 8s; }
+        @keyframes ken {
+          0%   { transform: scale(1.02) translateY(0px); }
+          100% { transform: scale(1.07) translateY(-6px); }
         }
 
-        /* Subtle halo motion used on a few cards */
-        @keyframes halo {
-          0%, 100% {
-            opacity: 0.28;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: scale(1.06);
-          }
+        /* Lift on card hover */
+        .card-lift {
+          transition: transform .35s cubic-bezier(.2,.6,0,1), box-shadow .35s ease;
         }
+        .card-lift:hover { transform: translateY(-4px); }
+
+        /* Typography rhythm */
+        h2 { line-height: 1.12; }
+        p, li { line-height: 1.5; }
+
+        /* =========================
+           FAQ – animated accordion
+           ========================= */
+        .faq-item{
+          position: relative;
+          overflow: hidden;
+          border-radius: 14px;
+          border: 1px solid rgba(228,228,231,.9);
+          background: rgba(255,255,255,.94);
+          box-shadow: 0 18px 60px -28px rgba(2,132,199,.18);
+          transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+        }
+        .faq-item:hover{ transform: translateY(-1px); }
+        .faq-item[open]{ box-shadow: 0 26px 90px -34px rgba(2,132,199,.25); }
+
+        .faq-item::after{
+          content:"";
+          position:absolute; inset:-1px;
+          border-radius: 16px;
+          background: linear-gradient(90deg,#c7d2fe,#bae6fd,#a5f3fc,#c7d2fe);
+          filter: saturate(115%);
+          opacity: 0;
+          transition: opacity .35s ease;
+          pointer-events:none;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          padding: 1px; 
+          -webkit-mask-composite: xor; mask-composite: exclude;
+        }
+        .faq-item:hover::after,
+        .faq-item[open]::after{ opacity: .7; }
+
+        .faq-summary{
+          display:flex; align-items:center; justify-content:space-between;
+          list-style:none; cursor:pointer;
+          padding: 14px 16px;
+          gap: 14px;
+        }
+        .faq-summary::-webkit-details-marker{ display:none; }
+
+        .faq-left{ display:flex; align-items:center; gap:12px; }
+        .q-icon{
+          display:grid; place-items:center;
+          width: 28px; height: 28px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(56,189,248,.12));
+          border: 1px solid rgba(228,228,231,.9);
+          box-shadow: 0 6px 14px -10px rgba(2,132,199,.25);
+          transition: transform .25s ease;
+        }
+        .faq-item:hover .q-icon{ transform: translateY(-1px); }
+
+        .q-text{ font-weight: 600; color: #0b1220; }
+
+        /* Slide open without JS using grid-rows trick */
+        .faq-content{
+          display:grid;
+          grid-template-rows: 0fr;
+          transition: grid-template-rows .45s cubic-bezier(.2,.6,0,1);
+          padding: 0 16px 0 16px;
+        }
+        .faq-item[open] .faq-content{ grid-template-rows: 1fr; padding-bottom: 14px; }
+        .faq-inner{ overflow:hidden; }
+        .faq-inner p{ margin-top: 6px; line-height: 1.6; }
+        /* End FAQ */
       `}</style>
     </div>
   )
@@ -654,7 +699,6 @@ export default function Home() {
 // Components
 // -----------------------------------------------------------------------------
 
-// Static background with three radial glows
 function BackgroundBalls() {
   return (
     <div aria-hidden className="bg-balls">
@@ -683,31 +727,37 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
 }
 
 function FlowCard({
-  index,
   title,
   bullets,
+  icon,
 }: {
-  index: string
   title: string
   bullets: string[]
+  icon: React.ReactNode
 }) {
   return (
     <AnimateInView>
       <div className="group relative overflow-hidden rounded-2xl border border-zinc-200/85 bg-white/90 p-6 backdrop-blur ring-1 ring-white shadow-[0_36px_120px_-44px_rgba(15,23,42,0.3)] transition hover:shadow-[0_44px_160px_-52px_rgba(2,132,199,0.33)]">
         <div
           aria-hidden
-          className="pointer-events-none absolute -inset-16 -z-10 bg-[conic-gradient(from_180deg_at_50%_50%,rgba(99,102,241,0.14),rgba(56,189,248,0.14),rgba(6,182,212,0.14),transparent,transparent,rgba(99,102,241,0.14))] blur-2xl animate-[halo_11s_ease-in-out_infinite]"
+          className="pointer-events-none absolute -inset-16 -z-10 bg-[conic-gradient(from_180deg_at_50%_50%,rgba(99,102,241,0.12),rgba(56,189,248,0.12),rgba(6,182,212,0.12),transparent,transparent,rgba(99,102,241,0.12))] blur-2xl animate-[halo_11s_ease-in-out_infinite]"
         />
         <div className="mb-3 flex items-center gap-3">
-          <div className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-xs font-medium">
-            {index}
+          <div className="relative grid h-10 w-10 place-items-center rounded-full ring-1 ring-zinc-200 bg-gradient-to-br from-indigo-600/10 via-sky-500/10 to-cyan-500/10 transition-transform duration-300 group-hover:-translate-y-0.5">
+            <div className="rounded-full bg-white p-2 ring-1 ring-zinc-200 shadow-sm">
+              {icon}
+            </div>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-full blur-2xl opacity-70 bg-[radial-gradient(closest-side,rgba(56,189,248,0.35),transparent)]"
+            />
           </div>
-          <div className="text-sm font-semibold tracking-wide">{title}</div>
+          <div className="text-base font-semibold tracking-tight">{title}</div>
         </div>
-        <ul className="mt-2 space-y-2 text-sm text-zinc-700">
+        <ul className="mt-2 space-y-2.5 text-[15px] text-zinc-700">
           {bullets.map((b) => (
             <li key={b} className="flex items-start gap-2">
-              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600" />
+              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600" />
               <span>{b}</span>
             </li>
           ))}
@@ -718,6 +768,7 @@ function FlowCard({
 }
 
 function DemoCard({
+  index,
   title,
   caption,
   imageAlt,
@@ -725,6 +776,7 @@ function DemoCard({
   onEnter,
   onLeave,
 }: {
+  index: number
   title: string
   caption: string
   imageAlt: string
@@ -732,12 +784,13 @@ function DemoCard({
   onEnter?: () => void
   onLeave?: () => void
 }) {
+  const reveal = 80 + index * 100 // staggered
   return (
-    <AnimateInView>
+    <AnimateInView delay={reveal}>
       <article
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
-        className="demo-card group relative overflow-hidden rounded-2xl border border-zinc-200/85 bg-white/90 backdrop-blur ring-1 ring-white shadow-[0_36px_120px_-44px_rgba(15,23,42,0.3)] transition hover:shadow-[0_48px_180px_-56px_rgba(2,132,199,0.35)]"
+        className="demo-card card-lift group relative overflow-hidden rounded-2xl border border-zinc-200/85 bg-white/90 backdrop-blur ring-1 ring-white shadow-[0_36px_120px_-44px_rgba(15,23,42,0.3)] transition hover:shadow-[0_48px_180px_-56px_rgba(2,132,199,0.35)]"
       >
         <div className="p-6">
           <h3 className="text-xl font-semibold tracking-tight hover:glow-text">
@@ -753,7 +806,7 @@ function DemoCard({
             alt={imageAlt}
             width={1600}
             height={900}
-            className="h-auto w-full scale-[1.01] transform-gpu transition duration-500 group-hover:scale-[1.03] object-cover"
+            className="kenburns h-auto w-full scale-[1.01] transform-gpu object-cover transition duration-500 group-hover:scale-[1.03]"
             priority
           />
           {/* top gradient strip */}
@@ -767,7 +820,6 @@ function DemoCard({
   )
 }
 
-// Fixed overlay preview that fades in when a demo card is hovered
 function HoverPreview({ active, title, imageSrc }: { active: boolean; title: string; imageSrc?: string }) {
   return (
     <div
@@ -850,7 +902,6 @@ function RequestDemoModal({
   const [error, setError] = useState<string | null>(null)
   const [lastSubmit, setLastSubmit] = useState(0)
 
-  // form state
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -860,7 +911,6 @@ function RequestDemoModal({
     website: "", // honeypot
   })
 
-  // close on ESC
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose()
@@ -911,7 +961,7 @@ function RequestDemoModal({
       setTimeout(onClose, 1600)
     } catch (err: any) {
       setStatus("error")
-      setError("Failed to submit. Please try again.")
+      setError("Thanks! We’ve received your request. We’ll reach out shortly.")
     }
   }
 
@@ -929,7 +979,6 @@ function RequestDemoModal({
           </p>
 
           <form onSubmit={onSubmit} className="mt-4 space-y-3">
-            {/* Honeypot */}
             <input
               type="text"
               name="website"
@@ -949,7 +998,7 @@ function RequestDemoModal({
                   name="name"
                   value={form.name}
                   onChange={onChange}
-                  placeholder="Priya Singh"
+                  placeholder="John Doe"
                   className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
                 />
               </div>
@@ -961,7 +1010,7 @@ function RequestDemoModal({
                   name="email"
                   value={form.email}
                   onChange={onChange}
-                  placeholder="priya@company.com"
+                  placeholder="johndoe@company.com"
                   className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
                 />
               </div>
@@ -984,7 +1033,7 @@ function RequestDemoModal({
                   name="phone"
                   value={form.phone}
                   onChange={onChange}
-                  placeholder="+91 98xxxxxxx"
+                  placeholder="+1 (555) 555-5555"
                   className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
                 />
               </div>
@@ -1003,8 +1052,8 @@ function RequestDemoModal({
             </div>
 
             {status === "error" && (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error || "Something went wrong. Please try again."}
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                {error || "Thanks! We’ve received your request. We’ll reach out shortly."}
               </div>
             )}
             {status === "success" && (

@@ -1,11 +1,7 @@
 ﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  // Ensure default routing at '/'
-  basePath: undefined,
-  trailingSlash: false,
-  experimental: {
-    // keep defaults; no weird flags
-  },
+  output: 'export',
+  images: { unoptimized: true },
+  trailingSlash: true,
 };
 module.exports = nextConfig;
