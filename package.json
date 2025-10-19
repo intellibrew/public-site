@@ -15,6 +15,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-intersection-observer": "^9.13.0",
+    "react-markdown": "^10.1.0",
     "styled-components": "^6.1.12",
     "tailwind": "^4.0.0",
     "tailwind-merge": "^3.3.1",
