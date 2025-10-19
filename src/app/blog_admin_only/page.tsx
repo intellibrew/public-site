@@ -1,14 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { useState, useEffect } from "react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { AnimateInView } from "@/components/AnimateInView"
-import { ArrowRight }  from "lucide-react"
-import { fetchBlogPosts, type BlogPost, type BlogResponse } from "../api_requests/blog"
+import { fetchBlogPosts, type BlogPost } from "../api_requests/blog"
 import { cn } from "@/lib/utils"
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
 
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -128,27 +128,7 @@ export default function Blog() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-200 bg-white py-10">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold tracking-tight text-[1.05rem]">
-                NeoFab <span className="brand-ai">AI</span>
-              </span>
-              <span className="text-sm text-zinc-600">
-                © {new Date().getFullYear()} NeoFab. All rights reserved.
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-zinc-600">
-              <a href="/#flow" className="hover:glow-text">Flow</a>
-              <a href="/#features" className="hover:glow-text">Features</a>
-              <a href="/#faq" className="hover:glow-text">FAQ</a>
-              <a href="/Blog" className="hover:glow-text">Blog</a>
-              <a href="/#contact" className="hover:glow-text">Contact</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

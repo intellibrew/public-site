@@ -1,6 +1,5 @@
 ﻿"use client"
 
-import Link from "next/link"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -20,6 +19,8 @@ import {
 } from "lucide-react"
 import { submitFeedback } from "../app/api_requests/feedback"
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
 
 // -----------------------------------------------------------------------------
 // Feature data
@@ -154,7 +155,7 @@ export default function Home() {
 
       {/* Header */}
       <Header />
-      
+
       {/* Main */}
       <main className="scroll-mt-24">
         {/* Hero */}
@@ -431,26 +432,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-200 bg-white py-10">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold tracking-tight text-[1.05rem]">
-                NeoFab <span className="brand-ai">AI</span>
-              </span>
-              <span className="text-sm text-zinc-600">
-                © {new Date().getFullYear()} NeoFab. All rights reserved.
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-zinc-600">
-              <a href="#flow" className="hover:glow-text">Flow</a>
-              <a href="#features" className="hover:glow-text">Features</a>
-              <a href="#faq" className="hover:glow-text">FAQ</a>
-              <a href="#contact" className="hover:glow-text">Contact</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Inline styles */}
       <style jsx>{`
@@ -918,7 +900,8 @@ function RequestDemoModal({
       setStatus("success")
       setLastSubmit(Date.now())
       setTimeout(onClose, 1600)
-    } catch (err: any) {
+    } catch (err) {
+      console.log(err as Error);
       setStatus("error")
       setError("Thanks! We’ve received your request. We’ll reach out shortly.")
     }

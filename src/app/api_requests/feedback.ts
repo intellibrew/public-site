@@ -27,12 +27,9 @@ export const submitFeedback = async (
 
     // If something unexpected, pass the body back
     return res.data;
-  } catch (err: any) {
-    const msg =
-      err?.response?.data?.error ||
-      err?.response?.data?.detail ||
-      err?.message ||
-      "Unknown error";
-    throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+  } catch (err) {
+    err = err as Error;
+    console.log(err);
+    // throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
   }
 };

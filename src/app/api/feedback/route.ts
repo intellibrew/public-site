@@ -104,7 +104,7 @@ export async function POST(req: Request) {
 
       // Success -> return immediately
       if (res.ok) {
-        let data: any = null;
+        let data = null;
         try {
           data = JSON.parse(text);
         } catch {
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
 
     clearTimeout(timer);
     // Both attempts failed
-    let parsed: any = null;
+    let parsed = null;
     try {
       parsed = lastText ? JSON.parse(lastText) : null;
     } catch {
@@ -137,9 +137,10 @@ export async function POST(req: Request) {
       },
       { status: lastStatus || 502 }
     );
-  } catch (e: any) {
+  } catch (e:unknown) {
+    const err = e as Error;
     clearTimeout(timer);
-    const aborted = e?.name === "AbortError";
+    const aborted = err.name === "AbortError";
     return NextResponse.json(
       { ok: false, error: aborted ? "Upstream timeout" : "Proxy request failed" },
       { status: aborted ? 504 : 502 }
