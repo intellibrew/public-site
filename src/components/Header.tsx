@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Next 13+ App Router
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 
 const navLinks = [
   ["Demo", "#demos"],
@@ -48,12 +46,6 @@ export default function Header() {
                 );
               })}
             </nav>
-
-            <Button asChild className="neo-btn btn-halo">
-              <a href="https://app.neofab.ai/login" target="_blank" rel="noreferrer">
-                Get started <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-            </Button>
           </div>
         </div>
       </div>
