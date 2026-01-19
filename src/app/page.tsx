@@ -169,28 +169,17 @@ export default function Home() {
           >
             {/* soft hero glow */}
             <div className="hero-soft-glow" aria-hidden />
-            <div className="relative mx-auto max-w-[1200px] px-6 py-16 text-center sm:px-10 md:py-24 lg:py-28">
+            <div className="relative mx-auto max-w-[1200px] px-6 py-20 text-center sm:px-10 md:py-32 lg:py-36">
               <AnimateInView delay={30}>
                 <h1 className="glow-header text-[44px] leading-[1.06] font-extrabold tracking-tight sm:text-6xl md:text-7xl bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 bg-clip-text text-transparent">
                   The Future of Manufacturing
                 </h1>
               </AnimateInView>
               <AnimateInView delay={120}>
-                <p className="mx-auto mt-5 max-w-3xl text-lg md:text-xl text-zinc-700">
+                <p className="mx-auto mt-6 max-w-3xl text-lg md:text-xl text-zinc-700 leading-relaxed">
                   From concept to factory floor, NeoFab <span className="font-semibold">AI</span> transforms
                   designs into optimized layouts that power faster, smarter manufacturing.
                 </p>
-              </AnimateInView>
-              <AnimateInView delay={180}>
-                <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <Button variant ="outline" asChild className="neo-btn btn-halo">
-
-                    <a href="https://app.neofab.ai/login" target="_blank" rel="noreferrer">
-                      Get started <ArrowRight className="ml-2 h-4 w-4" />
-                    </a>
-                  </Button>
-                  
-                </div>
               </AnimateInView>
             </div>
           </div>
@@ -853,6 +842,32 @@ function RequestDemoModal({
   })
 
   useEffect(() => {
+    if (!open) {
+      setForm({
+        name: "",
+        email: "",
+        company: "",
+        phone: "",
+        message: "",
+        website: "",
+      })
+      setStatus("idle")
+      setError(null)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [open])
+
+  useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose()
     window.addEventListener("keydown", onKey)
@@ -909,10 +924,30 @@ function RequestDemoModal({
 
   if (!open) return null
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
+  const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation()
+  }
+
   return (
-    <div aria-modal="true" role="dialog" className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-zinc-900/40 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative z-[121] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_40px_140px_-50px_rgba(2,132,199,0.35)]">
+    <div 
+      aria-modal="true" 
+      role="dialog" 
+      className="fixed inset-0 z-[120] flex items-center justify-center p-4"
+    >
+      <div 
+        className="absolute inset-0 bg-zinc-900/40 backdrop-blur-[2px]" 
+        onClick={handleBackdropClick}
+      />
+      <div 
+        className="relative z-[121] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_40px_140px_-50px_rgba(2,132,199,0.35)]"
+        onClick={handleModalClick}
+      >
         <div className="h-1.5 w-full bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600" />
         <div className="p-6">
           <h3 className="text-xl font-semibold tracking-tight">Request a 1:1 demo</h3>
