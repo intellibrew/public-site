@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
@@ -56,17 +56,14 @@ export async function POST(req: Request) {
     );
   }
 
-  // Build upstream body (send both feedback & message keys)
-  const upstreamBody = {
+  // Build upstream body to match FastAPI /user_feedback: name, email, feedback, company?, phone?
+  const upstreamBody: Record<string, unknown> = {
     name,
     email,
     feedback,
-    message: feedback,
-    company,
-    phone,
-    source: "landing",
-    env: process.env.NODE_ENV,
   };
+  if (company !== undefined) upstreamBody.company = company;
+  if (phone !== undefined) upstreamBody.phone = phone;
 
   const headers: Record<string, string> = {
     Accept: "application/json",

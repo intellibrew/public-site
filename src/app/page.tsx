@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -20,6 +20,22 @@ import {
 import { submitFeedback } from "../app/api_requests/feedback"
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ProblemToSolutionTransition } from "@/components/sections/ProblemToSolutionTransition";
+import { IntroducingSection } from "@/components/sections/IntroducingSection";
+import { ProductsSection } from "@/components/sections/ProductsSection";
+import { TeamsSection } from "@/components/sections/TeamsSection";
+import { InActionSection } from "@/components/sections/InActionSection";
+import { UseCasesSection } from "@/components/sections/UseCasesSection";
+import { ClientsSection } from "@/components/sections/ClientsSection";
+import { AboutSection } from "@/components/sections/AboutSection";
+import { FAQSection } from "@/components/sections/FAQSection";
+import { CTASection } from "@/components/sections/CTASection";
+import { SideNav } from "@/components/SideNav";
+import ScrollProgress from "@/components/ScrollProgress";
+import FloatingParticles from "@/components/FloatingParticles";
+import FactoryFlowMap from "@/components/FactoryFlowMap";
+import MovingMeshBackground from "@/components/MovingMeshBackground";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 // -----------------------------------------------------------------------------
@@ -141,280 +157,102 @@ export default function Home() {
   )
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900">
-      {/* Progress bar */}
-      <div className="fixed left-0 right-0 top-0 z-[90] h-1">
-        <div
-          className="h-full w-0 bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 transition-[width] duration-200"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+    <div className="min-h-screen bg-[#080a0f] text-white">
+      {/* Scroll Progress Bar */}
+      <ScrollProgress />
 
-      {/* Static background glows */}
-      <BackgroundBalls />
+      {/* Floating Particles Background */}
+      <FloatingParticles />
 
       {/* Header */}
-      <Header />
+      <Header onBookDemo={() => setDemoOpen(true)} />
+
+      {/* Side Navigation */}
+      <SideNav />
 
       {/* Main */}
-      <main className="scroll-mt-24">
+      <main id="home" className="scroll-mt-24">
         {/* Hero */}
-        <section id="product" className="mx-auto max-w-7xl px-4 pt-6 md:pt-10">
-          <div
-            className={cn(
-              "relative overflow-hidden rounded-[36px] border",
-              "border-zinc-200/80 bg-white/85 backdrop-blur-md",
-              "shadow-[0_60px_160px_-60px_rgba(30,58,138,0.28),0_24px_72px_-36px_rgba(2,132,199,0.26)]"
-            )}
-          >
-            {/* soft hero glow */}
-            <div className="hero-soft-glow" aria-hidden />
-            <div className="relative mx-auto max-w-[1200px] px-6 py-20 text-center sm:px-10 md:py-32 lg:py-36">
-              <AnimateInView delay={30}>
-                <h1 className="glow-header text-[44px] leading-[1.06] font-extrabold tracking-tight sm:text-6xl md:text-7xl bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600 bg-clip-text text-transparent">
-                  The Future of Manufacturing
+        <section
+          id="product"
+          className="relative overflow-hidden min-h-screen"
+        >
+          {/* Background factory image */}
+          <div className="absolute inset-0">
+            <Image
+              src="/factorybackground.png"
+              alt="Factory background"
+              fill
+              priority
+              className="object-cover"
+            />
+            {/* Keep image crisp, bright center, darker corners + subtle site-blue tint */}
+            <div className="absolute inset-0 pointer-events-none">
+              {/* Corner vignettes */}
+              <div className="absolute inset-0 bg-[radial-gradient(1000px_800px_at_0%_0%,rgba(4,7,21,0.8),transparent_60%),radial-gradient(1000px_800px_at_100%_0%,rgba(4,7,21,0.8),transparent_60%),radial-gradient(1200px_900px_at_50%_100%,rgba(4,7,21,0.9),transparent_65%)]" />
+              {/* Soft blue tone over everything, but center stays bright */}
+              <div className="absolute inset-0 bg-[radial-gradient(900px_600px_at_40%_45%,rgba(37,99,235,0.06),transparent_70%),radial-gradient(circle_at_center,rgba(15,23,42,0.15),rgba(15,23,42,0.45))] mix-blend-soft-light" />
+            </div>
+          </div>
+
+          {/* Interactive Factory Flow Map - overlays entire hero (Desktop) */}
+          <div className="hidden lg:block">
+            <FactoryFlowMap />
+          </div>
+
+          <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center px-4 pt-24 pb-24 md:px-8 pointer-events-none">
+            {/* Left: Headline */}
+            <div className="w-full lg:w-[45%] max-w-xl space-y-6 md:pl-0 ml-[-2.5rem] md:ml-[-4.5rem]">
+              <AnimateInView delay={40}>
+                <h1 className="text-[36px] leading-[42px] md:text-[60px] md:leading-[60px] font-bold">
+                  <span
+                    className="block font-orbitron text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.6)]"
+                  >
+                    Generate your
+                    <br />
+                    factory
+                  </span>
+                  <span
+                    className="mt-2 block font-orbitron text-[rgb(0,77,255)] drop-shadow-[0_0_14px_rgba(37,99,235,0.55)]"
+                  >
+                    in hours, not
+                    <br />
+                    weeks
+                  </span>
                 </h1>
               </AnimateInView>
-              <AnimateInView delay={120}>
-                <p className="mx-auto mt-6 max-w-3xl text-lg md:text-xl text-zinc-700 leading-relaxed">
-                  From concept to factory floor, NeoFab <span className="font-semibold">AI</span> transforms
-                  designs into optimized layouts that power faster, smarter manufacturing.
-                </p>
-              </AnimateInView>
-            </div>
-          </div>
-          <div
-            aria-hidden
-            className="mx-auto mt-10 h-48 max-w-6xl rounded-[44px] bg-[radial-gradient(1200px_260px_at_50%_0%,rgba(56,189,248,0.24),transparent_60%)]"
-          />
-        </section>
-
-        {/* Flow — pulled up; icon badges */}
-        <section id="flow" className="mx-auto max-w-7xl px-4 -mt-6 md:-mt-8 pt-4">
-          <AnimateInView>
-            <h2 className="text-center text-3xl md:text-4xl font-bold tracking-tight hover:glow-text">
-              Where Planning Meets Production - Instantly
-            </h2>
-          </AnimateInView>
-
-          <div className="mt-7 md:mt-9 grid gap-5 md:grid-cols-3">
-            <FlowCard
-              title="Input"
-              icon={<Layers className="h-5 w-5 text-sky-600" />}
-              bullets={[
-                "Product specifications",
-                "Facility constraints",
-                "Budget & quality goals",
-                "Target production volumes",
-              ]}
-            />
-            <FlowCard
-              title="Fab Inference"
-              icon={<Network className="h-5 w-5 text-indigo-600" />}
-              bullets={[
-                "Smart workflow design",
-                "AI-driven machine selection",
-                "Optimized layouts for efficiency",
-                "Cost modeling & built-in quality controls",
-              ]}
-            />
-            <FlowCard
-              title="Output"
-              icon={<LineChart className="h-5 w-5 text-cyan-600" />}
-              bullets={[
-                "Ready-to-use factory layout",
-                "Curated machine purchase list",
-                "Vendor matchmaking & instant RFQs",
-                "Compliance packs & project management handoff",
-              ]}
-            />
-          </div>
-        </section>
-
-        {/* ABOUT — simple, no paragraph animations; gradient background behind text */}
-        <section id="about" className="mx-auto max-w-7xl px-4 pt-14 md:pt-18">
-          <div
-            className="
-              relative overflow-hidden rounded-[36px] border
-              border-zinc-200/80 bg-white/85 backdrop-blur-md
-              shadow-[0_60px_160px_-60px_rgba(30,58,138,0.18),0_24px_72px_-36px_rgba(2,132,199,0.16)]
-            "
-          >
-            {/* soft static gradient behind the paragraphs */}
-            <div
-              aria-hidden
-              className="
-                absolute inset-0 -z-10
-                bg-[radial-gradient(700px_300px_at_15%_10%,rgba(99,102,241,0.10),transparent_60%),radial-gradient(800px_320px_at_85%_8%,rgba(56,189,248,0.10),transparent_65%),radial-gradient(700px_280px_at_50%_100%,rgba(6,182,212,0.10),transparent_70%)]
-                blur-[2px]
-              "
-            />
-            <div className="px-6 py-10 md:px-10 md:py-14">
-              <h2 className="text-center text-3xl md:text-4xl font-bold tracking-tight">
-                About NeoFab <span className="brand-ai">AI</span>
-              </h2>
-              <div
-                aria-hidden
-                className="mx-auto mt-3 h-1.5 w-28 md:w-40 rounded-full bg-gradient-to-r from-indigo-200 via-sky-200 to-cyan-200"
-              />
-              <div className="mx-auto mt-8 max-w-4xl text-zinc-700 text-lg md:text-xl leading-[1.75] space-y-5">
-                <p>
-                  NeoFabAI is an end-to-end software solution for modern manufacturers looking to scale
-                  quickly and efficiently. Founded by three entrepreneurs with backgrounds in engineering,
-                  AI and management, NeoFabAI represents a revolution in manufacturing planning and execution.
-                </p>
-                <p>
-                  Our platform allows companies to upload their designs and drawings to instantly generate
-                  full-scale factory layouts and detailed execution plans. This innovation reduces the time
-                  and cost of scaling production, making it a game-changer for startups and established
-                  manufacturers alike.
-                </p>
-                <p>
-                  What sets NeoFabAI apart is its comprehensive approach - we support manufacturers from start
-                  to finish with plans, suppliers, layouts and even become the Manufacturing Execution System
-                  (MES) once the factory is operational, creating a continuous improvement cycle.
-                </p>
-                <p className="font-semibold text-[#203a43]">
-                  What a team of 5 would take 4 weeks to accomplish, NeoFabAI can deliver in just 30 minutes -
-                  with higher precision and greater detail.
-                </p>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Demo cards + hover preview */}
-        <section
-          id="demos"
-          className="mx-auto max-w-7xl px-4 pt-20 md:pt-24 pb-6 scroll-mt-28"
-        >
-          <AnimateInView>
-            <h2 className="text-center text-3xl md:text-4xl font-bold tracking-tight hover:glow-text">
-              See NeoFab in Action
-            </h2>
-          </AnimateInView>
-          <div aria-hidden className="mx-auto mt-3 h-1.5 w-40 md:w-56 rounded-full animated-underline" />
-          <AnimateInView delay={80}>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-zinc-600">
-              Three moments that collapse months of planning into minutes.
-            </p>
-          </AnimateInView>
+        {/* Problem section with zoom-through transition */}
+        <ProblemToSolutionTransition />
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {DEMOS.map((d, i) => (
-              <DemoCard
-                key={d.title}
-                index={i}
-                title={d.title}
-                caption={d.caption}
-                imageAlt={d.alt}
-                imageSrc={d.image}
-                onEnter={() => onDemoEnter(i)}
-                onLeave={onDemoLeave}
-              />
-            ))}
-          </div>
+        {/* Introducing section */}
+        <IntroducingSection />
 
-          <HoverPreview
-            active={hoveredDemo !== null}
-            title={hoveredDemo !== null ? DEMOS[hoveredDemo].title : ""}
-            imageSrc={hoveredDemo !== null ? DEMOS[hoveredDemo].image : undefined}
-          />
-        </section>
+        {/* Products section */}
+        <ProductsSection />
 
-        {/* Features */}
-        <section
-          id="features"
-          className="relative mx-auto max-w-7xl px-4 py-24 scroll-mt-28"
-        >
-          <div aria-hidden className="absolute inset-0 -z-10 grid place-items-center">
-            <div className="h-[46rem] w-[46rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.22),rgba(56,189,248,0.2),transparent)] blur-3xl" />
-          </div>
+        {/* Teams section */}
+        <TeamsSection onBookDemo={() => setDemoOpen(true)} />
 
-          <SectionHeader
-            eyebrow="Why NeoFab"
-            title="Innovations That Power the Factory of Tomorrow"
-          />
+        {/* In Action section */}
+        <InActionSection />
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f, i) => (
-              <FeatureCard key={f.title} item={f} index={i} />
-            ))}
-          </div>
-        </section>
+        {/* Use Cases section */}
+        <UseCasesSection />
 
-        {/* FAQ (upgraded animated accordion) */}
-        <section id="faq" className="py-24 bg-[linear-gradient(180deg,#F6FAFF_0%,#FFFFFF_100%)]">
-          <div className="mx-auto max-w-4xl px-4">
-            {/* 🔁 Updated heading text here */}
-            <SectionHeader eyebrow="FAQ" title="Your questions, answered" />
+        {/* Clients section */}
+        <ClientsSection />
 
-            <div className="mt-8 space-y-4">
-              {[
-                {
-                  q: "How accurate are the layouts NeoFab generates?",
-                  a: "Layouts are based on CAD inputs, OEM datasheets, and verified supplier data. Every output is traceable and benchmarked against industry standards.",
-                },
-                {
-                  q: "Can NeoFab optimize an existing factory setup?",
-                  a: "Yes. Upload your current layouts or machine lists, and NeoFab will suggest workflow improvements, utilization boosts, and alternate configurations.",
-                },
-                {
-                  q: "How much time does it save compared to traditional planning?",
-                  a: "Factory setups that normally take 12–18 months can be completed in 3–6 months. Layout generation drops from weeks to under an hour.",
-                },
-                {
-                  q: "What kind of products or industries does NeoFab support?",
-                  a: "NeoFab is industry-agnostic and works across electronics, batteries, automotive, and other manufacturing verticals.",
-                },
-                {
-                  q: "How does NeoFab help reduce costs?",
-                  a: "By automating planning, vendor selection, and layout optimization, companies cut setup costs by up to 50%.",
-                },
-              ].map((f, i) => (
-                <details key={i} className="faq-item group">
-                  <summary className="faq-summary">
-                    <span className="faq-left">
-                      <span className="q-icon">
-                        <HelpCircle className="h-4 w-4 text-sky-700/80" />
-                      </span>
-                      <span className="q-text">{f.q}</span>
-                    </span>
-
-                    {/* ✅ Tailwind-only icon swap (no custom CSS needed) */}
-                    <span className="relative grid h-6 w-6 place-items-center">
-                      <PlusCircle className="h-5 w-5 text-sky-600 transition-all duration-300 group-open:opacity-0 group-open:scale-75" />
-                      <MinusCircle className="absolute h-5 w-5 text-sky-600 opacity-0 scale-75 transition-all duration-300 group-open:opacity-100 group-open:scale-100" />
-                    </span>
-                  </summary>
-
-                  <div className="faq-content">
-                    <div className="faq-inner">
-                      <p className="text-zinc-600">{f.a}</p>
-                    </div>
-                  </div>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section id="contact" className="mx-auto max-w-7xl px-4 py-24">
-          <div className="rounded-2xl border border-zinc-200 bg-gradient-to-br from-white to-[#F7FAFF] p-10 text-center shadow-[0_24px_80px_-32px_rgba(15,23,42,0.25)]">
-            <h3 className="text-3xl font-bold tracking-tight hover:glow-text">
-              Build your factory faster
-            </h3>
-            <p className="mx-auto mt-3 max-w-2xl text-zinc-600">
-              Join teams using NeoFab to scale production with confidence. No
-              more scattered PDFs or guesswork.
-            </p>
-            <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button className="neo-btn" onClick={() => setDemoOpen(true)}>Request a demo</Button>
-              
-            </div>
-          </div>
-        </section>
+        {/* About, FAQ & Contact - single container with moving background */}
+        <div className="relative bg-[#080a0f] overflow-hidden">
+          <MovingMeshBackground />
+          <AboutSection />
+          <FAQSection />
+          <CTASection onBookDemo={() => setDemoOpen(true)} />
+        </div>
 
         {/* Demo request modal */}
         <RequestDemoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
@@ -550,6 +388,141 @@ export default function Home() {
           transition: transform .35s cubic-bezier(.2,.6,0,1), box-shadow .35s ease;
         }
         .card-lift:hover { transform: translateY(-4px); }
+
+        /* Problem graph (right side of "Problem" section) */
+        .problem-node {
+          position: absolute;
+          padding: 0.25rem 0.7rem;
+          border-radius: 999px;
+          font-size: 0.68rem;
+          letter-spacing: 0.04em;
+          text-transform: none;
+          background: radial-gradient(circle at 0% 0%, rgba(15,23,42,0.9), rgba(15,23,42,0.95));
+          color: rgba(248,250,252,0.9);
+          border: 1px solid rgba(248,113,113,0.22);
+          box-shadow:
+            0 0 0 1px rgba(15,23,42,0.9),
+            0 14px 40px -24px rgba(15,23,42,1);
+        }
+
+        .problem-center {
+          position: absolute;
+          top: 54%;
+          left: 50%;
+          width: 54px;
+          height: 54px;
+          transform: translate(-50%, -50%);
+          border-radius: 999px;
+          border: 1px dashed rgba(248,113,113,0.6);
+          background: radial-gradient(circle at 50% 50%, rgba(127,29,29,0.7), transparent 70%);
+          display: grid;
+          place-items: center;
+          box-shadow: 0 0 40px rgba(248,113,113,0.45);
+        }
+
+        .problem-center span {
+          font-size: 1.4rem;
+          color: rgba(254,202,202,0.95);
+        }
+
+        .problem-line {
+          position: absolute;
+          border-top: 1px dotted rgba(248,113,113,0.6);
+          transform-origin: left center;
+        }
+
+        .problem-line-a {
+          top: 52px;
+          left: 68px;
+          width: 46%;
+          transform: rotate(11deg);
+        }
+
+        .problem-line-b {
+          top: 52px;
+          right: 70px;
+          width: 46%;
+          transform-origin: right center;
+          transform: rotate(-11deg);
+        }
+
+        .problem-line-c {
+          top: 138px;
+          left: 70px;
+          width: 38%;
+          transform: rotate(-12deg);
+        }
+
+        .problem-line-d {
+          top: 138px;
+          right: 70px;
+          width: 38%;
+          transform-origin: right center;
+          transform: rotate(12deg);
+        }
+
+        .problem-dot {
+          position: absolute;
+          width: 9px;
+          height: 9px;
+          border-radius: 999px;
+          background: #fb7185;
+          box-shadow: 0 0 14px rgba(248,113,113,0.85);
+          animation: problemDot 6s ease-in-out infinite;
+        }
+
+        @keyframes problemDot {
+          0% {
+            top: 54px;
+            left: 86px;
+          }
+          25% {
+            top: 75px;
+            left: 52%;
+          }
+          50% {
+            top: 148px;
+            right: 88px;
+          }
+          75% {
+            top: 148px;
+            left: 86px;
+          }
+          100% {
+            top: 54px;
+            left: 86px;
+          }
+        }
+
+        /* Animated headline ring */
+        .problem-heading-orbit {
+          position: absolute;
+          inset: 0;
+          margin: auto;
+          width: 230px;
+          height: 230px;
+          opacity: 0.8;
+          filter: drop-shadow(0 0 18px rgba(248,113,113,0.45));
+          transform-origin: 50% 50%;
+          transform-box: fill-box;
+          animation: problemHeadingSpin 26s linear infinite;
+        }
+
+        .problem-heading-text {
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+            "Inter", sans-serif;
+          font-size: 8px;
+          letter-spacing: 0.32em;
+          text-transform: uppercase;
+          fill: rgba(254,202,202,0.85);
+          dominant-baseline: middle;
+        }
+
+        @keyframes problemHeadingSpin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
 
         /* Typography rhythm */
         h2 { line-height: 1.12; }
@@ -922,143 +895,168 @@ function RequestDemoModal({
     }
   }
 
-  if (!open) return null
-
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose()
-    }
+    if (e.target === e.currentTarget) onClose()
   }
-
-  const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-  }
+  const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()
 
   return (
-    <div 
-      aria-modal="true" 
-      role="dialog" 
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4"
-    >
-      <div 
-        className="absolute inset-0 bg-zinc-900/40 backdrop-blur-[2px]" 
-        onClick={handleBackdropClick}
-      />
-      <div 
-        className="relative z-[121] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_40px_140px_-50px_rgba(2,132,199,0.35)]"
-        onClick={handleModalClick}
-      >
-        <div className="h-1.5 w-full bg-gradient-to-r from-indigo-600 via-sky-600 to-cyan-600" />
-        <div className="p-6">
-          <h3 className="text-xl font-semibold tracking-tight">Request a 1:1 demo</h3>
-          <p className="mt-1 text-sm text-zinc-600">
-            Tell us a bit about you. We’ll reach out with a personalized demo.
-          </p>
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          aria-modal="true"
+          role="dialog"
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4"
+        >
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handleBackdropClick}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-blue-500/30 bg-[#0c1220] shadow-[0_0_60px_rgba(59,130,246,0.15),0_0_100px_rgba(59,130,246,0.08)]"
+            onClick={handleModalClick}
+          >
+            {/* Top accent */}
+            <div className="h-1 w-full shrink-0 rounded-t-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500" />
+            <div className="flex flex-col flex-1 min-h-0 p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-semibold font-orbitron tracking-tight text-white">
+                    Request a 1:1 demo
+                  </h3>
+                  <p className="mt-1 text-sm text-slate-400">
+                    Tell us a bit about you. We’ll reach out with a personalized demo.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="shrink-0 rounded-full p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-          <form onSubmit={onSubmit} className="mt-4 space-y-3">
-            <input
-              type="text"
-              name="website"
-              value={form.website}
-              onChange={onChange}
-              className="hidden"
-              tabIndex={-1}
-              aria-hidden="true"
-              autoComplete="off"
-            />
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium">Full name *</label>
+              <form onSubmit={onSubmit} className="mt-4 flex flex-col flex-1 min-h-0">
                 <input
-                  required
-                  name="name"
-                  value={form.name}
+                  type="text"
+                  name="website"
+                  value={form.website}
                   onChange={onChange}
-                  placeholder="John Doe"
-                  className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                  className="hidden"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  autoComplete="off"
                 />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Work email *</label>
-                <input
-                  required
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={onChange}
-                  placeholder="johndoe@company.com"
-                  className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-                />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium">Company</label>
-                <input
-                  name="company"
-                  value={form.company}
-                  onChange={onChange}
-                  placeholder="Acme Manufacturing"
-                  className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Phone</label>
-                <input
-                  name="phone"
-                  value={form.phone}
-                  onChange={onChange}
-                  placeholder="+1 (555) 555-5555"
-                  className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-                />
-              </div>
-            </div>
+                <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium text-slate-300">Full name *</label>
+                      <input
+                        required
+                        name="name"
+                        value={form.name}
+                        onChange={onChange}
+                        placeholder="John Doe"
+                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-slate-300">Work email *</label>
+                      <input
+                        required
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={onChange}
+                        placeholder="johndoe@company.com"
+                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                      />
+                    </div>
+                  </div>
 
-            <div>
-              <label className="text-sm font-medium">What do you want to see? *</label>
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={onChange}
-                rows={4}
-                placeholder="Share goals, current tools, timelines…"
-                className="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-400"
-              />
-            </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium text-slate-300">Company</label>
+                      <input
+                        name="company"
+                        value={form.company}
+                        onChange={onChange}
+                        placeholder="Acme Manufacturing"
+                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-slate-300">Phone</label>
+                      <input
+                        name="phone"
+                        value={form.phone}
+                        onChange={onChange}
+                        placeholder="+1 (555) 555-5555"
+                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                      />
+                    </div>
+                  </div>
 
-            {status === "error" && (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                {error || "Thanks! We’ve received your request. We’ll reach out shortly."}
-              </div>
-            )}
-            {status === "success" && (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                Thanks! We’ve received your request. We’ll reach out shortly.
-              </div>
-            )}
+                  <div>
+                    <label className="text-sm font-medium text-slate-300">What do you want to see? *</label>
+                    <textarea
+                      name="message"
+                      value={form.message}
+                      onChange={onChange}
+                      rows={4}
+                      placeholder="Share goals, current tools, timelines…"
+                      className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50 resize-none"
+                    />
+                  </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="neo-btn-outline rounded-full px-4 py-2 text-sm"
-                disabled={status === "submitting"}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="neo-btn rounded-full px-5 py-2 text-sm"
-                disabled={status === "submitting" || status === "success"}
-              >
-                {status === "submitting" ? "Submitting…" : "Submit"}
-              </button>
+                  {status === "error" && (
+                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-200">
+                      {error}
+                    </div>
+                  )}
+                  {status === "success" && (
+                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200">
+                      Thanks! We’ve received your request. We’ll reach out shortly.
+                    </div>
+                  )}
+                </div>
+
+                {/* Buttons - always visible at bottom */}
+                <div className="flex items-center justify-end gap-3 pt-5 mt-4 shrink-0 border-t border-blue-500/20">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="rounded-full px-5 py-2.5 text-sm font-medium border border-blue-500/50 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] disabled:opacity-50"
+                    disabled={status === "submitting"}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220]"
+                    disabled={status === "submitting" || status === "success"}
+                  >
+                    <span>{status === "submitting" ? "Submitting…" : "Submit"}</span>
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
