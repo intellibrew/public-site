@@ -2,9 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================================================
-   LENIS SMOOTH SCROLL
-   ============================================================================ */
+
 html.lenis, html.lenis body {
   height: auto;
 }
@@ -25,7 +23,7 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
-/* Hide scrollbar while keeping scroll functionality */
+  /* Hide scrollbar while keeping scroll functionality */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -95,7 +93,6 @@ html.lenis, html.lenis body {
 
 @layer base {
   :root {
-    /* Dark site background: #080a0f (rgb(8, 10, 15)) */
     --background: 220 28% 5%;
     --foreground: 210 40% 98%;
 
@@ -142,7 +139,6 @@ html.lenis, html.lenis body {
   }
 }
 
-/* Moving mesh background - Serval-style animations */
 @keyframes meshMove {
   0% { background-position: 0% 0%; }
   25% { background-position: 25% 15%; }
@@ -168,7 +164,6 @@ html.lenis, html.lenis body {
   50% { transform: translate(-48%, -52%) scale(1.1); }
 }
 
-/* Font utility classes for Next font variables */
 .font-orbitron {
   font-family: var(--font-orbitron), system-ui, sans-serif;
 }
@@ -177,7 +172,6 @@ html.lenis, html.lenis body {
   font-family: var(--font-montserrat), system-ui, sans-serif;
 }
 
-/* Header-only glow for "AI" text */
 .brand-ai-header {
   background-image: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
   -webkit-background-clip: text;
@@ -188,11 +182,7 @@ html.lenis, html.lenis body {
     0 0 6px rgba(96, 165, 250, 0.85);
 }
 
-/* ============================================================================
-   SHINY BUTTON - Serval-style gradient border + shimmer (NeoFab Blue Theme)
-   ============================================================================ */
 
-/* Required for animating --gradient-angle in keyframes */
 @property --gradient-angle {
   syntax: "<angle>";
   initial-value: 0deg;
@@ -212,10 +202,8 @@ html.lenis, html.lenis body {
   50% { scale: 1.05; }
 }
 
-/* Shiny button base - nav & CTA */
 .nav-demo-btn,
 .btn-cta-large {
-  /* NeoFab color tokens */
   --shiny-cta-bg: #0f172a;
   --shiny-cta-bg-subtle: #1e3a5f;
   --shiny-cta-fg: #ffffff;
@@ -278,7 +266,6 @@ html.lenis, html.lenis body {
   font-size: 0.9375rem;
 }
 
-/* Shine layer - conic mask */
 .nav-demo-btn::before,
 .btn-cta-large::before {
   content: "";
@@ -307,7 +294,6 @@ html.lenis, html.lenis body {
   transform: translateZ(0);
 }
 
-/* Rotating shimmer overlay */
 .nav-demo-btn::after,
 .btn-cta-large::after {
   content: "";
@@ -358,7 +344,6 @@ html.lenis, html.lenis body {
   animation: calc(var(--shiny-duration) * 1.5) shiny-breathe linear infinite;
 }
 
-/* Hover - brighter border, offset angle */
 .nav-demo-btn:hover,
 .btn-cta-large:hover {
   --gradient-percent: 20%;
@@ -438,9 +423,7 @@ html.lenis, html.lenis body {
   }
 }
 
-/* Shiny badge - same design, smaller, non-clickable (for Introducing, FAQ, Our Products) */
 .shiny-badge {
-  /* Same tokens as nav-demo-btn */
   --shiny-cta-bg: #0f172a;
   --shiny-cta-bg-subtle: #1e3a5f;
   --shiny-cta-fg: #93c5fd;
@@ -656,12 +639,10 @@ html.lenis, html.lenis body {
     inset 0 0 0 1px rgba(248, 113, 113, 0.25);
 }
 
-/* Shiny button - static/non-clickable (same look, no link/button behavior) */
 .shiny-button-static {
   cursor: default;
 }
 
-/* Secondary/Ghost Button */
 .btn-secondary {
   position: relative;
   display: inline-flex;
@@ -698,7 +679,6 @@ html.lenis, html.lenis body {
   transform: translateY(0) scale(0.98);
 }
 
-/* Animated arrow icon inside buttons */
 .btn-arrow {
   transition: transform 0.35s var(--ease-out-back);
 }
@@ -714,7 +694,6 @@ html.lenis, html.lenis body {
   transition: transform 0.1s ease;
 }
 
-/* Organic breathing pulse - slightly randomized with animation-delay variations */
 @keyframes ctaBreath {
   0%, 100% {
     box-shadow:
@@ -747,7 +726,6 @@ html.lenis, html.lenis body {
     ctaGlow 4s ease-in-out infinite;
 }
 
-/* Different buttons get slightly offset timing for organic feel */
 .btn-pulse:nth-child(2n) {
   animation-delay: 0.5s;
 }
@@ -760,6 +738,20 @@ html.lenis, html.lenis body {
   animation: none;
 }
 
+@keyframes flowCardGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2), 0 0 40px rgba(59, 130, 246, 0.06);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35), 0 0 48px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.flow-card {
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.97) 0%, rgba(8, 12, 24, 0.98) 50%, rgba(4, 7, 21, 0.97) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  animation: flowCardGlow 4s ease-in-out infinite;
+}
 
 /* Smooth section reveals fallback (AnimateInView enhances) */
 .reveal {
@@ -979,7 +971,6 @@ html.lenis, html.lenis body {
   transform: scale(1);
 }
 
-/* Staggered children animation */
 .stagger-children > * {
   opacity: 0;
   transform: translateY(20px);
@@ -1021,7 +1012,6 @@ html.lenis, html.lenis body {
   animation: float 4s ease-in-out infinite;
 }
 
-/* Shimmer effect for buttons and cards */
 @keyframes shimmer {
   0% {
     background-position: -200% center;
@@ -1042,7 +1032,6 @@ html.lenis, html.lenis body {
   animation: shimmer 3s ease-in-out infinite;
 }
 
-/* Text gradient animation */
 @keyframes gradient-shift {
   0%, 100% {
     background-position: 0% 50%;
@@ -1068,7 +1057,6 @@ html.lenis, html.lenis body {
   animation: gradient-shift 4s ease-in-out infinite;
 }
 
-/* Smooth hover lift */
 .hover-lift {
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1098,11 +1086,7 @@ html.lenis, html.lenis body {
   animation: border-glow 3s ease-in-out infinite;
 }
 
-/* ============================================================================
-   PREMIUM BACKGROUND EFFECTS
-   ============================================================================ */
 
-/* Animated mesh gradient */
 @keyframes mesh-move {
   0%, 100% {
     background-position: 0% 50%;
@@ -1124,7 +1108,6 @@ html.lenis, html.lenis body {
   animation: mesh-move 20s ease infinite;
 }
 
-/* Glowing dot grid */
 @keyframes dot-pulse {
   0%, 100% {
     opacity: 0.3;
@@ -1141,7 +1124,6 @@ html.lenis, html.lenis body {
   background-size: 40px 40px;
 }
 
-/* Aurora sweep animation */
 @keyframes aurora-sweep {
   0% {
     transform: translateX(-100%) rotate(-5deg);

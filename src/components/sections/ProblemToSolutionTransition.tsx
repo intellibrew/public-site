@@ -27,14 +27,14 @@ export function ProblemToSolutionTransition() {
   const blueOverlayOpacity = useTransform(scrollYProgress, [0.35, 0.5, 0.65], [0, 0.95, 0]);
 
   return (
-    <div ref={containerRef} className="relative h-[150vh]">
-      <div className="sticky top-0 h-screen overflow-hidden">
+    <div ref={containerRef} className="relative h-[100vh] overflow-x-hidden">
+      <div className="sticky top-0 h-screen overflow-x-hidden">
         <section
           id="problem"
-          className="relative h-full bg-[#080a0f] border-t border-white/5"
+          className="relative h-full w-full bg-[#080a0f] border-t border-white/5 overflow-x-hidden"
         >
           <motion.div 
-            className="relative z-10 mx-auto flex max-w-7xl h-full flex-col gap-10 px-6 py-20 md:flex-row md:items-center md:px-10 origin-center"
+            className="relative z-10 mx-auto flex max-w-7xl w-full h-full flex-col gap-10 px-4 py-16 md:flex-row md:items-center md:px-10 md:py-20 origin-center box-border"
             style={{ 
               opacity: contentOpacity, 
               y: contentY,
@@ -97,7 +97,7 @@ export function ProblemToSolutionTransition() {
               </AnimateInView>
             </div>
 
-            <div className="flex-1 flex items-center justify-center relative">
+            <div className="flex-1 flex items-center justify-center relative min-w-0 w-full max-w-full overflow-hidden">
               <AdvancedFactoryAnimation />
             </div>
           </motion.div>

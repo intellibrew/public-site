@@ -18,7 +18,7 @@ const outputs = [
 
 export function IntroducingSection() {
   return (
-    <section id="solution" className="relative bg-[#080a0f] py-24 overflow-hidden">
+    <section id="solution" className="relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden">
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -64,11 +64,93 @@ export function IntroducingSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.3 }}
+          className="hidden md:block"
         >
           <FlowDiagram />
         </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="md:hidden"
+        >
+          <FlowDiagramMobile />
+        </motion.div>
       </div>
     </section>
+  );
+}
+
+function FlowDiagramMobile() {
+  return (
+    <div
+      className="mx-auto rounded-2xl border border-blue-500/25 overflow-hidden w-full max-w-full"
+      style={{
+        background: "linear-gradient(180deg, rgba(10,15,30,0.55) 0%, rgba(5,10,20,0.9) 100%)",
+        boxShadow: "0 0 40px rgba(59,130,246,0.08), inset 0 1px 0 rgba(255,255,255,0.02)",
+      }}
+    >
+      <div className="p-5 flex flex-col items-center gap-6">
+        <div className="w-full text-left space-y-3">
+          <p className="text-[10px] font-orbitron tracking-widest text-slate-500 uppercase mb-3">
+            Inputs
+          </p>
+          <div className="grid grid-cols-3 gap-2.5">
+            {inputs.map((input) => (
+              <button
+                key={input.label}
+                type="button"
+                className="w-full rounded-full border border-slate-500/50 bg-slate-900/80 px-4 py-2.5 text-[13px] font-orbitron text-slate-300 tracking-wide text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+                title={input.tooltip}
+              >
+                {input.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Line Model connector */}
+        <div className="relative w-full flex flex-col items-center gap-3 py-1">
+          <div className="border-l border-dashed border-blue-500/30 h-8 w-0" />
+          <button
+            type="button"
+            className="rounded-full border-2 border-blue-400/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+            style={{
+              background: "linear-gradient(180deg, rgba(45,90,180,0.95) 0%, rgba(30,60,120,0.98) 100%)",
+              boxShadow: "0 0 32px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
+            }}
+          >
+            <span className="text-[14px] font-orbitron text-blue-50 tracking-wider">
+              Line Model
+            </span>
+          </button>
+          <div className="border-l border-dashed border-blue-500/30 h-8 w-0" />
+        </div>
+
+        <div className="w-full text-left space-y-3">
+          <p className="text-[10px] font-orbitron tracking-widest text-blue-400 uppercase mb-3">
+            Outputs
+          </p>
+          <div className="flex flex-wrap gap-2.5 justify-start">
+            {outputs.map((output) => (
+              <button
+                key={output.label}
+                type="button"
+                className={
+                  "rounded-full border border-blue-500/40 bg-blue-950/60 px-4 py-2.5 text-[12px] font-orbitron text-blue-200 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]" +
+                  (output.label === "CAPEX/OPEX" ? " mr-3" : "") +
+                  (output.label === "Simulation" ? " ml-3" : "")
+                }
+                title={output.tooltip}
+              >
+                {output.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -14,6 +14,19 @@ interface Station {
   status: "optimal" | "bottleneck" | "normal";
 }
 
+const CENTER_X = 70;
+const CENTER_Y = 45;
+const SPACING_SCALE = 1.06;
+
+function transformCoords(x: number, y: number): { x: number; y: number } {
+  const centeredX = x - CENTER_X + 50;
+  const centeredY = y - CENTER_Y + 50;
+  return {
+    x: 50 + (centeredX - 50) * SPACING_SCALE,
+    y: 50 + (centeredY - 50) * SPACING_SCALE,
+  };
+}
+
 const stations: Station[] = [
   { id: "1", x: 48, y: 25, name: "Material Receiving", cycleTime: "60s", automation: "Semi-auto", handling: "AGV", status: "normal" },
   { id: "2", x: 60, y: 25, name: "Blanking Press", cycleTime: "45s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
@@ -49,13 +62,19 @@ export default function FactoryFlowMap() {
   const [active, setActive] = useState<Station | null>(null);
 
   const buildPath = () => {
-    let d = `M ${stations[0].x} ${stations[0].y}`;
+    const t0 = transformCoords(stations[0].x, stations[0].y);
+    let d = `M ${t0.x} ${t0.y}`;
     for (let i = 1; i < stations.length; i++) {
       const prev = stations[i - 1];
       const curr = stations[i];
-      if (prev.y === curr.y) d += ` L ${curr.x} ${curr.y}`;
-      else if (prev.x === curr.x) d += ` L ${curr.x} ${curr.y}`;
-      else d += ` L ${prev.x} ${curr.y} L ${curr.x} ${curr.y}`;
+      const tp = transformCoords(prev.x, prev.y);
+      const tc = transformCoords(curr.x, curr.y);
+      if (prev.y === curr.y) d += ` L ${tc.x} ${tc.y}`;
+      else if (prev.x === curr.x) d += ` L ${tc.x} ${tc.y}`;
+      else {
+        const mid = transformCoords(prev.x, curr.y);
+        d += ` L ${mid.x} ${mid.y} L ${tc.x} ${tc.y}`;
+      }
     }
     return d;
   };
@@ -63,32 +82,51 @@ export default function FactoryFlowMap() {
   const pathD = buildPath();
 
   const getTooltipStyle = (station: Station): React.CSSProperties => {
-    const top = station.y > 50 ? station.y - 18 : station.y + 8;
-    if (station.x > 82) {
-      return { right: "1rem", left: "auto", top: `${top}%`, transform: "translate(0, -50%)" };
+    const t = transformCoords(station.x, station.y);
+    const top = t.y > 50 ? t.y - 18 : t.y + 8;
+    const maxWidth = "calc(100% - 1rem)";
+
+    // Mobile-only clamping so tooltips never go off screen
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    if (isMobile) {
+      // On small screens, keep tooltip close to node but clamped firmly to edges
+      if (t.x >= 55) {
+        return {
+          right: "0.5rem",
+          left: "auto",
+          top: `${top}%`,
+          transform: "translate(0, -50%)",
+          maxWidth,
+        };
+      }
+      if (t.x <= 45) {
+        return {
+          left: "0.5rem",
+          top: `${top}%`,
+          transform: "translate(0, -50%)",
+          maxWidth,
+        };
+      }
+      return {
+        left: `${t.x}%`,
+        top: `${top}%`,
+        transform: "translate(-50%, -50%)",
+        maxWidth,
+      };
     }
-    let transform = "translate(-50%, 0)";
-    if (station.x < 54) transform = "translate(-8%, 0)";
-    return { left: `${station.x}%`, top: `${top}%`, transform };
+
+    // Desktop behavior (unchanged)
+    if (t.x > 82) {
+      return { right: "0.5rem", left: "auto", top: `${top}%`, transform: "translate(0, -50%)", maxWidth };
+    }
+    if (t.x < 18) {
+      return { left: "0.5rem", top: `${top}%`, transform: "translate(0, -50%)", maxWidth };
+    }
+    return { left: `${t.x}%`, top: `${top}%`, transform: "translate(-50%, -50%)", maxWidth };
   };
 
   return (
     <div className="absolute inset-0 z-20 overflow-hidden">
-      <AnimatePresence>
-        {active && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: `radial-gradient(ellipse 320px 240px at ${active.x}% ${active.y}%, transparent 0%, rgba(2,6,14,0.82) 100%)`,
-            }}
-          />
-        )}
-      </AnimatePresence>
-
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         viewBox="0 0 100 100"
@@ -149,13 +187,14 @@ export default function FactoryFlowMap() {
       {stations.map((station) => {
         const style = STATUS_STYLES[station.status];
         const isActive = active?.id === station.id;
+        const t = transformCoords(station.x, station.y);
 
         return (
           <motion.button
             key={station.id}
             type="button"
             className="absolute cursor-pointer touch-manipulation rounded-full border-0 p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#02060e]"
-            style={{ left: `${station.x}%`, top: `${station.y}%` }}
+            style={{ left: `${t.x}%`, top: `${t.y}%` }}
             onMouseEnter={() => setActive(station)}
             onMouseLeave={() => setActive(null)}
             onFocus={() => setActive(station)}
@@ -216,7 +255,7 @@ export default function FactoryFlowMap() {
             style={getTooltipStyle(active)}
           >
             <div
-              className="px-4 py-3 rounded-xl min-w-[200px] border border-slate-700/80"
+              className="px-4 py-3 rounded-xl min-w-[160px] max-w-full border border-slate-700/80"
               style={{
                 background: "rgba(15,23,42,0.96)",
                 boxShadow: `0 0 0 1px rgba(255,255,255,0.06), 0 24px 48px rgba(0,0,0,0.4), 0 0 32px ${STATUS_STYLES[active.status].main}18`,

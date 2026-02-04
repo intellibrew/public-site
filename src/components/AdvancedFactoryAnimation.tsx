@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const dataNodes = [
@@ -11,13 +11,37 @@ const dataNodes = [
   { label: "Spreadsheets", tooltip: "Manual data and specs" },
 ];
 
+const DESIGN_SIZE = 484; 
+
+const SECTION_PADDING = 32;
+const LABEL_PADDING = 40;
+const NARROW_BREAKPOINT = 520;
+const MIN_SCALE = 0.65;
+
+function getScaleForViewport(): number {
+  if (typeof window === "undefined") return 1;
+  const w = window.innerWidth;
+  if (w >= NARROW_BREAKPOINT) return 1;
+  const availableWidth = w - SECTION_PADDING;
+  const maxDiagramWithPadding = availableWidth - LABEL_PADDING * 2;
+  return Math.min(1, Math.max(MIN_SCALE, maxDiagramWithPadding / DESIGN_SIZE));
+}
+
 export default function AdvancedFactoryAnimation() {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [scale, setScale] = useState(1);
   const nodeCount = dataNodes.length;
-  const size = 440;
+  const size = DESIGN_SIZE;
   const center = size / 2;
-  const orbitRadius = 175;
-  const centerRadius = 55;
+  const orbitRadius = 192; 
+  const centerRadius = 60; 
+
+  useEffect(() => {
+    const update = () => setScale(getScaleForViewport());
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   const getNodePosition = (index: number) => {
     const angleDeg = (index * 360) / nodeCount - 90;
@@ -28,11 +52,32 @@ export default function AdvancedFactoryAnimation() {
     };
   };
 
+  const scaledSize = size * scale;
+  const isNarrow = scale < 1;
+  const availableWidth = typeof window !== "undefined" ? window.innerWidth - SECTION_PADDING : size;
+  const wrapperSize = isNarrow
+    ? Math.min(scaledSize + LABEL_PADDING * 2, availableWidth)
+    : size;
+
   return (
-    <div 
+    <div
       className="relative mx-auto overflow-visible"
-      style={{ width: size, height: size }}
+      style={{
+        width: wrapperSize,
+        height: wrapperSize,
+        maxWidth: "100%",
+      }}
     >
+      <div
+        className="relative"
+        style={{
+          width: size,
+          height: size,
+          transform: `scale(${scale})`,
+          transformOrigin: "0 0",
+          ...(isNarrow ? { position: "absolute" as const, left: LABEL_PADDING / 2, top: LABEL_PADDING / 2 } : {}),
+        }}
+      >
       <div 
         className="absolute rounded-full pointer-events-none"
         style={{
@@ -209,14 +254,13 @@ export default function AdvancedFactoryAnimation() {
           <AnimatePresence>
             {hoveredNode === "center" && (
               <motion.span
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 6 }}
+                exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-                style={{ transformOrigin: "center bottom" }}
-                className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-30 shadow-xl pointer-events-none w-max max-w-[200px] text-center"
+                style={{ transformOrigin: "center top" }}
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-30 shadow-xl pointer-events-none w-max max-w-[200px] text-center"
               >
-                Scattered inputs, no single source of truth
               </motion.span>
             )}
           </AnimatePresence>
@@ -337,6 +381,7 @@ export default function AdvancedFactoryAnimation() {
           />
         );
       })}
+      </div>
     </div>
   );
 }

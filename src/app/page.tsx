@@ -195,14 +195,15 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Interactive Factory Flow Map - overlays entire hero (Desktop) */}
-          <div className="hidden lg:block">
+          {/* Desktop: Factory Flow Map in right half (nodes & tooltips stay right) */}
+          <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-1/2 z-20">
             <FactoryFlowMap />
           </div>
 
-          <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl items-center px-4 pt-24 pb-24 md:px-8 pointer-events-none">
-            {/* Left: Headline */}
-            <div className="w-full lg:w-[45%] max-w-xl space-y-6 md:pl-0 ml-[-2.5rem] md:ml-[-4.5rem]">
+          {/* Hero content: mobile = text on top, map below; desktop = text left, map overlay */}
+          <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center px-4 pt-24 pb-24 text-center md:px-8 lg:flex-row lg:items-center lg:text-left pointer-events-none lg:pointer-events-none">
+            {/* Headline: centered on mobile, left on desktop */}
+            <div className="w-full lg:w-[45%] max-w-xl space-y-6 pl-0 md:pl-0 md:ml-[-2.5rem] lg:ml-[-4.5rem] shrink-0">
               <AnimateInView delay={40}>
                 <h1 className="text-[36px] leading-[42px] md:text-[60px] md:leading-[60px] font-bold">
                   <span
@@ -222,6 +223,42 @@ export default function Home() {
                 </h1>
               </AnimateInView>
             </div>
+            {/* Mobile only: line model in centered card under the text */}
+            <motion.div
+              className="mt-12 w-full max-w-lg mx-auto flex-1 flex flex-col lg:hidden pointer-events-auto"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
+              <div className="flow-card rounded-2xl overflow-hidden backdrop-blur-sm">
+                <div className="px-4 pt-4 pb-1 text-center">
+                  <motion.span
+                    className="inline-block rounded-full border border-blue-400/50 bg-blue-500/10 px-4 py-2 font-orbitron text-sm font-medium text-white"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                  >
+                    Interactive production flow
+                  </motion.span>
+                  <motion.p
+                    className="mt-2 text-sm text-gray-400"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.35, duration: 0.35 }}
+                  >
+                    Tap a node to preview
+                  </motion.p>
+                </div>
+                <motion.div
+                  className="relative w-full min-h-[36vh] pt-1 pb-2 px-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.45, duration: 0.4 }}
+                >
+                  <FactoryFlowMap />
+                </motion.div>
+              </div>
+            </motion.div>
           </div>
         </section>
 
