@@ -28,14 +28,22 @@ const whatYouGet = [
 
 const builtBy = [
   "Founders are veterans in manufacturing and AI, and have led teams at Amazon, Rivian, Ola, and Ather.",
-  "World-class engineers and operators building the system end-to-end—from line modeling to execution artifacts.",
-  "Obsessed with throughput, cost, and time-to-build—not dashboards.",
+  "World-class engineers and operators building the system end-to-end-from line modeling to execution artifacts.",
+  "Obsessed with throughput, cost, and time-to-build-not dashboards.",
 ];
 
 export function AboutSection() {
   return (
-    <section id="about" className="relative z-10 py-24">
-      <div className="mx-auto max-w-4xl px-6">
+    <section id="about" className="relative z-10 py-24 overflow-hidden">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(59,130,246,0.08) 0%, transparent 55%)",
+        }}
+      />
+
+      <div className="mx-auto max-w-4xl px-6 relative z-10">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}

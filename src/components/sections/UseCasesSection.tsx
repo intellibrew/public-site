@@ -60,13 +60,9 @@ export function UseCasesSection() {
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
-          {useCases.map((useCase, index) => (
-            <motion.div
+          {useCases.map((useCase) => (
+            <div
               key={useCase.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative rounded-2xl border border-blue-500/20 p-6 transition-all duration-300 hover:border-blue-500/40"
               style={{
                 background: "linear-gradient(180deg, rgba(12,16,28,0.7) 0%, rgba(8,12,22,0.8) 100%)",
@@ -75,7 +71,7 @@ export function UseCasesSection() {
             >
               <h3 className="text-white font-orbitron text-[15px] md:text-[17px] leading-tight mb-3">
                 {useCase.title}
-                <span className="text-slate-400 font-normal"> — {useCase.subtitle}</span>
+                <span className="text-slate-400 font-normal"> - {useCase.subtitle}</span>
               </h3>
 
               <p className="text-slate-400 text-[13px] leading-relaxed mb-5">
@@ -87,7 +83,7 @@ export function UseCasesSection() {
                   {useCase.badge}
                 </span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

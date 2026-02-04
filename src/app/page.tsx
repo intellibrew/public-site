@@ -20,7 +20,7 @@ import {
 import { submitFeedback } from "../app/api_requests/feedback"
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ProblemToSolutionTransition } from "@/components/sections/ProblemToSolutionTransition";
+import { ProblemSection } from "@/components/sections/ProblemSection";
 import { IntroducingSection } from "@/components/sections/IntroducingSection";
 import { ProductsSection } from "@/components/sections/ProductsSection";
 import { TeamsSection } from "@/components/sections/TeamsSection";
@@ -32,9 +32,7 @@ import { FAQSection } from "@/components/sections/FAQSection";
 import { CTASection } from "@/components/sections/CTASection";
 import { SideNav } from "@/components/SideNav";
 import ScrollProgress from "@/components/ScrollProgress";
-import FloatingParticles from "@/components/FloatingParticles";
 import FactoryFlowMap from "@/components/FactoryFlowMap";
-import MovingMeshBackground from "@/components/MovingMeshBackground";
 import { motion } from "framer-motion";
 // -----------------------------------------------------------------------------
 // Feature data
@@ -58,7 +56,7 @@ const FEATURES: FeatureItem[] = [
   {
     title: "Workflow Synthesis",
     desc:
-      "AI maps process steps and machine options for takt, throughput, and yield — no spreadsheets, no guesswork.",
+      "AI maps process steps and machine options for takt, throughput, and yield - no spreadsheets, no guesswork.",
     icon: <Layers className="h-5 w-5" />,
   },
   {
@@ -94,6 +92,7 @@ const FEATURES: FeatureItem[] = [
 export default function Home() {
   const [progress, setProgress] = useState(0)
   const [demoOpen, setDemoOpen] = useState(false)
+  const [flowHoverPos, setFlowHoverPos] = useState<{ x: number; y: number } | null>(null)
 
   // Hover preview (debounced) for the demo cards
   const [hoveredDemo, setHoveredDemo] = useState<number | null>(null)
@@ -159,9 +158,6 @@ export default function Home() {
       {/* Scroll Progress Bar */}
       <ScrollProgress />
 
-      {/* Floating Particles Background */}
-      <FloatingParticles />
-
       {/* Header */}
       <Header onBookDemo={() => setDemoOpen(true)} />
 
@@ -173,7 +169,7 @@ export default function Home() {
         {/* Hero */}
         <section
           id="product"
-          className="relative overflow-hidden min-h-screen"
+          className="relative overflow-hidden min-h-[80vh] md:min-h-screen"
         >
           {/* Background factory image */}
           <div className="absolute inset-0">
@@ -193,11 +189,30 @@ export default function Home() {
             </div>
           </div>
 
+          <div
+            className="hidden lg:block absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse 90% 85% at 75% 50%, transparent 0%, transparent 35%, rgba(0,0,0,0.25) 70%, rgba(0,0,0,0.45) 100%)",
+            }}
+          />
+
+          <div
+            className="hidden lg:block absolute inset-0 pointer-events-none"
+            style={{
+              background: flowHoverPos
+                ? `radial-gradient(ellipse 480px 200px at ${50 + flowHoverPos.x * 0.5}% ${flowHoverPos.y}%, transparent 0%, transparent 40%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.35) 100%)`
+                : "transparent",
+              opacity: flowHoverPos ? 1 : 0,
+              transition: "opacity 200ms ease-out",
+            }}
+          />
+
           <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-1/2 z-20">
-            <FactoryFlowMap />
+            <FactoryFlowMap onActiveChange={setFlowHoverPos} />
           </div>
 
-          <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center px-4 pt-24 pb-24 text-center md:px-8 lg:flex-row lg:items-center lg:text-left pointer-events-none lg:pointer-events-none">
+          <div className="relative z-10 mx-auto flex min-h-[80vh] md:min-h-screen max-w-7xl flex-col items-start justify-end px-4 pt-28 pb-[4.75rem] text-left md:px-8 md:items-start md:justify-center lg:flex-row lg:items-center lg:justify-between lg:text-left lg:pt-24 lg:pb-24 pointer-events-none lg:pointer-events-none">
             <div className="w-full lg:w-[45%] max-w-xl space-y-6 pl-0 md:pl-0 md:ml-[-2.5rem] lg:ml-[-4.5rem] shrink-0">
               <AnimateInView delay={40}>
                 <h1 className="text-[36px] leading-[42px] md:text-[60px] md:leading-[60px] font-bold">
@@ -218,46 +233,10 @@ export default function Home() {
                 </h1>
               </AnimateInView>
             </div>
-            <motion.div
-              className="mt-12 w-full max-w-lg mx-auto flex-1 flex flex-col lg:hidden pointer-events-auto"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-              <div className="flow-card rounded-2xl overflow-hidden backdrop-blur-sm">
-                <div className="px-4 pt-4 pb-1 text-center">
-                  <motion.span
-                    className="inline-block rounded-full border border-blue-400/50 bg-blue-500/10 px-4 py-2 font-orbitron text-sm font-medium text-white"
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2, duration: 0.4 }}
-                  >
-                    Interactive production flow
-                  </motion.span>
-                  <motion.p
-                    className="mt-2 text-sm text-gray-400"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.35, duration: 0.35 }}
-                  >
-                    Tap a node to preview
-                  </motion.p>
-                </div>
-                <motion.div
-                  className="relative w-full min-h-[36vh] pt-1 pb-2 px-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.45, duration: 0.4 }}
-                >
-                  <FactoryFlowMap />
-                </motion.div>
-              </div>
-            </motion.div>
           </div>
         </section>
 
-        {/* Problem section with zoom-through transition */}
-        <ProblemToSolutionTransition />
+        <ProblemSection />
 
         {/* Introducing section */}
         <IntroducingSection />
@@ -277,9 +256,8 @@ export default function Home() {
         {/* Clients section */}
         <ClientsSection />
 
-        {/* About, FAQ & Contact - single container with moving background */}
+        {/* About, FAQ & Contact */}
         <div className="relative bg-[#080a0f] overflow-hidden">
-          <MovingMeshBackground />
           <AboutSection />
           <FAQSection />
           <CTASection onBookDemo={() => setDemoOpen(true)} />
@@ -560,7 +538,7 @@ export default function Home() {
         p, li { line-height: 1.5; }
 
         /* =========================
-           FAQ – animated accordion
+           FAQ - animated accordion
            ========================= */
         .faq-item{
           position: relative;

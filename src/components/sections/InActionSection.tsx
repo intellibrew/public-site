@@ -9,14 +9,14 @@ const actionCards = [
     description: "Auto-generate an editable floor layout from CAD/BOM.",
     badge: "First pass: hours",
     badgeIcon: <Clock className="w-3.5 h-3.5" />,
-    video: "/in-action-layout.mp4",
+    video: "/fromdrawingtolayout.mp4",
   },
   {
     title: "RFQs and quotes in one flow",
     description: "Generate spec-ready packs and compare vendor options.",
     badge: "RFQ pack: days",
     badgeIcon: <FileText className="w-3.5 h-3.5" />,
-    video: "/in-action-rfq.mp4",
+    video: "/rfq.mp4",
   },
   {
     title: "Execution at scale",
@@ -67,13 +67,9 @@ export function InActionSection() {
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {actionCards.map((card, index) => (
-            <motion.div
+          {actionCards.map((card) => (
+            <div
               key={card.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group relative rounded-2xl border border-blue-500/20 p-5 transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_50px_rgba(59,130,246,0.2)]"
               style={{
                 background: "linear-gradient(180deg, rgba(12,16,28,0.9) 0%, rgba(8,12,22,0.95) 100%)",
@@ -106,7 +102,7 @@ export function InActionSection() {
                   {card.badge}
                 </span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

@@ -19,12 +19,12 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
   useEffect(() => {
     const lenis = new Lenis({
-      lerp: 0.06, // Lower = silkier, more buttery scroll (default 0.1)
+      lerp: 0.04,
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.3,
       syncTouch: false, // Keep false for stability on older iOS
       infinite: false,
       autoRaf: true, // Use Lenis's internal RAF for consistent timing
@@ -43,8 +43,8 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
           if (targetElement) {
             lenis.scrollTo(targetElement as HTMLElement, {
               offset: -80,
-              duration: 1.5,
-              lerp: 0.1,
+              duration: 1.6,
+              lerp: 0.06,
             });
           }
         }
