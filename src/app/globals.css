@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 
+html {
+  scrollbar-width: none; 
+}
+
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 html.lenis, html.lenis body {
   height: auto;
 }
@@ -23,7 +32,6 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
-  /* Hide scrollbar while keeping scroll functionality */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
