@@ -1,31 +1,50 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
+import { Mail, Phone } from "lucide-react";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="border-t border-zinc-200 bg-white py-10">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-          {/* Branding */}
-          <div className="flex items-center gap-2">
-            <span className="font-semibold tracking-tight text-[1.05rem]">
-              NeoFab <span className="brand-ai">AI</span>
-            </span>
-            <span className="text-sm text-zinc-600">
-              © {currentYear} NeoFab. All rights reserved.
-            </span>
+    <footer className="bg-[#060810] border-t border-blue-500/10">
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-10 md:gap-8">
+          <div>
+            <Image 
+              src="/neofab-icon-transparent.png" 
+              alt="NeoFab AI" 
+              width={48} 
+              height={48}
+              className="object-contain mb-4"
+            />
+            <p className="text-slate-500 text-[14px] leading-relaxed">
+              Factory planning,<br />automated.
+            </p>
           </div>
 
-          {/* Navigation */}
-          <div className="flex items-center gap-4 text-sm text-zinc-600">
-            <Link href="#flow" className="hover:glow-text">Flow</Link>
-            <Link href="#features" className="hover:glow-text">Features</Link>
-            <Link href="#faq" className="hover:glow-text">FAQ</Link>
-            <Link href="#contact" className="hover:glow-text">Contact</Link>
+          <div className="md:text-right">
+            <h4 className="text-white font-semibold text-[14px] mb-4">Contact Us</h4>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="mailto:Hello@neofab.ai"
+                  className="flex items-center gap-2 text-slate-400 text-[14px] hover:text-blue-400 transition-colors"
+                >
+                  <Mail className="w-4 h-4" />
+                  Hello@neofab.ai
+                </a>
+              </li>
+              <li className="flex items-start gap-2 text-slate-400 text-[14px]">
+                <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <div>US  +1 (203) 895-6569</div>
+              </li>
+            </ul>
           </div>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-blue-500/10">
+          <p className="text-slate-600 text-[13px]">
+            © 2026 NeoFab. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

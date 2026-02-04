@@ -31,7 +31,7 @@ export default function Blog() {
         setPagination(response.meta.pagination)
       } catch (err) {
         console.error("Failed to fetch blog posts:", err)
-        setError("Failed to load blog posts. Please try again later.")
+        setError(err instanceof Error ? err.message : "Failed to load blog posts. Please try again later.")
       } finally {
         setLoading(false)
       }

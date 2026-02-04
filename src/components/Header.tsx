@@ -1,54 +1,145 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // Next 13+ App Router
+import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 
 const navLinks = [
-  ["Demo", "#demos"],
-  ["Features", "#features"],
-  ["FAQ", "#faq"],
-  ["About", "#about"],
-  ["Blog", "/blog"], // external page, doesn't need home prefix
+  { label: "Products", href: "#products" },
+  { label: "Use cases", href: "#use-cases" },
+  { label: "Blog", href: "/blog" },
+  { label: "About", href: "#about" },
+  { label: "FAQ", href: "#faq" },
 ];
 
-export default function Header() {
+export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
+
+  const handleBookDemo = useCallback(() => {
+    closeMobile();
+    onBookDemo?.();
+  }, [closeMobile, onBookDemo]);
 
   return (
-    <header className="sticky top-0 z-[80] isolate w-full bg-white/75 backdrop-blur-xl ring-1 ring-zinc-200/70">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <div className="flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-[80] isolate w-full bg-[rgba(4,7,21,0.7)] backdrop-blur-xl border-b border-white/5">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 text-[0.95rem]">
+        <div className="flex h-[70px] items-center justify-between">
           <Link
             href="/"
             aria-label="NeoFab home"
-            className="shrink-0 font-bold tracking-tight text-[1.5rem] md:text-[1.7rem] hover:brand-glow"
+            className="shrink-0 font-bold tracking-tight text-[1.5rem] md:text-[1.7rem] hover:brand-glow text-white font-orbitron -ml-1 md:-ml-4 mr-8"
           >
-            <span className="text-zinc-900">NeoFab </span>
-            <span className="brand-ai">AI</span>
+            <span className="text-white">NeoFab </span>
+            <span className="brand-ai-header">AI</span>
           </Link>
 
-          <div className="flex items-center gap-3">
-            <nav
-              aria-label="Primary"
-              className="hidden md:flex items-center gap-1 rounded-full bg-white/90 px-1.5 py-1 ring-1 ring-zinc-200 shadow-[0_8px_30px_-18px_rgba(15,23,42,0.35)]"
-            >
-              {navLinks.map(([label, href]) => {
-                // If link is a section, prepend home page if not already on home
-                const finalHref =
-                  href.startsWith("#") && pathname !== "/" ? `/${href}` : href;
+          <nav
+            aria-label="Primary"
+            className="hidden md:flex flex-1 items-center justify-center gap-10 text-[0.95rem] font-orbitron"
+          >
+            {navLinks.map((link) => {
+              const finalHref =
+                link.href.startsWith("#") && pathname !== "/" ? `/${link.href}` : link.href;
+              return (
+                <Link
+                  key={link.label}
+                  href={finalHref}
+                  className="relative hover:text-white hover:glow-text transition"
+                  style={{ color: "rgb(121, 131, 148)" }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-                return (
-                  <a
-                    key={label}
-                    href={finalHref}
-                    className="rounded-full px-3.5 py-1.5 text-sm font-medium text-zinc-700 hover:text-zinc-900 hover:glow-text transition"
-                  >
-                    {label}
-                  </a>
-                );
-              })}
-            </nav>
+          <div className="hidden md:block ml-4">
+            {onBookDemo ? (
+              <button
+                type="button"
+                onClick={onBookDemo}
+                className="nav-demo-btn"
+                aria-label="Book a demo"
+              >
+                <span>Book a demo</span>
+              </button>
+            ) : (
+              <span className="nav-demo-btn cursor-default inline-flex" aria-hidden>
+                <span>Book a demo</span>
+              </span>
+            )}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setMobileOpen((o) => !o)}
+            className="md:hidden p-2 -mr-2 text-white/80 hover:text-white rounded-lg transition"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
+
+      {typeof document !== "undefined" &&
+        mobileOpen &&
+        createPortal(
+          <>
+            <div
+              className="fixed top-[70px] left-0 right-0 bottom-0 z-[9998] bg-black/60 backdrop-blur-sm md:hidden"
+              aria-hidden
+              onClick={closeMobile}
+            />
+            <div
+              className="fixed top-[70px] right-0 bottom-0 z-[9999] w-full max-w-[280px] bg-[#0a0e1a] border-l border-white/10 shadow-2xl md:hidden flex flex-col overflow-y-auto"
+              role="dialog"
+              aria-label="Mobile menu"
+            >
+              <nav
+                className="flex flex-col p-5 gap-0 font-orbitron text-white"
+                aria-label="Primary mobile"
+              >
+                {navLinks.map((link) => {
+                  const finalHref =
+                    link.href.startsWith("#") && pathname !== "/" ? `/${link.href}` : link.href;
+                  return (
+                    <Link
+                      key={link.label}
+                      href={finalHref}
+                      onClick={closeMobile}
+                      className="py-3 px-4 rounded-lg text-[1rem] text-gray-200 hover:bg-white/10 hover:text-white transition"
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  {onBookDemo ? (
+                    <button
+                      type="button"
+                      onClick={handleBookDemo}
+                      className="w-full py-3 px-4 rounded-lg nav-demo-btn text-center"
+                      aria-label="Book a demo"
+                    >
+                      Book a demo
+                    </button>
+                  ) : (
+                    <span className="block w-full py-3 px-4 rounded-lg nav-demo-btn text-center cursor-default">
+                      Book a demo
+                    </span>
+                  )}
+                </div>
+              </nav>
+            </div>
+          </>,
+          document.body
+        )}
     </header>
   );
 }
