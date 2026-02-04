@@ -8,6 +8,12 @@ interface SmoothScrollProps {
   children: React.ReactNode;
 }
 
+declare global {
+  interface Window {
+    lenis?: Lenis;
+  }
+}
+
 export default function SmoothScroll({ children }: SmoothScrollProps) {
   const lenisRef = useRef<Lenis | null>(null);
 
@@ -46,8 +52,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     };
 
     document.addEventListener("click", handleAnchorClick);
-
-    (window as any).lenis = lenis;
+    window.lenis = lenis;
 
     return () => {
       document.removeEventListener("click", handleAnchorClick);

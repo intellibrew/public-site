@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import type { FC, PropsWithChildren } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
 
 interface Station {
   id: string;
@@ -67,7 +70,6 @@ export default function FactoryFlowMap() {
     for (let i = 1; i < stations.length; i++) {
       const prev = stations[i - 1];
       const curr = stations[i];
-      const tp = transformCoords(prev.x, prev.y);
       const tc = transformCoords(curr.x, curr.y);
       if (prev.y === curr.y) d += ` L ${tc.x} ${tc.y}`;
       else if (prev.x === curr.x) d += ` L ${tc.x} ${tc.y}`;
@@ -86,10 +88,8 @@ export default function FactoryFlowMap() {
     const top = t.y > 50 ? t.y - 18 : t.y + 8;
     const maxWidth = "calc(100% - 1rem)";
 
-    // Mobile-only clamping so tooltips never go off screen
     const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
     if (isMobile) {
-      // On small screens, keep tooltip close to node but clamped firmly to edges
       if (t.x >= 55) {
         return {
           right: "0.5rem",
@@ -115,7 +115,6 @@ export default function FactoryFlowMap() {
       };
     }
 
-    // Desktop behavior (unchanged)
     if (t.x > 82) {
       return { right: "0.5rem", left: "auto", top: `${top}%`, transform: "translate(0, -50%)", maxWidth };
     }
@@ -244,7 +243,7 @@ export default function FactoryFlowMap() {
         );
       })}
 
-      <AnimatePresence>
+      <SafeAnimatePresence>
         {active && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -290,7 +289,7 @@ export default function FactoryFlowMap() {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </SafeAnimatePresence>
     </div>
   );
 }

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { FC, PropsWithChildren } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
 
 const navItems = [
   { id: "problem", label: "Problem" },
@@ -63,7 +66,7 @@ export function SideNav() {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      const lenis = (window as any).lenis;
+      const lenis = window.lenis;
       if (lenis) {
         lenis.scrollTo(element, { offset: -80, duration: 1.5 });
       } else {
@@ -73,7 +76,7 @@ export function SideNav() {
   };
 
   return (
-    <AnimatePresence>
+    <SafeAnimatePresence>
       {isVisible && (
         <motion.nav
           initial={{ opacity: 0, x: 50 }}
@@ -137,6 +140,6 @@ export function SideNav() {
       </div>
         </motion.nav>
       )}
-    </AnimatePresence>
+    </SafeAnimatePresence>
   );
 }

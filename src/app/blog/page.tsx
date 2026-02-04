@@ -59,7 +59,6 @@ export default function Blog() {
     <div className="min-h-screen bg-[#080a0f] text-white">
       <Header />
 
-      {/* Subtle background glow - match main site */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{

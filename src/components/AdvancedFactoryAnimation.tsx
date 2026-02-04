@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { FC, PropsWithChildren } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+/** Wrapper to fix framer-motion AnimatePresence return type incompatibility with React 18 JSX */
+const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
 
 const dataNodes = [
   { label: "CAD", tooltip: "Design files and drawings" },
@@ -251,7 +255,7 @@ export default function AdvancedFactoryAnimation() {
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </motion.div>
-          <AnimatePresence>
+          <SafeAnimatePresence>
             {hoveredNode === "center" && (
               <motion.span
                 initial={{ opacity: 0, y: -6 }}
@@ -263,7 +267,7 @@ export default function AdvancedFactoryAnimation() {
               >
               </motion.span>
             )}
-          </AnimatePresence>
+          </SafeAnimatePresence>
         </motion.button>
       </div>
 
@@ -330,7 +334,7 @@ export default function AdvancedFactoryAnimation() {
                   </span>
                 </motion.div>
               </motion.div>
-              <AnimatePresence>
+              <SafeAnimatePresence>
                 {isHovered && (
                   <motion.span
                     initial={{ opacity: 0, y: 8 }}
@@ -343,7 +347,7 @@ export default function AdvancedFactoryAnimation() {
                     {node.tooltip}
                   </motion.span>
                 )}
-              </AnimatePresence>
+              </SafeAnimatePresence>
             </motion.button>
           </motion.div>
         );

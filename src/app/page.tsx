@@ -35,9 +35,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import FloatingParticles from "@/components/FloatingParticles";
 import FactoryFlowMap from "@/components/FactoryFlowMap";
 import MovingMeshBackground from "@/components/MovingMeshBackground";
-import { motion, AnimatePresence } from "framer-motion";
-
-
+import { motion } from "framer-motion";
 // -----------------------------------------------------------------------------
 // Feature data
 // -----------------------------------------------------------------------------
@@ -195,14 +193,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Desktop: Factory Flow Map in right half (nodes & tooltips stay right) */}
           <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-1/2 z-20">
             <FactoryFlowMap />
           </div>
 
-          {/* Hero content: mobile = text on top, map below; desktop = text left, map overlay */}
           <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center px-4 pt-24 pb-24 text-center md:px-8 lg:flex-row lg:items-center lg:text-left pointer-events-none lg:pointer-events-none">
-            {/* Headline: centered on mobile, left on desktop */}
             <div className="w-full lg:w-[45%] max-w-xl space-y-6 pl-0 md:pl-0 md:ml-[-2.5rem] lg:ml-[-4.5rem] shrink-0">
               <AnimateInView delay={40}>
                 <h1 className="text-[36px] leading-[42px] md:text-[60px] md:leading-[60px] font-bold">
@@ -223,7 +218,6 @@ export default function Home() {
                 </h1>
               </AnimateInView>
             </div>
-            {/* Mobile only: line model in centered card under the text */}
             <motion.div
               className="mt-12 w-full max-w-lg mx-auto flex-1 flex flex-col lg:hidden pointer-events-auto"
               initial={{ opacity: 0, y: 16 }}
@@ -937,163 +931,159 @@ function RequestDemoModal({
   }
   const handleModalClick = (e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()
 
+  if (!open) return null
+
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          aria-modal="true"
-          role="dialog"
-          className="fixed inset-0 z-[120] flex items-center justify-center p-4"
-        >
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={handleBackdropClick}
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 12 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-blue-500/30 bg-[#0c1220] shadow-[0_0_60px_rgba(59,130,246,0.15),0_0_100px_rgba(59,130,246,0.08)]"
-            onClick={handleModalClick}
-          >
-            {/* Top accent */}
-            <div className="h-1 w-full shrink-0 rounded-t-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500" />
-            <div className="flex flex-col flex-1 min-h-0 p-6">
-              <div className="flex items-start justify-between gap-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      aria-modal="true"
+      role="dialog"
+      className="fixed inset-0 z-[120] flex items-center justify-center p-4"
+    >
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={handleBackdropClick}
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-blue-500/30 bg-[#0c1220] shadow-[0_0_60px_rgba(59,130,246,0.15),0_0_100px_rgba(59,130,246,0.08)]"
+        onClick={handleModalClick}
+      >
+        {/* Top accent */}
+        <div className="h-1 w-full shrink-0 rounded-t-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500" />
+        <div className="flex flex-col flex-1 min-h-0 p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-semibold font-orbitron tracking-tight text-white">
+                Request a 1:1 demo
+              </h3>
+              <p className="mt-1 text-sm text-slate-400">
+                Tell us a bit about you. We’ll reach out with a personalized demo.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="shrink-0 rounded-full p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form onSubmit={onSubmit} className="mt-4 flex flex-col flex-1 min-h-0">
+            <input
+              type="text"
+              name="website"
+              value={form.website}
+              onChange={onChange}
+              className="hidden"
+              tabIndex={-1}
+              aria-hidden="true"
+              autoComplete="off"
+            />
+
+            <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <h3 className="text-xl font-semibold font-orbitron tracking-tight text-white">
-                    Request a 1:1 demo
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-400">
-                    Tell us a bit about you. We’ll reach out with a personalized demo.
-                  </p>
+                  <label className="text-sm font-medium text-slate-300">Full name *</label>
+                  <input
+                    required
+                    name="name"
+                    value={form.name}
+                    onChange={onChange}
+                    placeholder="John Doe"
+                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                  />
                 </div>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Close"
-                  className="shrink-0 rounded-full p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                <div>
+                  <label className="text-sm font-medium text-slate-300">Work email *</label>
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={onChange}
+                    placeholder="johndoe@company.com"
+                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                  />
+                </div>
               </div>
 
-              <form onSubmit={onSubmit} className="mt-4 flex flex-col flex-1 min-h-0">
-                <input
-                  type="text"
-                  name="website"
-                  value={form.website}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="text-sm font-medium text-slate-300">Company</label>
+                  <input
+                    name="company"
+                    value={form.company}
+                    onChange={onChange}
+                    placeholder="Acme Manufacturing"
+                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-300">Phone</label>
+                  <input
+                    name="phone"
+                    value={form.phone}
+                    onChange={onChange}
+                    placeholder="+1 (555) 555-5555"
+                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-300">What do you want to see? *</label>
+                <textarea
+                  name="message"
+                  value={form.message}
                   onChange={onChange}
-                  className="hidden"
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  autoComplete="off"
+                  rows={4}
+                  placeholder="Share goals, current tools, timelines…"
+                  className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50 resize-none"
                 />
+              </div>
 
-                <div className="space-y-3 overflow-y-auto flex-1 pr-1">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="text-sm font-medium text-slate-300">Full name *</label>
-                      <input
-                        required
-                        name="name"
-                        value={form.name}
-                        onChange={onChange}
-                        placeholder="John Doe"
-                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-slate-300">Work email *</label>
-                      <input
-                        required
-                        type="email"
-                        name="email"
-                        value={form.email}
-                        onChange={onChange}
-                        placeholder="johndoe@company.com"
-                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="text-sm font-medium text-slate-300">Company</label>
-                      <input
-                        name="company"
-                        value={form.company}
-                        onChange={onChange}
-                        placeholder="Acme Manufacturing"
-                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-slate-300">Phone</label>
-                      <input
-                        name="phone"
-                        value={form.phone}
-                        onChange={onChange}
-                        placeholder="+1 (555) 555-5555"
-                        className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-slate-300">What do you want to see? *</label>
-                    <textarea
-                      name="message"
-                      value={form.message}
-                      onChange={onChange}
-                      rows={4}
-                      placeholder="Share goals, current tools, timelines…"
-                      className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50 resize-none"
-                    />
-                  </div>
-
-                  {status === "error" && (
-                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-200">
-                      {error}
-                    </div>
-                  )}
-                  {status === "success" && (
-                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200">
-                      Thanks! We’ve received your request. We’ll reach out shortly.
-                    </div>
-                  )}
+              {status === "error" && (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-200">
+                  {error}
                 </div>
-
-                {/* Buttons - always visible at bottom */}
-                <div className="flex items-center justify-end gap-3 pt-5 mt-4 shrink-0 border-t border-blue-500/20">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="rounded-full px-5 py-2.5 text-sm font-medium border border-blue-500/50 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] disabled:opacity-50"
-                    disabled={status === "submitting"}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220]"
-                    disabled={status === "submitting" || status === "success"}
-                  >
-                    <span>{status === "submitting" ? "Submitting…" : "Submit"}</span>
-                  </button>
+              )}
+              {status === "success" && (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200">
+                  Thanks! We’ve received your request. We’ll reach out shortly.
                 </div>
-              </form>
+              )}
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+            {/* Buttons - always visible at bottom */}
+            <div className="flex items-center justify-end gap-3 pt-5 mt-4 shrink-0 border-t border-blue-500/20">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-full px-5 py-2.5 text-sm font-medium border border-blue-500/50 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] disabled:opacity-50"
+                disabled={status === "submitting"}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220]"
+                disabled={status === "submitting" || status === "success"}
+              >
+                <span>{status === "submitting" ? "Submitting…" : "Submit"}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }

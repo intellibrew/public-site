@@ -3,6 +3,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, Plus, Minus } from "lucide-react";
 import { useState } from "react";
+import type { FC, PropsWithChildren } from "react";
+
+const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren<{ mode?: "wait" | "sync" | "popLayout" }>>;
 
 const faqs = [
   {
@@ -100,7 +103,7 @@ export function FAQSection() {
                 </motion.div>
               </button>
 
-              <AnimatePresence mode="wait">
+              <SafeAnimatePresence mode="wait">
                 {openIndex === index && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
@@ -153,7 +156,7 @@ export function FAQSection() {
                     </motion.div>
                   </motion.div>
                 )}
-              </AnimatePresence>
+              </SafeAnimatePresence>
             </div>
           ))}
         </motion.div>

@@ -65,6 +65,54 @@ export function ProductsSection() {
   const active1 = useTransform(scrollYProgress, [0.2, 0.32, 0.58, 0.72], [0, 1, 1, 0]);
   const active2 = useTransform(scrollYProgress, [0.55, 0.68, 0.88, 1], [0, 1, 1, 0.98]);
 
+  const buttonScaleTransforms = [
+    useTransform(active0, (v) => 0.98 + v * 0.04),
+    useTransform(active1, (v) => 0.98 + v * 0.04),
+    useTransform(active2, (v) => 0.98 + v * 0.04),
+  ];
+
+  const bulletScaleTransforms = [
+    useTransform(product0Active, (v) => 0.8 + v * 0.45),
+    useTransform(product1Active, (v) => 0.8 + v * 0.45),
+    useTransform(product2Active, (v) => 0.8 + v * 0.45),
+  ];
+
+  const labelFontSizeTransforms = [
+    useTransform(product0Active, (v) => `${20 + v * 8}px`),
+    useTransform(product1Active, (v) => `${20 + v * 8}px`),
+    useTransform(product2Active, (v) => `${20 + v * 8}px`),
+  ];
+
+  const labelTextShadowTransforms = [
+    useTransform(product0Active, (v) =>
+      v > 0.8 ? "0 2px 20px rgba(255,255,255,0.35)" : "0 1px 15px rgba(255,255,255,0.2)"
+    ),
+    useTransform(product1Active, (v) =>
+      v > 0.8 ? "0 2px 20px rgba(255,255,255,0.35)" : "0 1px 15px rgba(255,255,255,0.2)"
+    ),
+    useTransform(product2Active, (v) =>
+      v > 0.8 ? "0 2px 20px rgba(255,255,255,0.35)" : "0 1px 15px rgba(255,255,255,0.2)"
+    ),
+  ];
+
+  const descFontSizeTransforms = [
+    useTransform(active0, (v) => `${15 + v * 3}px`),
+    useTransform(active1, (v) => `${15 + v * 3}px`),
+    useTransform(active2, (v) => `${15 + v * 3}px`),
+  ];
+
+  const cardGlowBoxShadowTransforms = [
+    useTransform(active0, (v) =>
+      v > 0.5 ? "0 4px 24px rgba(59, 130, 246, 0.15)" : "none"
+    ),
+    useTransform(active1, (v) =>
+      v > 0.5 ? "0 4px 24px rgba(59, 130, 246, 0.15)" : "none"
+    ),
+    useTransform(active2, (v) =>
+      v > 0.5 ? "0 4px 24px rgba(59, 130, 246, 0.15)" : "none"
+    ),
+  ];
+
   const scrollToProduct = (i: number) => {
     if (!sectionRef.current) return;
     const rect = sectionRef.current.getBoundingClientRect();
@@ -77,7 +125,7 @@ export function ProductsSection() {
       0,
       sectionTop + targetProgress * Math.max(0, scrollableDistance) - viewportHeight * 0.2
     );
-    const lenis = (window as any).lenis;
+    const lenis = window.lenis;
     if (lenis) {
       lenis.scrollTo(targetScroll, { duration: 1.5 });
     } else {
@@ -129,7 +177,7 @@ export function ProductsSection() {
                     onClick={() => scrollToProduct(i)}
                     className="group text-left w-full flex gap-3 md:gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080a0f] rounded-xl p-3 md:p-4 transition-colors relative"
                     style={{
-                      scale: useTransform(activeEmphasis, (v) => 0.98 + v * 0.04),
+                      scale: buttonScaleTransforms[i],
                     }}
                   >
                     <motion.span
@@ -138,9 +186,7 @@ export function ProductsSection() {
                         backgroundColor: "rgba(59, 130, 246, 0.14)",
                         opacity: activeEmphasis,
                         borderLeft: "3px solid rgba(96, 165, 250, 1)",
-                        boxShadow: useTransform(activeEmphasis, (v) =>
-                          v > 0.5 ? "0 4px 24px rgba(59, 130, 246, 0.15)" : "none"
-                        ),
+                        boxShadow: cardGlowBoxShadowTransforms[i],
                       }}
                     />
                     <div className="relative shrink-0 w-3 h-3 md:w-3.5 md:h-3.5 mt-2 md:mt-2.5 self-start">
@@ -149,7 +195,7 @@ export function ProductsSection() {
                         className="absolute inset-0 rounded-full bg-white"
                         style={{
                           opacity: activeTransform,
-                          scale: useTransform(activeTransform, (v) => 0.8 + v * 0.45),
+                          scale: bulletScaleTransforms[i],
                           boxShadow: "0 0 16px rgba(255,255,255,0.85), 0 0 28px rgba(59,130,246,0.5)",
                         }}
                       />
@@ -160,10 +206,8 @@ export function ProductsSection() {
                         style={{
                           color: "rgb(255,255,255)",
                           opacity: opacityTransform,
-                          textShadow: useTransform(activeTransform, (v) =>
-                            v > 0.8 ? "0 2px 20px rgba(255,255,255,0.35)" : "0 1px 15px rgba(255,255,255,0.2)"
-                          ),
-                          fontSize: useTransform(activeTransform, (v) => `${20 + v * 8}px`),
+                          textShadow: labelTextShadowTransforms[i],
+                          fontSize: labelFontSizeTransforms[i],
                         }}
                       >
                         {product.label}
@@ -174,10 +218,7 @@ export function ProductsSection() {
                           color: "rgb(226, 232, 240)",
                           opacity: i === 0 ? desc0Opacity : i === 1 ? desc1Opacity : desc2Opacity,
                           display: "block",
-                          fontSize: useTransform(
-                            i === 0 ? active0 : i === 1 ? active1 : active2,
-                            (v) => `${15 + v * 3}px`
-                          ),
+                          fontSize: descFontSizeTransforms[i],
                         }}
                       >
                         {product.description}

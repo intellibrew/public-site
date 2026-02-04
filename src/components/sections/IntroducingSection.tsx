@@ -2,6 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import type { FC, PropsWithChildren } from "react";
+
+const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
 
 const inputs = [
   { label: "CAD", tooltip: "Design files and drawings" },
@@ -366,7 +369,7 @@ function FlowDiagram() {
                     >
                       {input.label}
                     </motion.span>
-                    <AnimatePresence>
+                    <SafeAnimatePresence>
                       {isHovered && (
                         <motion.span
                           initial={{ opacity: 0, y: 8 }}
@@ -379,7 +382,7 @@ function FlowDiagram() {
                           {input.tooltip}
                         </motion.span>
                       )}
-                    </AnimatePresence>
+                    </SafeAnimatePresence>
                   </motion.button>
                 );
               })}
@@ -438,7 +441,7 @@ function FlowDiagram() {
                   Line Model
                 </span>
               </div>
-              <AnimatePresence>
+              <SafeAnimatePresence>
                 {hoveredNode === "line-model" && (
                   <motion.span
                     initial={{ opacity: 0, y: 8 }}
@@ -451,7 +454,7 @@ function FlowDiagram() {
                     
                   </motion.span>
                 )}
-              </AnimatePresence>
+              </SafeAnimatePresence>
             </motion.button>
           </div>
 
@@ -485,7 +488,7 @@ function FlowDiagram() {
                     >
                       {output.label}
                     </motion.span>
-                    <AnimatePresence>
+                    <SafeAnimatePresence>
                       {isHovered && (
                         <motion.span
                           initial={{ opacity: 0, y: 8 }}
@@ -498,7 +501,7 @@ function FlowDiagram() {
                           {output.tooltip}
                         </motion.span>
                       )}
-                    </AnimatePresence>
+                    </SafeAnimatePresence>
                   </motion.button>
                 );
               })}
