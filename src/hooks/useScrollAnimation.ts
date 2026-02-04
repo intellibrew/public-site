@@ -39,7 +39,7 @@ export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
   return { ref, isInView };
 }
 
-export function useParallax(speed: number = 0.5): RefObject<HTMLDivElement> {
+export function useParallax(speed: number = 0.5): RefObject<HTMLDivElement | null> {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

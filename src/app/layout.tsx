@@ -11,13 +11,13 @@ const inter = Inter({
 })
 
 // Landing hero headline fonts
-export const orbitron = Orbitron({
+const orbitron = Orbitron({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-orbitron",
 })
 
-export const montserrat = Montserrat({
+const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-montserrat",
