@@ -1,16 +1,8 @@
 import "./globals.css"
 import type { Metadata } from "next"
-import { Inter, Orbitron, Montserrat } from "next/font/google"
+import { Orbitron, Montserrat } from "next/font/google"
 import SmoothScroll from "@/components/SmoothScroll"
 
-// Base sans for most copy
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-})
-
-// Landing hero headline fonts
 const orbitron = Orbitron({
   subsets: ["latin"],
   display: "swap",
@@ -20,11 +12,11 @@ const orbitron = Orbitron({
 const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-montserrat",
+  variable: "--font-sans",
 })
 
 export const metadata: Metadata = {
-  title: "NeoFab – The Smart Way to Build Your Factory",
+  title: "NeoFab - AI Factory Planning",
   description:
     "Discover, compare, and source machines with verified specs, pricing signals and instant RFQs.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
@@ -32,11 +24,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${orbitron.variable} ${montserrat.variable}`}>
+    <html lang="en" className={`${orbitron.variable} ${montserrat.variable}`}>
       <body className="min-h-screen font-sans bg-background text-foreground">
-        <SmoothScroll>
-          {children}
-        </SmoothScroll>
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   )

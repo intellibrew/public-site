@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import type { FC, PropsWithChildren } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/** Wrapper to fix framer-motion AnimatePresence return type incompatibility with React 18 JSX */
 const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
 
 const dataNodes = [

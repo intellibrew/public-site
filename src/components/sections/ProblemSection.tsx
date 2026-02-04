@@ -20,10 +20,17 @@ export function ProblemSection() {
     <section
       ref={sectionRef}
       id="problem"
-      className="bg-[#080a0f] border-t border-white/5 overflow-hidden"
+      className="relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden"
     >
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 50%)",
+        }}
+      />
+
       <motion.div 
-        className="mx-auto flex max-w-7xl flex-col gap-10 px-6 py-20 md:flex-row md:items-center md:px-10"
+        className="relative z-10 mx-auto flex max-w-7xl flex-col gap-10 px-6 md:flex-row md:items-center md:px-10"
         style={{ opacity }}
       >
         <div className="flex-1 space-y-6">
@@ -63,7 +70,7 @@ export function ProblemSection() {
               ].map(({ label, icon }, index) => (
                 <motion.li 
                   key={label} 
-                  className="flex items-start gap-3"
+                  className="flex items-center gap-3"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}

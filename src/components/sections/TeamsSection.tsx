@@ -76,28 +76,6 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           ))}
         </div>
 
-        <motion.div 
-          className="flex justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          {onBookDemo ? (
-            <button
-              type="button"
-              onClick={onBookDemo}
-              className="btn-cta-large inline-flex"
-              aria-label="Book a demo"
-            >
-              <span>Book a demo</span>
-            </button>
-          ) : (
-            <span className="btn-cta-large cursor-default inline-flex" aria-hidden>
-              <span>Book a demo</span>
-            </span>
-          )}
-        </motion.div>
       </div>
     </section>
   );

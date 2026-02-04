@@ -137,8 +137,7 @@ export function ProductsSection() {
     <section
       ref={sectionRef}
       id="products"
-      className="relative bg-[#080a0f]"
-      style={{ minHeight: "300vh" }}
+      className="relative bg-[#080a0f] min-h-[100vh] md:min-h-[300vh]"
     >
       <div
         className="absolute inset-0 pointer-events-none"
@@ -148,7 +147,78 @@ export function ProductsSection() {
         }}
       />
 
-      <div className="sticky top-0 h-screen flex flex-col overflow-hidden">
+      {/* Mobile layout */}
+      <div className="md:hidden relative mx-auto w-full max-w-6xl px-4 sm:px-6 py-10 space-y-8">
+        <div className="text-center mb-2">
+          <span className="shiny-badge">Our Products</span>
+          <h2 className="font-orbitron text-[22px] leading-tight text-white mt-3 mb-1">
+            NeoFab turns inputs into a complete line model.
+          </h2>
+          <p className="text-slate-400 text-sm">Three modules. One line model.</p>
+        </div>
+
+        <div className="space-y-10">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="rounded-3xl bg-[#050816] border border-blue-500/25 shadow-[0_18px_60px_rgba(15,23,42,0.9)] overflow-hidden"
+            >
+              <div className="px-5 pt-6 pb-5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-500/15 border border-blue-500/40 text-sky-300">
+                    <product.icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-[20px] leading-snug font-orbitron text-white">
+                      {product.label}
+                    </h3>
+                    <p className="mt-1 text-[13px] text-slate-300">
+                      {product.title}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-sm text-slate-200 leading-relaxed">
+                  {product.description}
+                </p>
+
+                <div className="flex items-center gap-3">
+                  <div className="rounded-2xl border border-blue-500/40 bg-blue-500/15 px-4 py-3">
+                    <p className="text-[22px] font-orbitron text-sky-300 leading-none">
+                      {product.stat}
+                    </p>
+                    <p className="mt-1 text-[11px] text-slate-300 uppercase tracking-[0.14em]">
+                      {product.statLabel}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <video
+                  className="w-full aspect-[4/3] object-cover object-top"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                >
+                  <source src={product.video} type="video/mp4" />
+                </video>
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+                  <div className="px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-sm border border-blue-500/30 whitespace-nowrap">
+                    <span className="text-slate-200 text-xs font-orbitron tracking-wide">
+                      {product.caption}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop / tablet scroll experience */}
+      <div className="hidden md:block sticky top-0 h-screen flex flex-col overflow-hidden">
         <div
           className="mx-auto w-full max-w-6xl px-4 sm:px-6 flex-1 flex flex-col min-h-0 py-8 md:py-12"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -250,7 +320,7 @@ export function ProductsSection() {
                       style={{ boxShadow: "0 0 60px rgba(59,130,246,0.12)" }}
                     >
                       <video
-                        className="w-full aspect-[4/3] object-cover"
+                        className="w-full aspect-[4/3] object-cover object-top"
                         autoPlay
                         loop
                         muted

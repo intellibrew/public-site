@@ -147,37 +147,12 @@ html.lenis, html.lenis body {
   }
 }
 
-@keyframes meshMove {
-  0% { background-position: 0% 0%; }
-  25% { background-position: 25% 15%; }
-  50% { background-position: 50% 50%; }
-  75% { background-position: 75% 25%; }
-  100% { background-position: 100% 100%; }
-}
-
-@keyframes meshBlobFloat1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(3%, -4%) scale(1.05); }
-  66% { transform: translate(-2%, 2%) scale(0.98); }
-}
-
-@keyframes meshBlobFloat2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-4%, 3%) scale(1.08); }
-  66% { transform: translate(2%, -2%) scale(0.95); }
-}
-
-@keyframes meshBlobFloat3 {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-48%, -52%) scale(1.1); }
-}
-
 .font-orbitron {
   font-family: var(--font-orbitron), system-ui, sans-serif;
 }
 
 .font-montserrat {
-  font-family: var(--font-montserrat), system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 .brand-ai-header {
@@ -842,56 +817,6 @@ html.lenis, html.lenis body {
   box-shadow: 0 0 40px rgba(248,113,113,0.45);
 }
 
-.problem-center span {
-  font-size: 1.4rem;
-  color: rgba(254,202,202,0.95);
-}
-
-.problem-line {
-  position: absolute;
-  border-top: 1px dotted rgba(248,113,113,0.6);
-  transform-origin: left center;
-}
-
-.problem-orbit {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 160px;
-  height: 160px;
-  transform: translate(-50%, -50%);
-  transform-origin: center;
-  animation: problemOrbitSpin 10s linear infinite;
-}
-
-.problem-orbit-ring {
-  position: absolute;
-  inset: 18%;
-  border-radius: 999px;
-  border: 1px dotted rgba(248,113,113,0.35);
-  box-shadow: 0 0 18px rgba(248,113,113,0.35);
-}
-
-.problem-orbit-dot {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: #fb7185;
-  box-shadow:
-    0 0 14px rgba(248,113,113,0.9),
-    0 0 32px rgba(248,113,113,0.75);
-}
-
-@keyframes problemOrbitSpin {
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
 .problem-spoke {
   position: absolute;
   left: 50%;
@@ -1094,27 +1019,6 @@ html.lenis, html.lenis body {
   animation: border-glow 3s ease-in-out infinite;
 }
 
-
-@keyframes mesh-move {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.mesh-gradient {
-  background: linear-gradient(
-    -45deg,
-    rgba(59, 130, 246, 0.05),
-    rgba(139, 92, 246, 0.05),
-    rgba(6, 182, 212, 0.05),
-    rgba(59, 130, 246, 0.05)
-  );
-  background-size: 400% 400%;
-  animation: mesh-move 20s ease infinite;
-}
 
 @keyframes dot-pulse {
   0%, 100% {

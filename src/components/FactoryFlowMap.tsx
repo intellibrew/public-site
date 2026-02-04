@@ -19,14 +19,15 @@ interface Station {
 
 const CENTER_X = 70;
 const CENTER_Y = 45;
-const SPACING_SCALE = 1.06;
+const SPACING_SCALE_X = 1.35;
+const SPACING_SCALE_Y = 1.12;
 
 function transformCoords(x: number, y: number): { x: number; y: number } {
   const centeredX = x - CENTER_X + 50;
   const centeredY = y - CENTER_Y + 50;
   return {
-    x: 50 + (centeredX - 50) * SPACING_SCALE,
-    y: 50 + (centeredY - 50) * SPACING_SCALE,
+    x: 50 + (centeredX - 50) * SPACING_SCALE_X,
+    y: 50 + (centeredY - 50) * SPACING_SCALE_Y,
   };
 }
 
@@ -45,23 +46,27 @@ const stations: Station[] = [
 
 const STATUS_STYLES = {
   optimal: {
-    main: "#22c55e",
-    glow: "0 0 24px rgba(34,197,94,0.5)",
-    ring: "rgba(34,197,94,0.5)",
+    main: "rgba(56,189,248,0.98)", 
+    glow: "0 0 18px rgba(56,189,248,0.7)",
+    ring: "rgba(56,189,248,0.8)",
   },
   bottleneck: {
-    main: "#ef4444",
-    glow: "0 0 24px rgba(239,68,68,0.5)",
-    ring: "rgba(239,68,68,0.5)",
+    main: "rgba(248,113,113,0.98)", 
+    glow: "0 0 18px rgba(248,113,113,0.75)",
+    ring: "rgba(248,113,113,0.85)",
   },
   normal: {
-    main: "#3b82f6",
-    glow: "0 0 24px rgba(59,130,246,0.5)",
-    ring: "rgba(59,130,246,0.5)",
+    main: "rgba(129,140,248,0.98)", 
+    glow: "0 0 18px rgba(129,140,248,0.7)",
+    ring: "rgba(129,140,248,0.8)",
   },
 } as const;
 
-export default function FactoryFlowMap() {
+type FactoryFlowMapProps = {
+  onActiveChange?: (position: { x: number; y: number } | null) => void;
+};
+
+export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) {
   const [active, setActive] = useState<Station | null>(null);
 
   const buildPath = () => {
@@ -133,12 +138,13 @@ export default function FactoryFlowMap() {
       >
         <defs>
           <linearGradient id="flowLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(59,130,246,0.12)" />
-            <stop offset="50%" stopColor="rgba(96,165,250,0.28)" />
-            <stop offset="100%" stopColor="rgba(59,130,246,0.12)" />
+            <stop offset="0%" stopColor="rgba(59,130,246,0.14)" />
+            <stop offset="30%" stopColor="rgba(59,130,246,0.4)" />
+            <stop offset="70%" stopColor="rgba(59,130,246,0.4)" />
+            <stop offset="100%" stopColor="rgba(59,130,246,0.18)" />
           </linearGradient>
           <filter id="flowLineBlur" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.35" result="blur" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -162,8 +168,8 @@ export default function FactoryFlowMap() {
         <path
           d={pathD}
           fill="none"
-          stroke="rgba(59,130,246,0.08)"
-          strokeWidth="0.5"
+          stroke="rgba(59,130,246,0.18)"
+          strokeWidth="1.4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -171,7 +177,7 @@ export default function FactoryFlowMap() {
           d={pathD}
           fill="none"
           stroke="url(#flowLineGradient)"
-          strokeWidth="0.18"
+          strokeWidth="0.45"
           strokeLinecap="round"
           strokeLinejoin="round"
           filter="url(#flowLineBlur)"
@@ -194,10 +200,24 @@ export default function FactoryFlowMap() {
             type="button"
             className="absolute cursor-pointer touch-manipulation rounded-full border-0 p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#02060e]"
             style={{ left: `${t.x}%`, top: `${t.y}%` }}
-            onMouseEnter={() => setActive(station)}
-            onMouseLeave={() => setActive(null)}
-            onFocus={() => setActive(station)}
-            onBlur={() => setActive(null)}
+            onMouseEnter={() => {
+              const t = transformCoords(station.x, station.y);
+              setActive(station);
+              onActiveChange?.(t);
+            }}
+            onMouseLeave={() => {
+              setActive(null);
+              onActiveChange?.(null);
+            }}
+            onFocus={() => {
+              const t = transformCoords(station.x, station.y);
+              setActive(station);
+              onActiveChange?.(t);
+            }}
+            onBlur={() => {
+              setActive(null);
+              onActiveChange?.(null);
+            }}
             aria-label={station.name}
             initial={false}
             animate={{
@@ -206,14 +226,15 @@ export default function FactoryFlowMap() {
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
             <motion.span
-              className="absolute inset-0 rounded-full border-2 -translate-x-1/2 -translate-y-1/2"
+              className="absolute inset-0 rounded-full -translate-x-1/2 -translate-y-1/2"
               style={{
                 left: "50%",
                 top: "50%",
-                width: isActive ? 22 : 18,
-                height: isActive ? 22 : 18,
+                width: isActive ? 22 : 16,
+                height: isActive ? 22 : 16,
                 borderColor: isActive ? style.main : style.ring,
-                opacity: isActive ? 0.9 : 0.45,
+                borderWidth: 1.5,
+                opacity: isActive ? 0.95 : 0.7,
                 boxShadow: isActive ? style.glow : "none",
               }}
             />
@@ -222,21 +243,10 @@ export default function FactoryFlowMap() {
               style={{
                 left: "50%",
                 top: "50%",
-                width: isActive ? 12 : 10,
-                height: isActive ? 12 : 10,
+                width: isActive ? 11 : 8.5,
+                height: isActive ? 11 : 8.5,
                 backgroundColor: style.main,
-                boxShadow: isActive ? style.glow : `0 0 12px ${style.main}60`,
-              }}
-            />
-            <motion.span
-              className="absolute rounded-full -translate-x-1/2 -translate-y-1/2 bg-white/80"
-              style={{
-                left: "50%",
-                top: "50%",
-                width: isActive ? 4 : 3,
-                height: isActive ? 4 : 3,
-                marginLeft: "-1.5px",
-                marginTop: "-1.5px",
+                boxShadow: isActive ? style.glow : `0 0 14px ${style.main}60`,
               }}
             />
           </motion.button>

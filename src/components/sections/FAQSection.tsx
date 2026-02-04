@@ -38,8 +38,16 @@ export function FAQSection() {
   };
 
   return (
-    <section id="faq" className="relative z-10 py-24">
-      <div className="mx-auto max-w-3xl px-6">
+    <section id="faq" className="relative z-10 py-24 overflow-hidden">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 45% at 50% 10%, rgba(59,130,246,0.06) 0%, transparent 55%)",
+        }}
+      />
+
+      <div className="mx-auto max-w-3xl px-6 relative z-10">
         <motion.div 
           className="flex justify-center mb-6"
           initial={{ opacity: 0, y: 20 }}
@@ -79,7 +87,7 @@ export function FAQSection() {
                   <div className="w-7 h-7 rounded-full border border-blue-500/30 flex items-center justify-center flex-shrink-0">
                     <HelpCircle className="w-3.5 h-3.5 text-blue-400" />
                   </div>
-                  <span className="text-white font-medium text-[15px] group-hover:text-blue-400 transition-colors">
+                  <span className="text-white font-medium text-[15px] font-sans group-hover:text-blue-400 transition-colors">
                     {faq.question}
                   </span>
                 </div>
@@ -150,7 +158,7 @@ export function FAQSection() {
                         delay: 0.05,
                       }}
                     >
-                      <p className="text-slate-400 text-[14px] leading-relaxed">
+                      <p className="text-slate-400 text-[14px] leading-relaxed font-sans">
                         {faq.answer}
                       </p>
                     </motion.div>
