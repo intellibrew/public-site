@@ -62,8 +62,8 @@ export async function POST(req: Request) {
     email,
     feedback,
   };
-  if (company !== undefined) upstreamBody.company = company;
-  if (phone !== undefined) upstreamBody.phone = phone;
+  if (company) upstreamBody.company = company;
+  if (phone) upstreamBody.phone = phone;
 
   const headers: Record<string, string> = {
     Accept: "application/json",
