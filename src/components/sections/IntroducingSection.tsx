@@ -43,7 +43,7 @@ export function IntroducingSection() {
         </motion.div>
 
         <motion.h2 
-          className="text-center font-orbitron text-[32px] md:text-[48px] leading-tight text-white mb-4"
+          className="text-center text-heading mb-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -53,7 +53,7 @@ export function IntroducingSection() {
         </motion.h2>
 
         <motion.p 
-          className="text-center text-slate-400 text-lg mb-16"
+          className="text-center text-body mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

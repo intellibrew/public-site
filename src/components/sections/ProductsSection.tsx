@@ -154,7 +154,7 @@ export function ProductsSection() {
           <h2 className="font-orbitron text-[22px] leading-tight text-white mt-3 mb-1">
             NeoFab turns inputs into a complete line model.
           </h2>
-          <p className="text-slate-400 text-sm">Three modules. One Factory Output.</p>
+          <p className="text-body">Three modules. One Factory Output.</p>
         </div>
 
         <div className="space-y-10">
@@ -218,7 +218,7 @@ export function ProductsSection() {
       </div>
 
       {/* Desktop / tablet scroll experience */}
-      <div className="hidden md:block sticky top-0 h-screen flex flex-col overflow-hidden">
+      <div className="hidden md:block sticky top-0 h-screen flex flex-col overflow-hidden pt-[70px]">
         <div
           className="mx-auto w-full max-w-6xl px-4 sm:px-6 flex-1 flex flex-col min-h-0 py-8 md:py-12"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -228,11 +228,11 @@ export function ProductsSection() {
             <h2 className="font-orbitron text-[22px] md:text-[36px] leading-tight text-white mt-3 md:mt-5 mb-1">
               NeoFab turns inputs into a complete line model.
             </h2>
-            <p className="text-slate-400 text-sm md:text-base">Three modules. One Factory Output.</p>
+            <p className="text-body">Three modules. One Factory Output.</p>
           </div>
 
-          <div className="flex-1 flex flex-col md:flex-row gap-6 md:gap-10 min-h-0">
-            <div className="flex flex-col gap-4 md:gap-6 md:min-w-[280px] md:max-w-[340px] shrink-0">
+          <div className="flex-1 flex flex-col md:flex-row gap-6 md:gap-12 min-h-0">
+            <div className="flex flex-col gap-4 md:gap-6 md:min-w-[320px] md:max-w-[420px] shrink-0">
               {products.map((product, i) => {
                 const opacityTransform =
                   i === 0 ? part0Opacity : i === 1 ? part1Opacity : part2Opacity;
@@ -283,7 +283,7 @@ export function ProductsSection() {
                         {product.label}
                       </motion.p>
                       <motion.p
-                        className="mt-2 md:mt-3 leading-relaxed md:max-w-[320px]"
+                        className="mt-2 md:mt-3 leading-relaxed md:max-w-[420px]"
                         style={{
                           color: "rgb(226, 232, 240)",
                           opacity: i === 0 ? desc0Opacity : i === 1 ? desc1Opacity : desc2Opacity,
@@ -299,7 +299,7 @@ export function ProductsSection() {
               })}
             </div>
 
-            <div className="relative flex-1 min-h-[280px] md:min-h-[360px] flex items-center justify-center overflow-hidden">
+            <div className="relative flex-1 min-h-[280px] md:min-h-[360px] flex items-center justify-center overflow-hidden md:pl-10 lg:pl-16">
               {products.map((product, i) => {
                 const yTransform =
                   i === 0 ? product0Y : i === 1 ? product1Y : product2Y;

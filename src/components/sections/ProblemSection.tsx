@@ -50,7 +50,7 @@ export function ProblemSection() {
             </motion.span>
           </AnimateInView>
           <AnimateInView delay={60}>
-            <h2 className="font-orbitron text-[28px] leading-[1.2] text-white md:text-[40px]">
+            <h2 className="text-heading">
               Factory planning is
               <br />
               still slow, manual,
@@ -59,7 +59,7 @@ export function ProblemSection() {
             </h2>
           </AnimateInView>
           <AnimateInView delay={120}>
-            <ul className="mt-4 space-y-3 text-sm text-zinc-300">
+            <ul className="mt-4 space-y-3 text-body">
               {[
                 {
                   label: "Weeks of back-and-forth.",

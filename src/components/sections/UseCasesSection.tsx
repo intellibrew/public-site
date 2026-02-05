@@ -40,7 +40,7 @@ export function UseCasesSection() {
 
       <div className="mx-auto max-w-5xl px-6">
         <motion.h2 
-          className="font-orbitron text-[28px] md:text-[42px] leading-tight text-white mb-3"
+          className="text-heading mb-3"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -50,7 +50,7 @@ export function UseCasesSection() {
         </motion.h2>
 
         <motion.p 
-          className="text-slate-400 text-[16px] mb-12"
+          className="text-body mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -69,7 +69,7 @@ export function UseCasesSection() {
                 boxShadow: "0 0 25px rgba(59,130,246,0.05)",
               }}
             >
-              <h3 className="text-white font-orbitron text-[15px] md:text-[17px] leading-tight mb-3">
+              <h3 className="text-subheading mb-3">
                 {useCase.title}
                 <span className="text-slate-400 font-normal"> - {useCase.subtitle}</span>
               </h3>

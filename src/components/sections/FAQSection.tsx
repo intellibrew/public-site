@@ -61,7 +61,7 @@ export function FAQSection() {
         </motion.div>
 
         <motion.h2 
-          className="text-center font-orbitron text-[28px] md:text-[42px] leading-tight text-white mb-12"
+          className="text-center text-heading mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -158,7 +158,7 @@ export function FAQSection() {
                         delay: 0.05,
                       }}
                     >
-                      <p className="text-slate-400 text-[14px] leading-relaxed font-sans">
+                      <p className="text-body font-sans">
                         {faq.answer}
                       </p>
                     </motion.div>
