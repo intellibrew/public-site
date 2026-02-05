@@ -36,15 +36,21 @@ export function ProblemSection() {
         <div className="flex-1 space-y-6">
           <AnimateInView>
             <motion.span 
-              className="inline-flex items-center rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-red-300"
-              whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(239, 68, 68, 0.3)" }}
-              transition={{ duration: 0.2 }}
+              className="nav-demo-btn px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] cursor-default"
+              style={{
+                ["--shiny-cta-bg" as string]: "#1b0b10",
+                ["--shiny-cta-bg-subtle" as string]: "#3f151c",
+                ["--shiny-cta-fg" as string]: "#fecaca",
+                ["--shiny-cta-highlight" as string]: "#fb7185",
+                ["--shiny-cta-highlight-subtle" as string]: "rgba(252,165,165,0.9)",
+                pointerEvents: "none",
+              }}
             >
               Problem
             </motion.span>
           </AnimateInView>
           <AnimateInView delay={60}>
-            <h2 className="font-orbitron text-[28px] leading-[1.2] text-white md:text-[40px]">
+            <h2 className="text-heading">
               Factory planning is
               <br />
               still slow, manual,
@@ -53,7 +59,7 @@ export function ProblemSection() {
             </h2>
           </AnimateInView>
           <AnimateInView delay={120}>
-            <ul className="mt-4 space-y-3 text-sm text-zinc-300">
+            <ul className="mt-4 space-y-3 text-body">
               {[
                 {
                   label: "Weeks of back-and-forth.",
@@ -78,11 +84,6 @@ export function ProblemSection() {
                 >
                   <motion.span 
                     className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-2xl border border-[#fb7185]/60 bg-[radial-gradient(circle_at_30%_0%,rgba(252,165,165,0.38),rgba(127,29,29,0.95))] text-[#fecaca] shadow-[0_10px_30px_-18px_rgba(248,113,113,0.95)]"
-                    whileHover={{ 
-                      scale: 1.1, 
-                      boxShadow: "0 0 25px rgba(248,113,113,0.6)",
-                    }}
-                    transition={{ duration: 0.2 }}
                   >
                     <span className="text-[#fda4af]">
                       {icon}

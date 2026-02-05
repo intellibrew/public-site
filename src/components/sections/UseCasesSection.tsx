@@ -40,7 +40,7 @@ export function UseCasesSection() {
 
       <div className="mx-auto max-w-5xl px-6">
         <motion.h2 
-          className="font-orbitron text-[28px] md:text-[42px] leading-tight text-white mb-3"
+          className="text-heading mb-3"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -50,7 +50,7 @@ export function UseCasesSection() {
         </motion.h2>
 
         <motion.p 
-          className="text-slate-400 text-[16px] mb-12"
+          className="text-body mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -63,13 +63,13 @@ export function UseCasesSection() {
           {useCases.map((useCase) => (
             <div
               key={useCase.title}
-              className="relative rounded-2xl border border-blue-500/20 p-6 transition-all duration-300 hover:border-blue-500/40"
+              className="relative rounded-2xl border border-blue-500/20 p-6 transition-all duration-300 hover:border-blue-500/40 flex flex-col"
               style={{
                 background: "linear-gradient(180deg, rgba(12,16,28,0.7) 0%, rgba(8,12,22,0.8) 100%)",
                 boxShadow: "0 0 25px rgba(59,130,246,0.05)",
               }}
             >
-              <h3 className="text-white font-orbitron text-[15px] md:text-[17px] leading-tight mb-3">
+              <h3 className="text-subheading mb-3">
                 {useCase.title}
                 <span className="text-slate-400 font-normal"> - {useCase.subtitle}</span>
               </h3>
@@ -78,7 +78,7 @@ export function UseCasesSection() {
                 {useCase.description}
               </p>
 
-              <div className="inline-flex items-center px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/5">
+              <div className="mt-auto self-center inline-flex items-center px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/5">
                 <span className="text-blue-300 text-[12px] font-medium">
                   {useCase.badge}
                 </span>

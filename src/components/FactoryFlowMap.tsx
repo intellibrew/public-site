@@ -17,31 +17,21 @@ interface Station {
   status: "optimal" | "bottleneck" | "normal";
 }
 
-const CENTER_X = 70;
-const CENTER_Y = 45;
-const SPACING_SCALE_X = 1.35;
-const SPACING_SCALE_Y = 1.12;
-
 function transformCoords(x: number, y: number): { x: number; y: number } {
-  const centeredX = x - CENTER_X + 50;
-  const centeredY = y - CENTER_Y + 50;
-  return {
-    x: 50 + (centeredX - 50) * SPACING_SCALE_X,
-    y: 50 + (centeredY - 50) * SPACING_SCALE_Y,
-  };
+  return { x, y };
 }
 
 const stations: Station[] = [
-  { id: "1", x: 48, y: 25, name: "Material Receiving", cycleTime: "60s", automation: "Semi-auto", handling: "AGV", status: "normal" },
-  { id: "2", x: 60, y: 25, name: "Blanking Press", cycleTime: "45s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
-  { id: "3", x: 72, y: 25, name: "Stamping Cell", cycleTime: "38s", automation: "Full-auto", handling: "Conveyor", status: "optimal" },
-  { id: "4", x: 84, y: 25, name: "Welding Station", cycleTime: "52s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
-  { id: "5", x: 84, y: 45, name: "Sub-Assembly", cycleTime: "180s", automation: "Manual", handling: "Manual", status: "bottleneck" },
-  { id: "6", x: 92, y: 45, name: "E-Coat", cycleTime: "120s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
-  { id: "7", x: 92, y: 65, name: "Paint Booth", cycleTime: "90s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
-  { id: "8", x: 80, y: 65, name: "Final Assembly", cycleTime: "150s", automation: "Semi-auto", handling: "Manual", status: "optimal" },
-  { id: "9", x: 68, y: 65, name: "QC Inspection", cycleTime: "45s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
-  { id: "10", x: 56, y: 65, name: "Packaging", cycleTime: "60s", automation: "Semi-auto", handling: "AGV", status: "normal" },
+  { id: "1", x: 55, y: 31, name: "Material Receiving", cycleTime: "60s", automation: "Semi-auto", handling: "AGV", status: "normal" },
+  { id: "2", x: 72, y: 34, name: "Blanking Press", cycleTime: "45s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
+  { id: "3", x: 64, y: 42, name: "Stamping Cell", cycleTime: "38s", automation: "Full-auto", handling: "Conveyor", status: "optimal" },
+  { id: "4", x: 57, y: 49, name: "Welding Station", cycleTime: "52s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
+  { id: "5", x: 50, y: 56, name: "Sub-Assembly", cycleTime: "180s", automation: "Manual", handling: "Manual", status: "bottleneck" },
+  { id: "6", x: 65, y: 59, name: "E-Coat", cycleTime: "120s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
+  { id: "7", x: 78, y: 45, name: "Paint Booth", cycleTime: "90s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
+  { id: "8", x: 84, y: 38, name: "Final Assembly", cycleTime: "150s", automation: "Semi-auto", handling: "Manual", status: "optimal" },
+  { id: "9", x: 92, y: 40, name: "QC Inspection", cycleTime: "45s", automation: "Full-auto", handling: "Conveyor", status: "normal" },
+  { id: "10", x: 75, y: 66, name: "Packaging", cycleTime: "60s", automation: "Semi-auto", handling: "AGV", status: "normal" },
 ];
 
 const STATUS_STYLES = {
@@ -56,9 +46,9 @@ const STATUS_STYLES = {
     ring: "rgba(248,113,113,0.85)",
   },
   normal: {
-    main: "rgba(129,140,248,0.98)", 
-    glow: "0 0 18px rgba(129,140,248,0.7)",
-    ring: "rgba(129,140,248,0.8)",
+    main: "rgb(103, 209, 255)", 
+    glow: "0 0 18px rgba(103, 209, 255,0.7)",
+    ring: "rgba(103, 209, 255,0.8)",
   },
 } as const;
 
@@ -73,15 +63,9 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
     const t0 = transformCoords(stations[0].x, stations[0].y);
     let d = `M ${t0.x} ${t0.y}`;
     for (let i = 1; i < stations.length; i++) {
-      const prev = stations[i - 1];
       const curr = stations[i];
       const tc = transformCoords(curr.x, curr.y);
-      if (prev.y === curr.y) d += ` L ${tc.x} ${tc.y}`;
-      else if (prev.x === curr.x) d += ` L ${tc.x} ${tc.y}`;
-      else {
-        const mid = transformCoords(prev.x, curr.y);
-        d += ` L ${mid.x} ${mid.y} L ${tc.x} ${tc.y}`;
-      }
+      d += ` L ${tc.x} ${tc.y}`;
     }
     return d;
   };
@@ -183,9 +167,18 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
           filter="url(#flowLineBlur)"
         />
 
-        <circle r="0.55" fill="url(#particleFill)" filter="url(#particleBlur)">
+        <circle
+          r="0.8"
+          fill="url(#particleFill)"
+          fillOpacity="0.95"
+        >
           <animateMotion dur="14s" repeatCount="indefinite" path={pathD} calcMode="linear" />
-          <animate attributeName="opacity" values="0;0.95;0.95;0.95;0" dur="14s" repeatCount="indefinite" />
+          <animate
+            attributeName="opacity"
+            values="0.4;1;1;0.4"
+            dur="14s"
+            repeatCount="indefinite"
+          />
         </circle>
       </svg>
 

@@ -103,7 +103,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           />
 
           <motion.h2 
-            className="font-orbitron text-[28px] md:text-[40px] leading-tight text-white mb-4 relative z-10"
+            className="text-heading mb-4 relative z-10"
             initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -113,7 +113,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           </motion.h2>
           
           <motion.p 
-            className="text-slate-400 text-[15px] md:text-[16px] mb-8 max-w-xl mx-auto relative z-10"
+            className="text-body mb-8 max-w-xl mx-auto relative z-10"
             initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

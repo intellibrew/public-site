@@ -39,13 +39,13 @@ export function InActionSection() {
 
       <div className="mx-auto max-w-6xl px-6">
         <motion.h2 
-          className="text-center font-orbitron text-[28px] md:text-[42px] leading-tight text-white mb-4"
+          className="text-center text-heading mb-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          See NeoFab <span className="text-blue-400">in action</span>
+          See <span className="text-blue-400">NeoFab</span> in action
         </motion.h2>
 
         <motion.div
@@ -57,7 +57,7 @@ export function InActionSection() {
         />
 
         <motion.p 
-          className="text-center text-slate-400 text-[16px] mb-16"
+          className="text-center text-body mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -88,11 +88,11 @@ export function InActionSection() {
                 </video>
               </div>
 
-              <h3 className="text-white font-orbitron text-[16px] md:text-[18px] leading-tight mb-2 group-hover:text-blue-400 transition-colors">
+              <h3 className="text-subheading mb-2 group-hover:text-blue-400 transition-colors">
                 {card.title}
               </h3>
 
-              <p className="text-slate-400 text-[13px] leading-relaxed mb-4">
+              <p className="text-body mb-4">
                 {card.description}
               </p>
 

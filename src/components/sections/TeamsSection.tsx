@@ -32,7 +32,7 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
 
       <div className="mx-auto max-w-6xl px-6">
         <motion.h2 
-          className="text-center font-orbitron text-[28px] md:text-[42px] leading-tight text-white mb-16"
+          className="text-center text-heading mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -59,7 +59,7 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
                 <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
                   {team.icon}
                 </div>
-                <h3 className="text-white font-orbitron text-[15px] md:text-[17px] leading-tight">
+                <h3 className="font-orbitron text-white text-[16px] md:text-[18px] leading-tight">
                   {team.title}
                 </h3>
               </div>

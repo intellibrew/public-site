@@ -178,7 +178,7 @@ export default function Home() {
               alt="Factory background"
               fill
               priority
-              className="object-cover"
+              className="object-cover lg:object-fill"
             />
             {/* Keep image crisp, bright center, darker corners + subtle site-blue tint */}
             <div className="absolute inset-0 pointer-events-none">
@@ -201,14 +201,14 @@ export default function Home() {
             className="hidden lg:block absolute inset-0 pointer-events-none"
             style={{
               background: flowHoverPos
-                ? `radial-gradient(ellipse 480px 200px at ${50 + flowHoverPos.x * 0.5}% ${flowHoverPos.y}%, transparent 0%, transparent 40%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.35) 100%)`
+                ? `radial-gradient(ellipse 480px 200px at ${flowHoverPos.x}% ${flowHoverPos.y}%, transparent 0%, transparent 40%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.35) 100%)`
                 : "transparent",
               opacity: flowHoverPos ? 1 : 0,
               transition: "opacity 200ms ease-out",
             }}
           />
 
-          <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-1/2 z-20">
+          <div className="hidden lg:block absolute inset-0 z-20">
             <FactoryFlowMap onActiveChange={setFlowHoverPos} />
           </div>
 
@@ -224,7 +224,7 @@ export default function Home() {
                     factory
                   </span>
                   <span
-                    className="mt-2 block font-orbitron text-[rgb(0,77,255)] drop-shadow-[0_0_14px_rgba(37,99,235,0.55)]"
+                    className="mt-2 block font-orbitron text-[rgb(0,77,255)]"
                   >
                     in hours, not
                     <br />
