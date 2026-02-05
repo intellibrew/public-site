@@ -49,7 +49,7 @@ export function IntroducingSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          AI Intelligence for Factories
+          Intelligence for Factories
         </motion.h2>
 
         <motion.p 
@@ -392,69 +392,32 @@ function FlowDiagram() {
           <div className="flex-1 flex justify-center">
             <motion.button
               type="button"
-              animate={{ scale: hoveredNode === "line-model" ? 1.05 : [1, 1.02, 1] }}
-              transition={
-                hoveredNode === "line-model"
-                  ? { type: "spring", stiffness: 280, damping: 28 }
-                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
-              }
-              className="relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18] rounded-full"
-              onMouseEnter={() => setHoveredNode("line-model")}
-              onMouseLeave={() => setHoveredNode(null)}
-              onFocus={() => setHoveredNode("line-model")}
-              onBlur={() => setHoveredNode(null)}
+              className="relative cursor-default rounded-full focus:outline-none"
               title=""
             >
               <div 
                 className="absolute inset-[-35px] rounded-full pointer-events-none"
                 style={{
-                  background: "radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%)",
-                  opacity: hoveredNode === "line-model" ? 1.2 : 1,
+                  background: "radial-gradient(circle, rgba(59,130,246,0.22) 0%, transparent 70%)",
+                  opacity: 1,
                 }}
               />
               
-              <motion.div
+              <div
                 className="absolute inset-[-18px] rounded-full border border-blue-500/40 pointer-events-none"
-                animate={
-                  hoveredNode === "line-model"
-                    ? { scale: 1.2, opacity: 0.8 }
-                    : { scale: [1, 1.25, 1], opacity: [0.6, 0, 0.6] }
-                }
-                transition={
-                  hoveredNode === "line-model"
-                    ? { type: "spring", stiffness: 300, damping: 20 }
-                    : { duration: 3, repeat: Infinity, ease: "easeOut" }
-                }
               />
               
               <div 
                 className="relative px-7 py-4 rounded-full border border-blue-400/60"
                 style={{
                   background: "linear-gradient(180deg, rgba(45,90,180,0.95) 0%, rgba(30,60,120,0.98) 100%)",
-                  boxShadow:
-                    hoveredNode === "line-model"
-                      ? "0 0 60px rgba(59,130,246,0.7), inset 0 1px 0 rgba(255,255,255,0.2)"
-                      : "0 0 50px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
+                  boxShadow: "0 0 50px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
                 }}
               >
                 <span className="text-[14px] font-orbitron text-blue-50 tracking-wider">
-                  Line Model
+                  AI Model
                 </span>
               </div>
-              <SafeAnimatePresence>
-                {hoveredNode === "line-model" && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 6 }}
-                    transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    style={{ transformOrigin: "center bottom" }}
-                    className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-blue-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-20 shadow-xl pointer-events-none"
-                  >
-                    
-                  </motion.span>
-                )}
-              </SafeAnimatePresence>
             </motion.button>
           </div>
 

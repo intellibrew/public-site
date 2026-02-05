@@ -45,7 +45,7 @@ export function InActionSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          See NeoFab <span className="text-blue-400">in action</span>
+          See <span className="text-blue-400">in action</span>
         </motion.h2>
 
         <motion.div

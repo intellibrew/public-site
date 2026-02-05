@@ -63,7 +63,7 @@ export function UseCasesSection() {
           {useCases.map((useCase) => (
             <div
               key={useCase.title}
-              className="relative rounded-2xl border border-blue-500/20 p-6 transition-all duration-300 hover:border-blue-500/40"
+              className="relative rounded-2xl border border-blue-500/20 p-6 transition-all duration-300 hover:border-blue-500/40 flex flex-col"
               style={{
                 background: "linear-gradient(180deg, rgba(12,16,28,0.7) 0%, rgba(8,12,22,0.8) 100%)",
                 boxShadow: "0 0 25px rgba(59,130,246,0.05)",
@@ -78,7 +78,7 @@ export function UseCasesSection() {
                 {useCase.description}
               </p>
 
-              <div className="inline-flex items-center px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/5">
+              <div className="mt-auto self-center inline-flex items-center px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/5">
                 <span className="text-blue-300 text-[12px] font-medium">
                   {useCase.badge}
                 </span>

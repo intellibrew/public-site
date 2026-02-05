@@ -6,8 +6,8 @@ import { Settings, Hammer, Activity } from "lucide-react";
 
 const products = [
   {
-    id: "neofab",
-    label: "NeoFab",
+    id: "fabplan",
+    label: "FabPlan",
     icon: Settings,
     title: "Design the line model from CAD + BOM.",
     description: "Convert CAD/BOM/specs into stations, takt, and an editable layout in hours.",
@@ -154,7 +154,7 @@ export function ProductsSection() {
           <h2 className="font-orbitron text-[22px] leading-tight text-white mt-3 mb-1">
             NeoFab turns inputs into a complete line model.
           </h2>
-          <p className="text-slate-400 text-sm">Three modules. One line model.</p>
+          <p className="text-slate-400 text-sm">Three modules. One Factory Output.</p>
         </div>
 
         <div className="space-y-10">
@@ -228,7 +228,7 @@ export function ProductsSection() {
             <h2 className="font-orbitron text-[22px] md:text-[36px] leading-tight text-white mt-3 md:mt-5 mb-1">
               NeoFab turns inputs into a complete line model.
             </h2>
-            <p className="text-slate-400 text-sm md:text-base">Three modules. One line model.</p>
+            <p className="text-slate-400 text-sm md:text-base">Three modules. One Factory Output.</p>
           </div>
 
           <div className="flex-1 flex flex-col md:flex-row gap-6 md:gap-10 min-h-0">
