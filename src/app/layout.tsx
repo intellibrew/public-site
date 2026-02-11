@@ -16,7 +16,7 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: "NeoFab - AI Factory Planning",
+  title: "NeoFab - AI Factory Setup",
   description:
     "Discover, compare, and source machines with verified specs, pricing signals and instant RFQs.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],

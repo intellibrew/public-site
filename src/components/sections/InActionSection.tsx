@@ -63,7 +63,7 @@ export function InActionSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Three moments that collapse months of planning into minutes.
+          Three moments that collapse months of planning into Hours.
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
