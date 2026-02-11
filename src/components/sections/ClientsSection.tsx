@@ -4,22 +4,26 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 
 const clients: { name: string; logo: string; noInvert?: boolean }[] = [
-  { name: "Amazon", logo: "/logo/amazon.svg" },
-  { name: "BCG", logo: "/logo/bcg.svg" },
+  { name: "1lERoJywrOVVSh87b9PsC8C9YM8", logo: "/logo/1lERoJywrOVVSh87b9PsC8C9YM8.avif", noInvert: true },
+  { name: "Amazon", logo: "/logo/Amazon.jpeg", noInvert: true },
+  { name: "Atlas Surgical", logo: "/logo/Atlas%20Surgical.jpeg", noInvert: true },
+  { name: "BCG", logo: "/logo/BCG.jpeg", noInvert: true },
+  { name: "Beta", logo: "/logo/Beta.jpeg", noInvert: true },
   { name: "Can-Tek", logo: "/logo/can-tek.svg" },
-  { name: "Cummins", logo: "/logo/cummins.svg" },
-  { name: "Deloitte", logo: "/logo/deloitte.png" },
-  { name: "Delux Bearings", logo: "/logo/delux_bearings_ltd__logo.jpeg", noInvert: true },
+  { name: "Cummins", logo: "/logo/Cummins.jpeg", noInvert: true },
+  { name: "Deloitte", logo: "/logo/deloitte.png", noInvert: true },
   { name: "Emo Energy", logo: "/logo/emo-energy.svg" },
   { name: "Ford", logo: "/logo/ford.svg" },
+  { name: "Logo", logo: "/logo/logo%20(1).png", noInvert: true },
   { name: "Macauw Paints", logo: "/logo/macauw-paints.png" },
+  { name: "NKE Bearings", logo: "/logo/NKE%20Bearings.jpeg", noInvert: true },
   { name: "Ola", logo: "/logo/ola.svg" },
   { name: "One Energy", logo: "/logo/one-energy.svg" },
-  { name: "Seurat", logo: "/logo/_seurat__LOGO_COLOR_01052022.png" },
-  { name: "Shivam Steel", logo: "/logo/shivam-steel-logo.png.webp", noInvert: true },
-  { name: "Shyam Steel", logo: "/logo/shyam-steel.png", noInvert: true },
-  { name: "Society Tea", logo: "/logo/society-tea-logo_178x_2x-2_140x@2x.avif" },
-  { name: "Volkswagen", logo: "/logo/Volkswagen_logo_2019.svg.png" },
+  { name: "Seurat", logo: "/logo/_seurat__LOGO_COLOR_01052022.png", noInvert: true },
+  { name: "Shivam Steel & Bearings", logo: "/logo/Shivam_steel%26bearings.jpeg", noInvert: true },
+  { name: "Shyam Steel", logo: "/logo/Shyam%20Steel.jpeg", noInvert: true },
+  { name: "Society Tea", logo: "/logo/society-tea-logo_178x_2x-2_140x@2x.avif", noInvert: true },
+  { name: "Volkswagen", logo: "/logo/Volkswagen_logo_2019.svg.png", noInvert: true },
   { name: "Yellow", logo: "/logo/yellow-logo-dark.webp" },
 ];
 
@@ -36,7 +40,7 @@ export function ClientsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          Trusted by Engineers and Consultants globally
+          Trusted by Engineers and Manufacturers globally
         </motion.p>
       </div>
 

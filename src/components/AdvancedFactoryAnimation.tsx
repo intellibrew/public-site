@@ -9,7 +9,7 @@ const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
 const dataNodes = [
   { label: "CAD", tooltip: "Design files and drawings" },
   { label: "BOM", tooltip: "Bill of materials" },
-  { label: "Tribal Knowledge", tooltip: "Expertise locked in people" },
+  { label: "Legacy Knowledge", tooltip: "Expertise locked in people" },
   { label: "Vendor PDFs", tooltip: "Scattered vendor documents" },
   { label: "Spreadsheets", tooltip: "Manual data and specs" },
 ];
