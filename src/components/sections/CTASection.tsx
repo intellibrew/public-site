@@ -109,7 +109,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
             viewport={{ once: true }}
             transition={{ ...smoothSpring, delay: 0.1 }}
           >
-            Plan the line in hours.
+            Plan your factory in hours.
           </motion.h2>
           
           <motion.p 
