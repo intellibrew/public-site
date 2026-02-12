@@ -1,108 +1,136 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Clock3, GitBranch, FileText } from "lucide-react";
-import { AnimateInView } from "@/components/AnimateInView";
-import AdvancedFactoryAnimation from "@/components/AdvancedFactoryAnimation";
+import { motion, useInView } from "framer-motion";
+import { Clock, Layers, DollarSign, X } from "lucide-react";
+
+const problems = [
+  {
+    icon: Clock,
+    title: "Weeks of back-and-forth",
+    desc: "Traditional factory planning takes 6-10 weeks of manual iteration between teams.",
+    old: "6-10 weeks",
+    new_: "2 hours",
+  },
+  {
+    icon: Layers,
+    title: "No single model",
+    desc: "Decisions scattered across spreadsheets, CAD files, and tribal knowledge.",
+    old: "12+ tools",
+    new_: "1 platform",
+  },
+  {
+    icon: DollarSign,
+    title: "Costs drift silently",
+    desc: "Design-to-RFQ handoffs start too late, causing budget overruns.",
+    old: "30% overrun",
+    new_: "Day-1 CAPEX",
+  },
+];
 
 export function ProblemSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.5, 1, 1, 0.5]);
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   return (
     <section
-      ref={sectionRef}
       id="problem"
-      className="relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden"
+      className="relative bg-[#080a0f] py-24 md:py-32 overflow-hidden"
+      data-testid="section-problem"
     >
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 50%)",
+          background:
+            "radial-gradient(ellipse 50% 40% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 60%)",
         }}
       />
 
-      <motion.div 
-        className="relative z-10 mx-auto flex max-w-7xl flex-col gap-10 px-6 md:flex-row md:items-center md:px-10"
-        style={{ opacity }}
-      >
-        <div className="flex-1 space-y-6">
-          <AnimateInView>
-            <motion.span 
-              className="nav-demo-btn px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] cursor-default"
-              style={{
-                ["--shiny-cta-bg" as string]: "#1b0b10",
-                ["--shiny-cta-bg-subtle" as string]: "#3f151c",
-                ["--shiny-cta-fg" as string]: "#fecaca",
-                ["--shiny-cta-highlight" as string]: "#fb7185",
-                ["--shiny-cta-highlight-subtle" as string]: "rgba(252,165,165,0.9)",
-                pointerEvents: "none",
-              }}
-            >
-              Problem
-            </motion.span>
-          </AnimateInView>
-          <AnimateInView delay={60}>
-            <h2 className="text-heading">
-              Factory planning is
-              <br />
-              still slow, manual,
-              <br />
-              and dated.
-            </h2>
-          </AnimateInView>
-          <AnimateInView delay={120}>
-            <ul className="mt-4 space-y-3 text-body">
-              {[
-                {
-                  label: "Weeks of back-and-forth.",
-                  icon: <Clock3 className="h-3.5 w-3.5" />,
-                },
-                {
-                  label: "Decisions scattered without a single model.",
-                  icon: <GitBranch className="h-3.5 w-3.5" />,
-                },
-                {
-                  label: "Design-to-RFQs start too late, costs drift.",
-                  icon: <FileText className="h-3.5 w-3.5" />,
-                },
-              ].map(({ label, icon }, index) => (
-                <motion.li 
-                  key={label} 
-                  className="flex items-center gap-3"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                >
-                  <motion.span 
-                    className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-2xl border border-[#fb7185]/60 bg-[radial-gradient(circle_at_30%_0%,rgba(252,165,165,0.38),rgba(127,29,29,0.95))] text-[#fecaca] shadow-[0_10px_30px_-18px_rgba(248,113,113,0.95)]"
-                  >
-                    <span className="text-[#fda4af]">
-                      {icon}
-                    </span>
-                  </motion.span>
-                  <span>{label}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </AnimateInView>
-        </div>
-
-        <motion.div 
-          className="flex-1 flex items-center justify-center"
-          style={{ y }}
+      <div ref={ref} className="relative z-10 max-w-6xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16 md:mb-20"
         >
-          <AdvancedFactoryAnimation />
+          <motion.span
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={isInView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="nav-demo-btn px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] cursor-default mb-6 inline-block"
+            style={{
+              ["--shiny-cta-bg" as string]: "#1b0b10",
+              ["--shiny-cta-bg-subtle" as string]: "#3f151c",
+              ["--shiny-cta-fg" as string]: "#fecaca",
+              ["--shiny-cta-highlight" as string]: "#fb7185",
+              ["--shiny-cta-highlight-subtle" as string]: "rgba(252,165,165,0.9)",
+              pointerEvents: "none",
+            }}
+          >
+            Problem
+          </motion.span>
+          <h2
+            className="text-heading mb-4"
+            data-testid="text-problem-heading"
+          >
+            Factory planning is still
+            <br />
+            <span className="text-slate-400">slow, manual, and dated</span>
+          </h2>
         </motion.div>
-      </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-5 md:gap-6">
+          {problems.map((item, i) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 50, rotateX: 10 }}
+              animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.3 + i * 0.15, ease: "easeOut" }}
+            >
+              <div
+                className="bg-[#080a0f]/80 border border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.2)] backdrop-blur-sm h-full rounded-2xl"
+                data-testid={`card-problem-${i}`}
+              >
+                <div className="p-5 md:p-6">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={isInView ? { scale: 1 } : {}}
+                    transition={{ delay: 0.5 + i * 0.15, type: "spring", stiffness: 200 }}
+                    className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4"
+                  >
+                    <item.icon className="w-5 h-5 text-blue-400" />
+                  </motion.div>
+
+                  <h3
+                    className="font-orbitron text-base md:text-lg font-semibold mb-3 text-white"
+                    data-testid={`text-problem-title-${i}`}
+                  >
+                    {item.title}
+                  </h3>
+                  <p className="text-slate-400 text-xs leading-[1.6] mb-6">{item.desc}</p>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-500/5 border border-red-500/15">
+                      <X className="w-3 h-3 text-red-400" />
+                      <span className="font-orbitron text-xs text-red-400 line-through">{item.old}</span>
+                    </div>
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={isInView ? { scale: 1 } : {}}
+                      transition={{ delay: 0.8 + i * 0.15, type: "spring" }}
+                    >
+                      <span className="text-slate-400">→</span>
+                    </motion.span>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-500/5 border border-blue-500/15">
+                      <span className="font-orbitron text-xs text-blue-400 font-semibold">{item.new_}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
