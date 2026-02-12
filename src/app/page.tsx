@@ -20,6 +20,7 @@ import {
 import { submitFeedback } from "../app/api_requests/feedback"
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { HeroSection } from "@/components/sections/HeroSection";
 import { ProblemSection } from "@/components/sections/ProblemSection";
 import { IntroducingSection } from "@/components/sections/IntroducingSection";
 import { ProductsSection } from "@/components/sections/ProductsSection";
@@ -32,7 +33,6 @@ import { FAQSection } from "@/components/sections/FAQSection";
 import { CTASection } from "@/components/sections/CTASection";
 import { SideNav } from "@/components/SideNav";
 import ScrollProgress from "@/components/ScrollProgress";
-import FactoryFlowMap from "@/components/FactoryFlowMap";
 import { motion } from "framer-motion";
 // -----------------------------------------------------------------------------
 // Feature data
@@ -92,7 +92,6 @@ const FEATURES: FeatureItem[] = [
 export default function Home() {
   const [progress, setProgress] = useState(0)
   const [demoOpen, setDemoOpen] = useState(false)
-  const [flowHoverPos, setFlowHoverPos] = useState<{ x: number; y: number } | null>(null)
 
   // Hover preview (debounced) for the demo cards
   const [hoveredDemo, setHoveredDemo] = useState<number | null>(null)
@@ -167,67 +166,7 @@ export default function Home() {
       {/* Main */}
       <main id="home" className="scroll-mt-24">
         {/* Hero */}
-        <section
-          id="product"
-          className="relative overflow-hidden min-h-[80vh] md:min-h-screen"
-        >
-          {/* Background factory image */}
-          <div className="absolute inset-0">
-            <Image
-              src="/factorybackground.png"
-              alt="Factory background"
-              fill
-              priority
-              className="object-cover lg:object-fill"
-            />
-            {/* Keep image crisp, bright center, darker corners + subtle site-blue tint */}
-            <div className="absolute inset-0 pointer-events-none">
-              {/* Corner vignettes */}
-              <div className="absolute inset-0 bg-[radial-gradient(1000px_800px_at_0%_0%,rgba(4,7,21,0.8),transparent_60%),radial-gradient(1000px_800px_at_100%_0%,rgba(4,7,21,0.8),transparent_60%),radial-gradient(1200px_900px_at_50%_100%,rgba(4,7,21,0.9),transparent_65%)]" />
-              {/* Soft blue tone over everything, but center stays bright */}
-              <div className="absolute inset-0 bg-[radial-gradient(900px_600px_at_40%_45%,rgba(37,99,235,0.06),transparent_70%),radial-gradient(circle_at_center,rgba(15,23,42,0.15),rgba(15,23,42,0.45))] mix-blend-soft-light" />
-            </div>
-          </div>
-
-          <div
-            className="hidden lg:block absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse 90% 85% at 75% 50%, transparent 0%, transparent 35%, rgba(0,0,0,0.25) 70%, rgba(0,0,0,0.45) 100%)",
-            }}
-          />
-
-          <div
-            className="hidden lg:block absolute inset-0 pointer-events-none"
-            style={{
-              background: flowHoverPos
-                ? `radial-gradient(ellipse 480px 200px at ${flowHoverPos.x}% ${flowHoverPos.y}%, transparent 0%, transparent 40%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.35) 100%)`
-                : "transparent",
-              opacity: flowHoverPos ? 1 : 0,
-              transition: "opacity 200ms ease-out",
-            }}
-          />
-
-          <div className="hidden lg:block absolute inset-0 z-20">
-            <FactoryFlowMap onActiveChange={setFlowHoverPos} />
-          </div>
-
-          <div className="relative z-10 mx-auto flex min-h-[80vh] md:min-h-screen max-w-7xl flex-col items-start justify-end px-4 pt-28 pb-[4.75rem] text-left md:px-8 md:items-start md:justify-center lg:flex-row lg:items-center lg:justify-between lg:text-left lg:pt-24 lg:pb-24 pointer-events-none lg:pointer-events-none">
-            <div className="w-full lg:w-[45%] max-w-xl space-y-6 pl-0 md:pl-0 md:ml-[-2.5rem] lg:ml-[-4.5rem] shrink-0">
-              <AnimateInView delay={40}>
-                <h1 className="text-[36px] leading-[44px] md:text-[60px] md:leading-[68px] font-bold">
-                  <span className="block font-orbitron text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.6)]">
-                    Generate your
-                  </span>
-                  <AnimatedWords />
-                </h1>
-                <p className="mt-4 md:mt-5 text-sm md:text-base text-slate-300/95 max-w-lg leading-relaxed drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]">
-                  One platform to convert CAD, BOM, and specs into a complete production line model - layouts, stations, RFQs, costs, and simulations.
-                </p>
-              </AnimateInView>
-            </div>
-          </div>
-        </section>
+        <HeroSection onBookDemo={() => setDemoOpen(true)} />
 
         <ProblemSection />
 
@@ -612,34 +551,6 @@ function BackgroundBalls() {
       <div className="ball ball-2" />
       <div className="ball ball-3" />
     </div>
-  )
-}
-
-function AnimatedWords() {
-  const WORDS = ["Layout", "Simulation", "Factory", "Production line"]
-  const [index, setIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % WORDS.length)
-    }, 2600)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <span className="mt-1 md:mt-2 inline-block relative">
-      <span className="block h-[1.3em] md:h-[1.4em] leading-none">
-        <motion.span
-          key={WORDS[index]}
-          initial={{ y: 28, opacity: 0, filter: "blur(10px)" }}
-          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
-          className="inline-block font-orbitron text-[38px] md:text-[66px] text-[rgb(0,77,255)] drop-shadow-[0_0_16px_rgba(37,99,235,0.7)]"
-        >
-          {WORDS[index]}
-        </motion.span>
-      </span>
-    </span>
   )
 }
 

@@ -110,9 +110,9 @@ export function ProblemSection() {
                   <p className="text-slate-400 text-xs leading-[1.6] mb-6">{item.desc}</p>
 
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-500/5 border border-red-500/15">
-                      <X className="w-3 h-3 text-red-400" />
-                      <span className="font-orbitron text-xs text-red-400 line-through">{item.old}</span>
+                    <div className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-red-500/5 border border-red-500/15">
+                      <X className="w-3.5 h-3.5 text-red-400" />
+                      <span className="font-orbitron text-sm text-red-400 line-through">{item.old}</span>
                     </div>
                     <motion.span
                       initial={{ scale: 0 }}
@@ -121,8 +121,8 @@ export function ProblemSection() {
                     >
                       <span className="text-slate-400">→</span>
                     </motion.span>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-500/5 border border-blue-500/15">
-                      <span className="font-orbitron text-xs text-blue-400 font-semibold">{item.new_}</span>
+                    <div className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-blue-500/5 border border-blue-500/15">
+                      <span className="font-orbitron text-sm text-blue-400 font-semibold">{item.new_}</span>
                     </div>
                   </div>
                 </div>

@@ -26,7 +26,7 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
   }, [closeMobile, onBookDemo]);
 
   return (
-    <header className="sticky top-0 z-[80] isolate w-full bg-[rgba(4,7,21,0.7)] backdrop-blur-xl border-b border-white/5">
+    <header className="sticky top-0 z-[80] isolate w-full bg-[rgba(4,7,21,0.4)] backdrop-blur-xl border-b border-white/5">
       <div className="mx-auto max-w-7xl px-4 md:px-6 text-[0.95rem]">
         <div className="flex h-[70px] items-center justify-between">
           <Link
