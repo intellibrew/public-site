@@ -87,6 +87,8 @@ function AnimatedWords() {
 
   return (
     <span className="inline-block relative min-w-[280px] md:min-w-[380px]">
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore - AnimatePresence type issue in framer-motion v11 */}
       <AnimatePresence mode="wait">
         <motion.span
           key={words[index]}
