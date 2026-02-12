@@ -215,15 +215,22 @@ export default function Home() {
           <div className="relative z-10 mx-auto flex min-h-[80vh] md:min-h-screen max-w-7xl flex-col items-start justify-end px-4 pt-28 pb-[4.75rem] text-left md:px-8 md:items-start md:justify-center lg:flex-row lg:items-center lg:justify-between lg:text-left lg:pt-24 lg:pb-24 pointer-events-none lg:pointer-events-none">
             <div className="w-full lg:w-[45%] max-w-xl space-y-6 pl-0 md:pl-0 md:ml-[-2.5rem] lg:ml-[-4.5rem] shrink-0">
               <AnimateInView delay={40}>
-                <h1 className="text-[36px] leading-[44px] md:text-[60px] md:leading-[68px] font-bold">
-                  <span className="block font-orbitron text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.6)]">
+                <h1 className="text-[36px] leading-[42px] md:text-[60px] md:leading-[60px] font-bold">
+                  <span
+                    className="block font-orbitron text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.6)]"
+                  >
                     Generate your
+                    <br />
+                    factory
                   </span>
-                  <AnimatedWords />
+                  <span
+                    className="mt-2 block font-orbitron text-[rgb(0,77,255)]"
+                  >
+                    in hours, not
+                    <br />
+                    weeks
+                  </span>
                 </h1>
-                <p className="mt-4 md:mt-5 text-sm md:text-base text-slate-300/95 max-w-lg leading-relaxed drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]">
-                  One platform to convert CAD, BOM, and specs into a complete production line model - layouts, stations, RFQs, costs, and simulations.
-                </p>
               </AnimateInView>
             </div>
           </div>
@@ -612,34 +619,6 @@ function BackgroundBalls() {
       <div className="ball ball-2" />
       <div className="ball ball-3" />
     </div>
-  )
-}
-
-function AnimatedWords() {
-  const WORDS = ["Layout", "Simulation", "Factory", "Production line"]
-  const [index, setIndex] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % WORDS.length)
-    }, 2600)
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <span className="mt-1 md:mt-2 inline-block relative">
-      <span className="block h-[1.3em] md:h-[1.4em] leading-none">
-        <motion.span
-          key={WORDS[index]}
-          initial={{ y: 28, opacity: 0, filter: "blur(10px)" }}
-          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
-          className="inline-block font-orbitron text-[38px] md:text-[66px] text-[rgb(0,77,255)] drop-shadow-[0_0_16px_rgba(37,99,235,0.7)]"
-        >
-          {WORDS[index]}
-        </motion.span>
-      </span>
-    </span>
   )
 }
 
