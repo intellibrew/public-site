@@ -9,10 +9,10 @@ const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
 const navItems = [
   { id: "problem", label: "Problem" },
   { id: "solution", label: "Solution" },
+  { id: "use-cases", label: "Use Cases" },
   { id: "products", label: "Products" },
   { id: "teams", label: "Teams" },
   { id: "in-action", label: "In Action" },
-  { id: "use-cases", label: "Use Cases" },
   { id: "clients", label: "Clients" },
   { id: "about", label: "About" },
   { id: "faq", label: "FAQ" },
