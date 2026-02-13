@@ -68,11 +68,11 @@ export function ClientsSection() {
           {clients.map((client, index) => (
             <motion.div
               key={`first-${index}`}
-              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-blue-500/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center transition-all duration-300"
+              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-primary/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center transition-all duration-300"
               whileHover={{ 
                 scale: 1.05, 
-                borderColor: "rgba(59, 130, 246, 0.5)",
-                boxShadow: "0 0 30px rgba(59, 130, 246, 0.2)",
+                borderColor: "hsl(160 70% 45% / 0.5)",
+                boxShadow: "0 0 30px hsl(160 70% 45% / 0.2)",
               }}
             >
               <img
@@ -87,11 +87,11 @@ export function ClientsSection() {
           {clients.map((client, index) => (
             <motion.div
               key={`second-${index}`}
-              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-blue-500/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center transition-all duration-300"
+              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-primary/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center transition-all duration-300"
               whileHover={{ 
                 scale: 1.05, 
-                borderColor: "rgba(59, 130, 246, 0.5)",
-                boxShadow: "0 0 30px rgba(59, 130, 246, 0.2)",
+                borderColor: "hsl(160 70% 45% / 0.5)",
+                boxShadow: "0 0 30px hsl(160 70% 45% / 0.2)",
               }}
             >
               <img
@@ -106,11 +106,11 @@ export function ClientsSection() {
           {clients.map((client, index) => (
             <motion.div
               key={`third-${index}`}
-              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-blue-500/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center transition-all duration-300"
+              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-primary/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center transition-all duration-300"
               whileHover={{ 
                 scale: 1.05, 
-                borderColor: "rgba(59, 130, 246, 0.5)",
-                boxShadow: "0 0 30px rgba(59, 130, 246, 0.2)",
+                borderColor: "hsl(160 70% 45% / 0.5)",
+                boxShadow: "0 0 30px hsl(160 70% 45% / 0.2)",
               }}
             >
               <img

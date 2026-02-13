@@ -32,6 +32,14 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
 
     lenisRef.current = lenis;
 
+    // On load, clear hash so refresh doesn’t keep #section and scroll to top
+    if (typeof window !== "undefined" && window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      requestAnimationFrame(() => {
+        lenis.scrollTo(0, { immediate: true });
+      });
+    }
+
     const handleAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const anchor = target.closest('a[href^="#"]');

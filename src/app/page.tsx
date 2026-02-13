@@ -30,7 +30,7 @@ import { UseCasesSection } from "@/components/sections/UseCasesSection";
 import { ClientsSection } from "@/components/sections/ClientsSection";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { FAQSection } from "@/components/sections/FAQSection";
-import { CTASection } from "@/components/sections/CTASection";
+import { CtaBottomSection } from "@/components/sections/CtaBottomSection";
 import { SideNav } from "@/components/SideNav";
 import ScrollProgress from "@/components/ScrollProgress";
 import { motion } from "framer-motion";
@@ -192,7 +192,7 @@ export default function Home() {
         <div className="relative bg-[#080a0f] overflow-hidden">
           <AboutSection />
           <FAQSection />
-          <CTASection onBookDemo={() => setDemoOpen(true)} />
+          <CtaBottomSection onBookDemo={() => setDemoOpen(true)} />
         </div>
 
         {/* Demo request modal */}
@@ -207,16 +207,16 @@ export default function Home() {
       <style jsx>{`
         /* Brand accents */
         .brand-ai {
-          background-image: linear-gradient(90deg, #4f46e5, #0284c7, #0891b2);
+          background-image: linear-gradient(90deg, hsl(160 70% 40%), hsl(160 70% 50%), hsl(180 60% 50%));
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
-          text-shadow: 0 0 18px rgba(56, 189, 248, 0.35),
-            0 0 6px rgba(2, 132, 199, 0.35);
+          text-shadow: 0 0 18px hsl(160 70% 45% / 0.35),
+            0 0 6px hsl(160 70% 50% / 0.35);
         }
-        .brand-glow { text-shadow: 0 0 12px rgba(56, 189, 248, 0.25); }
-        .glow-header:hover { text-shadow: 0 0 28px rgba(56, 189, 248, 0.35); }
-        .hover\\:glow-text:hover { text-shadow: 0 0 16px rgba(56, 189, 248, 0.35); }
+        .brand-glow { text-shadow: 0 0 12px hsl(160 70% 45% / 0.25); }
+        .glow-header:hover { text-shadow: 0 0 28px hsl(160 70% 45% / 0.35); }
+        .hover\\:glow-text:hover { text-shadow: 0 0 16px hsl(160 70% 45% / 0.35); }
 
         /* Background glows (static) */
         .bg-balls { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
@@ -271,7 +271,7 @@ export default function Home() {
         .btn-halo { position: relative; }
         .btn-halo::after {
           content: ""; position: absolute; inset: -14px; z-index: -2; border-radius: 9999px;
-          background: radial-gradient(60% 60% at 50% 50%, rgba(56,189,248,.35), rgba(59,130,246,.25), transparent 70%);
+          background: radial-gradient(60% 60% at 50% 50%, hsl(160 70% 55% / .35), hsl(160 70% 45% / .25), transparent 70%);
           filter: blur(18px); opacity: .9; transition: transform .3s ease, opacity .3s ease;
         }
         .btn-halo:hover::after { transform: scale(1.06); opacity: 1; }
@@ -657,7 +657,7 @@ function DemoCard({
           {/* top gradient strip */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[linear-gradient(180deg,rgba(59,130,246,0.22)_0%,rgba(14,165,233,0.18)_60%,transparent_100%)]"
+            className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[linear-gradient(180deg,hsl(160_70%_45%_/_0.22)_0%,hsl(160_70%_50%_/_0.18)_60%,transparent_100%)]"
           />
         </div>
       </article>
@@ -861,15 +861,15 @@ function RequestDemoModal({
         initial={{ opacity: 0, scale: 0.96, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-blue-500/30 bg-[#0c1220] shadow-[0_0_60px_rgba(59,130,246,0.15),0_0_100px_rgba(59,130,246,0.08)]"
+        className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-primary/30 bg-[#0c1220] shadow-[0_0_60px_hsl(160_70%_45%_/_0.15),0_0_100px_hsl(160_70%_45%_/_0.08)]"
         onClick={handleModalClick}
       >
         {/* Top accent */}
-        <div className="h-1 w-full shrink-0 rounded-t-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500" />
+        <div className="h-1 w-full shrink-0 rounded-t-2xl bg-primary" />
         <div className="flex flex-col flex-1 min-h-0 p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-xl font-semibold font-orbitron tracking-tight text-white">
+              <h3 className="text-xl font-semibold font-serif tracking-tight text-white">
                 Request a 1:1 demo
               </h3>
               <p className="mt-1 text-sm text-slate-400">
@@ -880,7 +880,7 @@ function RequestDemoModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="shrink-0 rounded-full p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="shrink-0 rounded-full p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -910,7 +910,7 @@ function RequestDemoModal({
                     value={form.name}
                     onChange={onChange}
                     placeholder="John Doe"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-primary/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
                   />
                 </div>
                 <div>
@@ -922,7 +922,7 @@ function RequestDemoModal({
                     value={form.email}
                     onChange={onChange}
                     placeholder="johndoe@company.com"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-primary/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
                   />
                 </div>
               </div>
@@ -935,7 +935,7 @@ function RequestDemoModal({
                     value={form.company}
                     onChange={onChange}
                     placeholder="Acme Manufacturing"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-primary/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
                   />
                 </div>
                 <div>
@@ -945,7 +945,7 @@ function RequestDemoModal({
                     value={form.phone}
                     onChange={onChange}
                     placeholder="+1 (555) 555-5555"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-primary/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
                   />
                 </div>
               </div>
@@ -958,7 +958,7 @@ function RequestDemoModal({
                   onChange={onChange}
                   rows={4}
                   placeholder="Share goals, current tools, timelines…"
-                  className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50 resize-none"
+                  className="mt-1 w-full rounded-xl border border-primary/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-none"
                 />
               </div>
 
@@ -975,18 +975,18 @@ function RequestDemoModal({
             </div>
 
             {/* Buttons - always visible at bottom */}
-            <div className="flex items-center justify-end gap-3 pt-5 mt-4 shrink-0 border-t border-blue-500/20">
+            <div className="flex items-center justify-end gap-3 pt-5 mt-4 shrink-0 border-t border-primary/20">
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full px-5 py-2.5 text-sm font-medium border border-blue-500/50 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] disabled:opacity-50"
+                className="rounded-full px-5 py-2.5 text-sm font-medium border border-primary/50 text-slate-300 hover:text-white hover:bg-primary/20 hover:border-primary/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] disabled:opacity-50"
                 disabled={status === "submitting"}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220]"
+                className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220]"
                 disabled={status === "submitting" || status === "success"}
               >
                 <span>{status === "submitting" ? "Submitting…" : "Submit"}</span>

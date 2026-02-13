@@ -62,7 +62,7 @@ export default function Blog() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 50%)",
+          background: "radial-gradient(ellipse 60% 40% at 50% 0%, hsl(160 70% 45% / 0.06) 0%, transparent 50%)",
         }}
       />
 
@@ -70,7 +70,7 @@ export default function Blog() {
         <AnimateInView className="pb-1">
           <div className="text-center mb-10 md:mb-12">
             <span className="shiny-badge">Blog</span>
-            <h1 className="font-orbitron text-[28px] md:text-[40px] leading-tight text-white mt-4 md:mt-5 mb-2">
+            <h1 className="font-serif text-[28px] md:text-[40px] leading-tight text-white mt-4 md:mt-5 mb-2">
               NeoFab Blog
             </h1>
             <p className="text-slate-400 text-sm md:text-base">
@@ -82,7 +82,7 @@ export default function Blog() {
         {loading ? (
           <div className="flex justify-center py-20">
             <div
-              className="w-12 h-12 rounded-full border-2 border-transparent border-t-blue-400 border-r-blue-400/50 animate-spin"
+              className="w-12 h-12 rounded-full border-2 border-transparent border-t-primary border-r-primary/50 animate-spin"
               aria-hidden
             />
           </div>
@@ -120,7 +120,7 @@ export default function Blog() {
               onClick={handlePreviousPage}
               disabled={page === 1}
               className={cn(
-                "rounded-xl border border-blue-500/20 bg-slate-900/50 text-white hover:bg-slate-800/50 hover:border-blue-500/40 px-4 py-2 transition-colors",
+                "rounded-xl border border-primary/20 bg-slate-900/50 text-white hover:bg-slate-800/50 hover:border-primary/40 px-4 py-2 transition-colors",
                 page === 1 && "opacity-50 cursor-not-allowed"
               )}
             >
@@ -133,7 +133,7 @@ export default function Blog() {
               onClick={handleNextPage}
               disabled={page >= pagination.pageCount}
               className={cn(
-                "rounded-xl border border-blue-500/20 bg-slate-900/50 text-white hover:bg-slate-800/50 hover:border-blue-500/40 px-4 py-2 transition-colors",
+                "rounded-xl border border-primary/20 bg-slate-900/50 text-white hover:bg-slate-800/50 hover:border-primary/40 px-4 py-2 transition-colors",
                 page >= pagination.pageCount && "opacity-50 cursor-not-allowed"
               )}
             >
@@ -161,16 +161,16 @@ function BlogPostCard({ post }: { post: BlogPost }) {
     : "";
 
   return (
-    <article className="group flex flex-col h-full rounded-xl border border-blue-500/20 bg-slate-900/30 overflow-hidden hover:border-blue-500/40 hover:shadow-[0_0_30px_rgba(59,130,246,0.08)] transition-all duration-300">
+    <article className="group flex flex-col h-full rounded-xl border border-primary/20 bg-slate-900/30 overflow-hidden hover:border-primary/40 hover:shadow-[0_0_30px_hsl(160 70% 45% / 0.08)] transition-all duration-300">
       <div className="flex-1 p-6">
-        <div className="text-xs text-blue-400 font-medium mb-2">{formattedDate}</div>
-        <h2 className="text-lg font-semibold text-white mb-2 line-clamp-2 group-hover:text-blue-300 transition-colors font-orbitron">
+        <div className="text-xs text-primary font-medium mb-2">{formattedDate}</div>
+        <h2 className="text-lg font-semibold text-white mb-2 line-clamp-2 group-hover:text-primary transition-colors font-serif">
           {attributes.title}
         </h2>
         <p className="text-slate-400 text-sm line-clamp-3 mb-4">{excerpt}</p>
         <Link
           href={`/post?slug=${post.id}`}
-          className="inline-flex items-center text-blue-400 font-medium hover:text-blue-300 transition-colors"
+          className="inline-flex items-center text-primary font-medium hover:text-primary transition-colors"
         >
           Read more
           <ArrowRight className="ml-1 h-4 w-4" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,6 +17,21 @@ const navLinks = [
 export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window === "undefined") return;
+      setScrolled(window.scrollY > 40);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
@@ -26,13 +41,19 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
   }, [closeMobile, onBookDemo]);
 
   return (
-    <header className="sticky top-0 z-[80] isolate w-full bg-[rgba(4,7,21,0.4)] backdrop-blur-xl border-b border-white/5">
+    <header
+      className={`sticky top-0 z-[80] isolate w-full border-b transition-colors duration-300 ${
+        scrolled
+          ? "bg-[rgba(4,7,21,0.4)] backdrop-blur-xl border-white/5"
+          : "bg-transparent backdrop-blur-0 border-white/5"
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-4 md:px-6 text-[0.95rem]">
         <div className="flex h-[70px] items-center justify-between">
           <Link
             href="/"
             aria-label="NeoFab home"
-            className="shrink-0 font-bold tracking-tight text-[1.5rem] md:text-[1.7rem] hover:brand-glow text-white font-orbitron -ml-1 md:-ml-4 mr-8"
+            className="shrink-0 font-bold tracking-tight text-[1.5rem] md:text-[1.7rem] hover:brand-glow text-white font-serif -ml-1 md:-ml-4 mr-8"
           >
             <span className="text-white">NeoFab </span>
             <span className="brand-ai-header">AI</span>
@@ -40,7 +61,7 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
 
           <nav
             aria-label="Primary"
-            className="hidden md:flex flex-1 items-center justify-center gap-10 text-[0.95rem] font-orbitron"
+            className="hidden md:flex flex-1 items-center justify-center gap-10 text-[0.95rem] font-serif"
           >
             {navLinks.map((link) => {
               const finalHref =
@@ -102,7 +123,7 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
               aria-label="Mobile menu"
             >
               <nav
-                className="flex flex-col p-5 gap-0 font-orbitron text-white"
+                className="flex flex-col p-5 gap-0 font-serif text-white"
                 aria-label="Primary mobile"
               >
                 {navLinks.map((link) => {

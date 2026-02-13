@@ -26,7 +26,7 @@ const cases = [
     metricSuffix: "%",
     metricLabel: "output increase with targeted changes",
     progressPercent: 85,
-    color: "blue",
+    color: "primary",
   },
   {
     icon: FileSearch,
@@ -64,6 +64,12 @@ const colorMap: Record<
     border: "border-emerald-500/20",
     bar: "bg-emerald-500",
   },
+  primary: {
+    accent: "text-primary",
+    bg: "bg-primary/10",
+    border: "border-primary/20",
+    bar: "bg-primary",
+  },
   blue: {
     accent: "text-blue-400",
     bg: "bg-blue-500/10",
@@ -98,7 +104,7 @@ function UseCaseCard({ item, index }: { item: UseCaseItem; index: number }) {
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, delay: index * 0.1 }}
     >
-      <div className="bg-[#080a0f]/80 border border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.2)] backdrop-blur-sm h-full rounded-2xl">
+      <div className="bg-[#080a0f]/80 border border-primary/30 shadow-[0_0_40px_hsl(160_70%_45%_/_0.2)] backdrop-blur-sm h-full rounded-2xl">
         <div className="p-5 md:p-6">
           <motion.div
             initial={{ scale: 0 }}
@@ -109,10 +115,10 @@ function UseCaseCard({ item, index }: { item: UseCaseItem; index: number }) {
             <item.icon className={`w-4 h-4 ${colors.accent}`} />
           </motion.div>
 
-          <h3 className="font-orbitron text-base md:text-lg font-semibold tracking-tight leading-snug mb-1.5" data-testid={`text-use-case-title-${index}`}>
+          <h3 className="font-serif text-base md:text-lg font-bold tracking-tight leading-snug mb-1.5" data-testid={`text-use-case-title-${index}`}>
             {item.title}
           </h3>
-          <p className={`font-orbitron text-[10px] font-medium uppercase tracking-wider ${colors.accent} mb-3`}>
+          <p className={`font-serif text-[10px] font-medium uppercase tracking-wider ${colors.accent} mb-3`}>
             {item.subtitle}
           </p>
           <p className="text-slate-400 text-xs leading-[1.6] mb-5">{item.desc}</p>
@@ -120,14 +126,14 @@ function UseCaseCard({ item, index }: { item: UseCaseItem; index: number }) {
           <div ref={counterRef}>
             <div className="flex items-baseline gap-2 mb-1.5">
               <span
-                className={`font-orbitron text-lg md:text-xl font-bold ${colors.accent} tabular-nums tracking-tight`}
+                className={`font-serif text-lg md:text-xl font-bold ${colors.accent} tabular-nums tracking-tight`}
                 data-testid={`text-use-case-metric-${index}`}
               >
                 {count}
                 {item.metricSuffix}
               </span>
             </div>
-            <p className="font-orbitron text-[10px] text-slate-400 leading-relaxed mb-3">{item.metricLabel}</p>
+            <p className="font-serif text-[10px] text-slate-400 leading-relaxed mb-3">{item.metricLabel}</p>
 
             <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
               <motion.div
@@ -158,7 +164,7 @@ export function UseCasesSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 50% 40% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 60%)",
+            "radial-gradient(ellipse 50% 40% at 50% 50%, hsl(160 70% 45% / 0.06) 0%, transparent 60%)",
         }}
       />
 

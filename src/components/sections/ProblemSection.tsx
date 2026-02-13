@@ -42,7 +42,7 @@ export function ProblemSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 50% 40% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 60%)",
+            "radial-gradient(ellipse 50% 40% at 50% 50%, hsl(160 70% 45% / 0.06) 0%, transparent 60%)",
         }}
       />
 
@@ -88,7 +88,7 @@ export function ProblemSection() {
               transition={{ duration: 0.7, delay: 0.3 + i * 0.15, ease: "easeOut" }}
             >
               <div
-                className="bg-[#080a0f]/80 border border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.2)] backdrop-blur-sm h-full rounded-2xl"
+                className="bg-[#080a0f]/80 border border-primary/30 shadow-[0_0_40px_hsl(160_70%_45%_/_0.2)] backdrop-blur-sm h-full rounded-2xl"
                 data-testid={`card-problem-${i}`}
               >
                 <div className="p-5 md:p-6">
@@ -96,13 +96,13 @@ export function ProblemSection() {
                     initial={{ scale: 0 }}
                     animate={isInView ? { scale: 1 } : {}}
                     transition={{ delay: 0.5 + i * 0.15, type: "spring", stiffness: 200 }}
-                    className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4"
+                    className="w-12 h-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-4"
                   >
-                    <item.icon className="w-5 h-5 text-blue-400" />
+                    <item.icon className="w-5 h-5 text-primary" />
                   </motion.div>
 
                   <h3
-                    className="font-orbitron text-base md:text-lg font-semibold mb-3 text-white"
+                    className="font-serif text-base md:text-lg font-bold mb-3 text-white"
                     data-testid={`text-problem-title-${i}`}
                   >
                     {item.title}
@@ -112,7 +112,7 @@ export function ProblemSection() {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-red-500/5 border border-red-500/15">
                       <X className="w-3.5 h-3.5 text-red-400" />
-                      <span className="font-orbitron text-sm text-red-400 line-through">{item.old}</span>
+                      <span className="font-serif text-sm text-red-400 line-through">{item.old}</span>
                     </div>
                     <motion.span
                       initial={{ scale: 0 }}
@@ -121,8 +121,8 @@ export function ProblemSection() {
                     >
                       <span className="text-slate-400">→</span>
                     </motion.span>
-                    <div className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-blue-500/5 border border-blue-500/15">
-                      <span className="font-orbitron text-sm text-blue-400 font-semibold">{item.new_}</span>
+                    <div className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-primary/5 border border-primary/15">
+                      <span className="font-serif text-sm text-primary font-semibold">{item.new_}</span>
                     </div>
                   </div>
                 </div>

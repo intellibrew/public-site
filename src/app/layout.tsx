@@ -1,19 +1,6 @@
 import "./globals.css"
 import type { Metadata } from "next"
-import { Orbitron, Montserrat } from "next/font/google"
 import SmoothScroll from "@/components/SmoothScroll"
-
-const orbitron = Orbitron({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-orbitron",
-})
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-})
 
 export const metadata: Metadata = {
   title: "NeoFab - AI Factory Setup",
@@ -24,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${orbitron.variable} ${montserrat.variable}`}>
-      <body className="min-h-screen font-sans bg-background text-foreground">
+    <html lang="en">
+      <body className="min-h-screen font-sans antialiased bg-background text-foreground">
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>

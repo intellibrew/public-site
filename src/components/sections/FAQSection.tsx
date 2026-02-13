@@ -43,7 +43,7 @@ export function FAQSection() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 45% at 50% 10%, rgba(59,130,246,0.06) 0%, transparent 55%)",
+            "radial-gradient(ellipse 70% 45% at 50% 10%, hsl(160 70% 45% / 0.06) 0%, transparent 55%)",
         }}
       />
 
@@ -71,7 +71,7 @@ export function FAQSection() {
         </motion.h2>
 
         <motion.div
-          className="divide-y divide-blue-500/10"
+          className="divide-y divide-primary/10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -84,15 +84,15 @@ export function FAQSection() {
                 className="w-full flex items-center justify-between gap-4 text-left group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-7 h-7 rounded-full border border-blue-500/30 flex items-center justify-center flex-shrink-0">
-                    <HelpCircle className="w-3.5 h-3.5 text-blue-400" />
+                  <div className="w-7 h-7 rounded-full border border-primary/30 flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <span className="text-white font-medium text-[15px] font-sans group-hover:text-blue-400 transition-colors">
+                  <span className="text-white font-medium text-[15px] font-sans group-hover:text-primary transition-colors">
                     {faq.question}
                   </span>
                 </div>
                 <motion.div 
-                  className="flex-shrink-0 text-slate-500 group-hover:text-blue-400"
+                  className="flex-shrink-0 text-slate-500 group-hover:text-primary"
                   animate={{ 
                     rotate: openIndex === index ? 180 : 0,
                     scale: openIndex === index ? 1.1 : 1,

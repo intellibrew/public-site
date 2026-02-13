@@ -101,7 +101,7 @@ export function SideNav() {
               <span
                 className={`text-[13px] font-medium transition-all duration-300 ${
                   isActive
-                    ? "text-blue-400"
+                    ? "text-primary"
                     : isHovered
                     ? "text-slate-300"
                     : "text-slate-500"
@@ -116,7 +116,7 @@ export function SideNav() {
                 animate={{
                   width: isActive ? 28 : isHovered ? 20 : 14,
                   backgroundColor: isActive
-                    ? "rgb(59, 130, 246)"
+                    ? "hsl(160, 70%, 45%)"
                     : isHovered
                     ? "rgb(148, 163, 184)"
                     : "rgb(71, 85, 105)",
@@ -125,11 +125,11 @@ export function SideNav() {
               >
                 {isActive && (
                   <motion.div
-                    className="absolute inset-0 bg-blue-400"
+                    className="absolute inset-0 bg-primary"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     style={{
-                      boxShadow: "0 0 10px rgba(59, 130, 246, 0.8)",
+                      boxShadow: "0 0 10px hsl(160 70% 45% / 0.8)",
                     }}
                   />
                 )}

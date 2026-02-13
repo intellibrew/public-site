@@ -5,11 +5,45 @@ import { motion, useInView } from "framer-motion";
 import { Settings, Hammer, Activity, ChevronRight } from "lucide-react";
 import { useCountUp } from "@/hooks/use-scroll-animation";
 
+const themeStyles = {
+  primary: {
+    border: "border-primary/30",
+    shadow: "shadow-[0_0_40px_hsl(160_70%_45%_/_0.2)]",
+    iconBg: "bg-primary/10 border-primary/20",
+    iconText: "text-primary",
+    tagline: "text-primary",
+    flowBorder: "border-primary/20",
+    statBg: "bg-primary/10 border-primary/20",
+    statText: "text-primary",
+  },
+  blue: {
+    border: "border-blue-500/30",
+    shadow: "shadow-[0_0_40px_hsl(217_91%_60%_/_0.2)]",
+    iconBg: "bg-blue-500/10 border-blue-500/20",
+    iconText: "text-blue-400",
+    tagline: "text-blue-400",
+    flowBorder: "border-blue-500/20",
+    statBg: "bg-blue-500/10 border-blue-500/20",
+    statText: "text-blue-400",
+  },
+  violet: {
+    border: "border-violet-500/30",
+    shadow: "shadow-[0_0_40px_hsl(263_70%_50%_/_0.2)]",
+    iconBg: "bg-violet-500/10 border-violet-500/20",
+    iconText: "text-violet-400",
+    tagline: "text-violet-400",
+    flowBorder: "border-violet-500/20",
+    statBg: "bg-violet-500/10 border-violet-500/20",
+    statText: "text-violet-400",
+  },
+} as const;
+
 const products = [
   {
     id: "fabplan",
     name: "FabPlan",
     icon: Settings,
+    theme: "primary" as const,
     tagline: "Design the line model from CAD + BOM",
     desc: "Convert CAD/BOM/specs into stations, takt, and an editable layout in hours. Get a first-pass line model that would normally take weeks.",
     stat: 2,
@@ -22,6 +56,7 @@ const products = [
     id: "anvil",
     name: "Anvil",
     icon: Hammer,
+    theme: "blue" as const,
     tagline: "Setup your factory with RFQs and equipment packs",
     desc: "Turn the line model into machine specs, supplier shortlists, and RFQ-ready documents. Go from design to procurement in days.",
     stat: 3,
@@ -34,6 +69,7 @@ const products = [
     id: "centor",
     name: "CenTor",
     icon: Activity,
+    theme: "violet" as const,
     tagline: "Simulate operations. Find bottlenecks before you build",
     desc: "Model throughput, WIP, constraints, and the impact of changes across stations. Achieve measurable throughput uplift with targeted adjustments.",
     stat: 25,
@@ -44,11 +80,11 @@ const products = [
   },
 ];
 
-function ProductCard({ product, index }: { product: typeof products[0]; index: number }) {
+function ProductCard({ product, index }: { product: (typeof products)[0]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const { count, ref: counterRef } = useCountUp(product.stat, 1800);
-
+  const theme = themeStyles[product.theme];
   const isReversed = index % 2 !== 0;
 
   return (
@@ -59,7 +95,7 @@ function ProductCard({ product, index }: { product: typeof products[0]; index: n
       transition={{ duration: 0.8, delay: 0.1 }}
     >
       <div
-        className="bg-[#080a0f]/80 border border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.2)] backdrop-blur-sm overflow-hidden rounded-2xl"
+        className={`bg-[#080a0f]/80 border backdrop-blur-sm overflow-hidden rounded-2xl ${theme.border} ${theme.shadow}`}
         data-testid={`card-product-${product.name.toLowerCase()}`}
       >
         <div className={`flex flex-col ${isReversed ? "lg:flex-row-reverse" : "lg:flex-row"}`}>
@@ -70,12 +106,12 @@ function ProductCard({ product, index }: { product: typeof products[0]; index: n
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <div className="flex items-center gap-3 mb-5 flex-wrap">
-                <div className="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                  <product.icon className="w-6 h-6 text-blue-400" />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center border ${theme.iconBg}`}>
+                  <product.icon className={`w-6 h-6 ${theme.iconText}`} />
                 </div>
                 <div>
                   <h3
-                    className="font-orbitron text-lg md:text-xl font-bold text-white"
+                    className="font-serif text-lg md:text-xl font-extrabold text-white"
                     data-testid={`text-product-name-${product.name.toLowerCase()}`}
                   >
                     {product.name}
@@ -83,7 +119,7 @@ function ProductCard({ product, index }: { product: typeof products[0]; index: n
                 </div>
               </div>
 
-              <p className="font-orbitron text-sm md:text-[15px] font-medium text-blue-300 mb-4 tracking-wide uppercase">
+              <p className={`font-serif text-sm md:text-[15px] font-medium mb-4 tracking-wide uppercase ${theme.tagline}`}>
                 {product.tagline}
               </p>
 
@@ -94,7 +130,7 @@ function ProductCard({ product, index }: { product: typeof products[0]; index: n
               <div className="flex items-center gap-2 mb-6 flex-wrap">
                 {product.flow.map((step, i) => (
                   <span key={step} className="flex items-center gap-2">
-                    <span className="font-orbitron px-2.5 py-1 rounded-md bg-slate-800/80 border border-blue-500/20 text-[10px] text-slate-300">
+                    <span className={`font-serif px-2.5 py-1 rounded-md bg-slate-800/80 border text-[10px] text-slate-300 ${theme.flowBorder}`}>
                       {step}
                     </span>
                     {i < product.flow.length - 1 && <ChevronRight className="w-3 h-3 text-slate-500" />}
@@ -104,16 +140,16 @@ function ProductCard({ product, index }: { product: typeof products[0]; index: n
 
               <div
                 ref={counterRef}
-                className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 inline-flex flex-col gap-1"
+                className={`rounded-lg p-4 inline-flex flex-col gap-1 border ${theme.statBg}`}
               >
                 <div
-                  className="font-orbitron text-lg md:text-xl font-bold text-blue-400 tabular-nums"
+                  className={`font-serif text-lg md:text-xl font-extrabold tabular-nums ${theme.statText}`}
                   data-testid={`text-stat-${product.name.toLowerCase()}`}
                 >
                   {count}
                   {product.statSuffix}
                 </div>
-                <div className="font-orbitron text-[10px] text-slate-400 uppercase tracking-wider">
+                <div className="font-serif text-[10px] text-slate-400 uppercase tracking-wider">
                   {product.statLabel}
                 </div>
               </div>
@@ -163,7 +199,7 @@ export function ProductsSection() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 50% 40% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 60%)",
+            "radial-gradient(ellipse 50% 40% at 50% 50%, hsl(160 70% 45% / 0.06) 0%, transparent 60%)",
         }}
       />
 
@@ -181,7 +217,7 @@ export function ProductsSection() {
           >
             NeoFab turns inputs into a
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-400 to-cyan-300">
+            <span className="text-primary">
               complete line model
             </span>
           </h2>

@@ -122,10 +122,10 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
       >
         <defs>
           <linearGradient id="flowLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(59,130,246,0.14)" />
-            <stop offset="30%" stopColor="rgba(59,130,246,0.4)" />
-            <stop offset="70%" stopColor="rgba(59,130,246,0.4)" />
-            <stop offset="100%" stopColor="rgba(59,130,246,0.18)" />
+            <stop offset="0%" stopColor="hsl(160 70% 45% / 0.14)" />
+            <stop offset="30%" stopColor="hsl(160 70% 45% / 0.4)" />
+            <stop offset="70%" stopColor="hsl(160 70% 45% / 0.4)" />
+            <stop offset="100%" stopColor="hsl(160 70% 45% / 0.18)" />
           </linearGradient>
           <filter id="flowLineBlur" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blur" />
@@ -143,16 +143,16 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
             </feMerge>
           </filter>
           <radialGradient id="particleFill" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#93c5fd" />
-            <stop offset="70%" stopColor="#60a5fa" />
-            <stop offset="100%" stopColor="#3b82f6" />
+            <stop offset="0%" stopColor="hsl(160 70% 65%)" />
+            <stop offset="70%" stopColor="hsl(160 70% 55%)" />
+            <stop offset="100%" stopColor="hsl(160 70% 45%)" />
           </radialGradient>
         </defs>
 
         <path
           d={pathD}
           fill="none"
-          stroke="rgba(59,130,246,0.18)"
+          stroke="hsl(160 70% 45% / 0.18)"
           strokeWidth="1.4"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -191,7 +191,7 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
           <motion.button
             key={station.id}
             type="button"
-            className="absolute cursor-pointer touch-manipulation rounded-full border-0 p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#02060e]"
+            className="absolute cursor-pointer touch-manipulation rounded-full border-0 p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#02060e]"
             style={{ left: `${t.x}%`, top: `${t.y}%` }}
             onMouseEnter={() => {
               const t = transformCoords(station.x, station.y);
@@ -271,7 +271,7 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
                     boxShadow: STATUS_STYLES[active.status].glow,
                   }}
                 />
-                <p className="text-white font-semibold text-[13px] tracking-wide font-orbitron">
+                <p className="text-white font-semibold text-[13px] tracking-wide font-serif">
                   {active.name}
                 </p>
               </div>

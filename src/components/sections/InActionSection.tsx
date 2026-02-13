@@ -1,108 +1,126 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Clock, FileText, Activity } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { LayoutDashboard, FileOutput, BarChart3 } from "lucide-react";
 
-const actionCards = [
+const moments = [
   {
+    icon: LayoutDashboard,
     title: "From drawing to layout",
-    description: "Auto-generate an editable floor layout from CAD/BOM.",
-    badge: "First pass: hours",
-    badgeIcon: <Clock className="w-3.5 h-3.5" />,
+    desc: "Auto-generate an editable floor layout from CAD/BOM. Iterate layouts in real-time, not over email chains.",
+    stat: "First pass: hours",
     video: "/fromdrawingtolayout.mp4",
+    gradient: "from-primary/30 via-primary/5 to-transparent",
   },
   {
+    icon: FileOutput,
     title: "RFQs and quotes in one flow",
-    description: "Generate spec-ready packs and compare vendor options.",
-    badge: "RFQ pack: days",
-    badgeIcon: <FileText className="w-3.5 h-3.5" />,
+    desc: "Generate spec-ready packs and compare vendor options. From design to procurement in days, not weeks.",
+    stat: "RFQ pack: 1-3 days",
     video: "/rfq.mp4",
+    gradient: "from-primary/30 via-primary/5 to-transparent",
   },
   {
-    title: "Execution at scale",
-    description: "Simulate changes and identify constraints before build.",
-    badge: "Bottlenecks: visible instantly",
-    badgeIcon: <Activity className="w-3.5 h-3.5" />,
+    icon: BarChart3,
+    title: "Simulate before you build",
+    desc: "Model throughput, find bottlenecks, test scenarios. Make decisions with data, not gut feeling.",
+    stat: "Bottlenecks: visible instantly",
     video: "/in-action-operations.mp4",
+    gradient: "from-primary/30 via-primary/5 to-transparent",
   },
 ];
 
-export function InActionSection() {
+function ShowcaseCard({ item, index }: { item: (typeof moments)[0]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const [videoReady, setVideoReady] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) video.load();
+  }, []);
+
   return (
-    <section id="in-action" className="relative bg-[#080a0f] py-24 overflow-hidden">
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 50% 30% at 50% 20%, rgba(59,130,246,0.06) 0%, transparent 60%)",
-        }}
-      />
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay: index * 0.15 }}
+    >
+      <Card className="bg-card/60 backdrop-blur-sm overflow-visible group transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_50px_hsl(160_70%_45%_/_0.2)] hover:-translate-y-1" data-testid={`card-showcase-${index}`}>
+        <div className="relative h-48 overflow-hidden rounded-t-xl">
+          <video
+            ref={videoRef}
+            src={item.video}
+            className={`w-full h-full object-cover transition-opacity duration-300 group-hover:scale-105 ${videoReady ? "opacity-95" : "opacity-0"}`}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            onLoadedData={() => setVideoReady(true)}
+            data-testid={`video-showcase-${index}`}
+          >
+            <source src={item.video} type="video/mp4" />
+          </video>
+          <div className={`absolute inset-0 bg-gradient-to-b ${item.gradient} opacity-40`} />
+          <div className="absolute inset-0 bg-gradient-to-t from-card/40 via-transparent to-transparent pointer-events-none" />
 
-      <div className="mx-auto max-w-6xl px-6">
-        <motion.h2 
-          className="text-center text-heading mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          See <span className="text-blue-400">NeoFab</span> in action
-        </motion.h2>
-
-        <motion.div
-          className="mx-auto h-1 w-32 md:w-40 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 mb-6"
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        />
-
-        <motion.p 
-          className="text-center text-body mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          Three moments that collapse months of planning into Hours.
-        </motion.p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {actionCards.map((card) => (
-            <div
-              key={card.title}
-              className="group relative rounded-2xl border border-blue-500/20 p-5 transition-all duration-300 hover:border-blue-500/50 hover:shadow-[0_0_50px_rgba(59,130,246,0.2)]"
-              style={{
-                background: "linear-gradient(180deg, rgba(12,16,28,0.9) 0%, rgba(8,12,22,0.95) 100%)",
-                boxShadow: "0 0 25px rgba(59,130,246,0.06)",
-              }}
-            >
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-5 border border-blue-500/20">
-                <video
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                >
-                  <source src={card.video} type="video/mp4" />
-                </video>
-              </div>
-
-              <h3 className="text-subheading mb-2 group-hover:text-blue-400 transition-colors">
-                {card.title}
-              </h3>
-
-              <p className="text-body mb-4">
-                {card.description}
-              </p>
-
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10">
-                <span className="text-blue-400">{card.badgeIcon}</span>
-                <span className="text-blue-300 text-[12px] font-medium">
-                  {card.badge}
-                </span>
-              </div>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={isInView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ delay: 0.3 + index * 0.15, type: "spring" }}
+            className="absolute top-4 left-4"
+          >
+            <div className="w-10 h-10 rounded-lg bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center">
+              <item.icon className="w-5 h-5 text-foreground" />
             </div>
+          </motion.div>
+        </div>
+
+        <CardContent className="p-6">
+          <h3 className="text-lg md:text-xl font-bold mb-2 text-foreground group-hover:text-primary transition-colors" data-testid={`text-showcase-title-${index}`}>
+            {item.title}
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{item.desc}</p>
+          <div className="px-3 py-1.5 rounded-md bg-primary/10 border border-primary/20 inline-block">
+            <span className="text-xs font-mono text-primary" data-testid={`text-showcase-stat-${index}`}>{item.stat}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+export function InActionSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
+
+  return (
+    <section id="in-action" className="relative py-24 md:py-36 overflow-hidden" data-testid="section-showcase">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
+
+      <div ref={ref} className="relative z-10 max-w-6xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4" data-testid="text-showcase-heading">
+            See NeoFab <span className="gradient-text-animated">in action</span>
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+            Three moments that collapse months of planning into minutes.
+          </p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {moments.map((item, i) => (
+            <ShowcaseCard key={item.title} item={item} index={i} />
           ))}
         </div>
       </div>

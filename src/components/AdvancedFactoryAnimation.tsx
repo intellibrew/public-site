@@ -328,7 +328,7 @@ export default function AdvancedFactoryAnimation() {
                       boxShadow: "0 0 20px rgba(251,113,133,0.2)",
                     }}
                   />
-                  <span className="relative z-10 text-[12px] font-medium text-slate-200 whitespace-nowrap font-orbitron tracking-wide block text-center">
+                  <span className="relative z-10 text-[12px] font-medium text-slate-200 whitespace-nowrap font-serif tracking-wide block text-center">
                     {node.label}
                   </span>
                 </motion.div>

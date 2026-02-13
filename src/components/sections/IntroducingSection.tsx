@@ -21,45 +21,27 @@ const outputs = [
 
 export function IntroducingSection() {
   return (
-    <section id="solution" className="relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden">
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 50%)",
-        }}
-      />
-
+    <section id="solution" className="relative bg-[#0c0e12] py-24 overflow-hidden">
       <div className="mx-auto max-w-6xl px-6 relative z-10">
-        <motion.div 
-          className="flex justify-center mb-6"
+        <motion.h2 
+          className="text-center mb-4 text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <span className="shiny-badge">
-            Introducing
-          </span>
-        </motion.div>
+          <span className="text-white">Intelligence for </span>
+          <span className="text-primary">Factories</span>
+        </motion.h2>
 
-        <motion.h2 
-          className="text-center text-heading mb-4"
+        <motion.p 
+          className="text-center text-slate-300 text-base md:text-lg mb-16 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Intelligence for Factories
-        </motion.h2>
-
-        <motion.p 
-          className="text-center text-body mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          One platform. Complete automation.
+          One platform. Complete automation. From inputs to a full production line model.
         </motion.p>
 
         <motion.div
@@ -88,15 +70,15 @@ export function IntroducingSection() {
 function FlowDiagramMobile() {
   return (
     <div
-      className="mx-auto rounded-2xl border border-blue-500/25 overflow-hidden w-full max-w-full"
+      className="mx-auto rounded-2xl border border-primary/25 overflow-hidden w-full max-w-full"
       style={{
         background: "linear-gradient(180deg, rgba(10,15,30,0.55) 0%, rgba(5,10,20,0.9) 100%)",
-        boxShadow: "0 0 40px rgba(59,130,246,0.08), inset 0 1px 0 rgba(255,255,255,0.02)",
+        boxShadow: "0 0 40px hsl(160 70% 45% /0.08), inset 0 1px 0 rgba(255,255,255,0.02)",
       }}
     >
       <div className="p-5 flex flex-col items-center gap-6">
         <div className="w-full text-left space-y-3">
-          <p className="text-[10px] font-orbitron tracking-widest text-slate-500 uppercase mb-3">
+          <p className="text-[10px] font-serif tracking-widest text-slate-500 uppercase mb-3">
             Inputs
           </p>
           <div className="grid grid-cols-3 gap-2.5">
@@ -104,7 +86,7 @@ function FlowDiagramMobile() {
               <button
                 key={input.label}
                 type="button"
-                className="w-full rounded-full border border-slate-500/50 bg-slate-900/80 px-4 py-2.5 text-[13px] font-orbitron text-slate-300 tracking-wide text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+                className="w-full rounded-full border border-slate-500/50 bg-slate-900/80 px-4 py-2.5 text-[13px] font-serif text-slate-300 tracking-wide text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
                 title={input.tooltip}
               >
                 {input.label}
@@ -115,24 +97,24 @@ function FlowDiagramMobile() {
 
         {/* Line Model connector */}
         <div className="relative w-full flex flex-col items-center gap-3 py-1">
-          <div className="border-l border-dashed border-blue-500/30 h-8 w-0" />
+          <div className="border-l border-dashed border-primary/30 h-8 w-0" />
           <button
             type="button"
-            className="rounded-full border-2 border-blue-400/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+            className="rounded-full border-2 border-primary/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
             style={{
               background: "linear-gradient(180deg, rgba(45,90,180,0.95) 0%, rgba(30,60,120,0.98) 100%)",
-              boxShadow: "0 0 32px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
+              boxShadow: "0 0 32px hsl(160 70% 45% /0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
             }}
           >
-            <span className="text-[14px] font-orbitron text-blue-50 tracking-wider">
+            <span className="text-[14px] font-serif text-primary tracking-wider">
               Line Model
             </span>
           </button>
-          <div className="border-l border-dashed border-blue-500/30 h-8 w-0" />
+          <div className="border-l border-dashed border-primary/30 h-8 w-0" />
         </div>
 
         <div className="w-full text-left space-y-3">
-          <p className="text-[10px] font-orbitron tracking-widest text-blue-400 uppercase mb-3">
+          <p className="text-[10px] font-serif tracking-widest text-primary uppercase mb-3">
             Outputs
           </p>
           <div className="flex flex-wrap gap-2.5 justify-start">
@@ -141,7 +123,7 @@ function FlowDiagramMobile() {
                 key={output.label}
                 type="button"
                 className={
-                  "rounded-full border border-blue-500/40 bg-blue-950/60 px-4 py-2.5 text-[12px] font-orbitron text-blue-200 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]" +
+                  "rounded-full border border-primary/40 bg-primary/20 px-4 py-2.5 text-[12px] font-serif text-primary tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]" +
                   (output.label === "CAPEX/OPEX" ? " mr-3" : "") +
                   (output.label === "Simulation" ? " ml-3" : "")
                 }
@@ -207,17 +189,17 @@ function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number
         cx={position.x}
         cy={position.y}
         r="12"
-        fill="rgba(59,130,246,0.4)"
+        fill="hsl(160 70% 45% /0.4)"
         style={{ opacity: opacity * 0.7 }}
       />
       <circle
         cx={position.x}
         cy={position.y}
         r="5"
-        fill="rgba(140,200,255,1)"
+        fill="hsl(160 70% 55% / 0.9)"
         style={{
           opacity,
-          filter: "drop-shadow(0 0 6px rgba(100,180,255,1))",
+          filter: "drop-shadow(0 0 6px hsl(160 70% 45% / 0.8))",
         }}
       />
     </g>
@@ -287,11 +269,11 @@ function FlowDiagram() {
   return (
     <div 
       ref={containerRef}
-      className="relative mx-auto rounded-2xl border border-blue-500/20 overflow-visible"
+      className="relative mx-auto rounded-2xl border border-primary/20 overflow-visible"
       style={{
         background: "linear-gradient(180deg, rgba(10,15,30,0.9) 0%, rgba(5,10,20,0.95) 100%)",
         maxWidth: 900,
-        boxShadow: "0 0 60px rgba(59,130,246,0.15), 0 0 100px rgba(59,130,246,0.08), inset 0 1px 0 rgba(255,255,255,0.03)",
+        boxShadow: "0 0 50px hsl(160 70% 45% /0.1), inset 0 1px 0 rgba(255,255,255,0.03)",
       }}
     >
       <div className="relative p-8 overflow-visible rounded-2xl">
@@ -306,7 +288,7 @@ function FlowDiagram() {
               id={path.id}
               d={path.d}
               fill="none"
-              stroke="rgba(80,130,220,0.25)"
+              stroke="hsl(160 70% 45% / 0.25)"
               strokeWidth="1.5"
             />
           ))}
@@ -317,7 +299,7 @@ function FlowDiagram() {
               id={path.id}
               d={path.d}
               fill="none"
-              stroke="rgba(80,130,220,0.25)"
+              stroke="hsl(160 70% 45% / 0.25)"
               strokeWidth="1.5"
             />
           ))}
@@ -337,7 +319,7 @@ function FlowDiagram() {
         <div className="relative z-10 flex items-center justify-between min-h-[260px]">
           
           <div className="flex items-center gap-4">
-            <div className="text-[10px] font-orbitron tracking-widest text-slate-500 uppercase writing-mode-vertical">
+            <div className="text-[10px] font-serif tracking-widest text-slate-500 uppercase writing-mode-vertical">
               <span className="[writing-mode:vertical-lr] rotate-180">Inputs</span>
             </div>
             <div className="flex flex-col gap-5 w-[130px]">
@@ -355,15 +337,15 @@ function FlowDiagram() {
                     onMouseLeave={() => setHoveredNode(null)}
                     onFocus={() => setHoveredNode(`input-${input.label}`)}
                     onBlur={() => setHoveredNode(null)}
-                    className="group relative text-left w-full rounded-full border bg-slate-900/80 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+                    className="group relative text-left w-full rounded-full border bg-slate-900/80 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
                     title={input.tooltip}
                     style={{
-                      borderColor: isHovered ? "rgba(59,130,246,0.7)" : "rgba(59,130,246,0.3)",
-                      boxShadow: isHovered ? "0 0 20px rgba(59,130,246,0.35)" : "none",
+                      borderColor: isHovered ? "hsl(160 70% 45% /0.7)" : "hsl(160 70% 45% /0.3)",
+                      boxShadow: isHovered ? "0 0 20px hsl(160 70% 45% /0.35)" : "none",
                     }}
                   >
                     <motion.span
-                      className="text-[13px] font-orbitron text-slate-300 tracking-wide block px-5 py-3"
+                      className="text-[13px] font-serif text-slate-300 tracking-wide block px-5 py-3"
                       animate={{ scale: isHovered ? 1.03 : 1 }}
                       transition={{ type: "spring", stiffness: 280, damping: 28 }}
                     >
@@ -377,7 +359,7 @@ function FlowDiagram() {
                           exit={{ opacity: 0, y: 6 }}
                           transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                           style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-blue-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-20 shadow-xl pointer-events-none"
+                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-primary/30 text-slate-300 text-xs font-sans whitespace-nowrap z-20 shadow-xl pointer-events-none"
                         >
                           {input.tooltip}
                         </motion.span>
@@ -398,23 +380,23 @@ function FlowDiagram() {
               <div 
                 className="absolute inset-[-35px] rounded-full pointer-events-none"
                 style={{
-                  background: "radial-gradient(circle, rgba(59,130,246,0.22) 0%, transparent 70%)",
+                  background: "radial-gradient(circle, hsl(160 70% 45% / 0.16) 0%, transparent 70%)",
                   opacity: 1,
                 }}
               />
               
               <div
-                className="absolute inset-[-18px] rounded-full border border-blue-500/40 pointer-events-none"
+                className="absolute inset-[-18px] rounded-full border border-primary/40 pointer-events-none"
               />
               
               <div 
-                className="relative px-7 py-4 rounded-full border border-blue-400/60"
+                className="relative px-7 py-4 rounded-full border border-primary/50"
                 style={{
                   background: "linear-gradient(180deg, rgba(45,90,180,0.95) 0%, rgba(30,60,120,0.98) 100%)",
-                  boxShadow: "0 0 50px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
+                  boxShadow: "0 0 36px hsl(160 70% 45% / 0.22), inset 0 1px 0 rgba(255,255,255,0.2)",
                 }}
               >
-                <span className="text-[14px] font-orbitron text-blue-50 tracking-wider">
+                <span className="text-[14px] font-serif text-white tracking-wider">
                   AI Model
                 </span>
               </div>
@@ -437,15 +419,15 @@ function FlowDiagram() {
                     onMouseLeave={() => setHoveredNode(null)}
                     onFocus={() => setHoveredNode(`output-${output.label}`)}
                     onBlur={() => setHoveredNode(null)}
-                    className="group relative w-full rounded-full border bg-blue-950/70 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+                    className="group relative w-full rounded-full border bg-primary/20 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
                     title={output.tooltip}
                     style={{
-                      borderColor: isHovered ? "rgba(59,130,246,0.8)" : "rgba(59,130,246,0.4)",
-                      boxShadow: isHovered ? "0 0 20px rgba(59,130,246,0.35)" : "none",
+                      borderColor: isHovered ? "hsl(160 70% 45% /0.8)" : "hsl(160 70% 45% /0.4)",
+                      boxShadow: isHovered ? "0 0 20px hsl(160 70% 45% /0.35)" : "none",
                     }}
                   >
                     <motion.span
-                      className="text-[11px] font-orbitron text-blue-200 tracking-wide block px-4 py-2 text-center"
+                      className="text-[11px] font-serif text-primary tracking-wide block px-4 py-2 text-center"
                       animate={{ scale: isHovered ? 1.03 : 1 }}
                       transition={{ type: "spring", stiffness: 280, damping: 28 }}
                     >
@@ -459,7 +441,7 @@ function FlowDiagram() {
                           exit={{ opacity: 0, y: 6 }}
                           transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                           style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-blue-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-20 shadow-xl pointer-events-none"
+                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-primary/30 text-slate-300 text-xs font-sans whitespace-nowrap z-20 shadow-xl pointer-events-none"
                         >
                           {output.tooltip}
                         </motion.span>
@@ -469,7 +451,7 @@ function FlowDiagram() {
                 );
               })}
             </div>
-            <div className="text-[10px] font-orbitron tracking-widest text-blue-400 uppercase">
+            <div className="text-[10px] font-serif tracking-widest text-primary uppercase">
               <span className="[writing-mode:vertical-lr]">Outputs</span>
             </div>
           </div>
@@ -479,8 +461,8 @@ function FlowDiagram() {
           <motion.div
             className="h-full w-1/5"
             style={{
-              background: "linear-gradient(90deg, transparent, rgba(59,130,246,1), transparent)",
-              boxShadow: "0 0 15px rgba(59,130,246,0.7)",
+              background: "linear-gradient(90deg, transparent, hsl(160 70% 45% /1), transparent)",
+              boxShadow: "0 0 12px hsl(160 70% 45% /0.5)",
             }}
             animate={{ x: ["-20%", "600%"] }}
             transition={{
