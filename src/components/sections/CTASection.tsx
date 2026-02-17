@@ -36,10 +36,10 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
     <section ref={sectionRef} id="contact" className="relative z-10 py-24">
       <div className="mx-auto max-w-4xl px-6">
         <motion.div
-          className="relative rounded-2xl border border-blue-500/30 p-10 md:p-14 text-center overflow-hidden"
+          className="relative rounded-2xl border border-teal-500/30 p-10 md:p-14 text-center overflow-hidden"
           style={{
             background: "linear-gradient(180deg, rgba(12,16,28,0.8) 0%, rgba(8,12,22,0.9) 100%)",
-            boxShadow: "0 0 40px rgba(59,130,246,0.1), inset 0 1px 0 rgba(59,130,246,0.1)",
+            boxShadow: "0 0 40px rgba(20,184,166,0.1), inset 0 1px 0 rgba(20,184,166,0.1)",
             scale,
             opacity,
             y,
@@ -49,14 +49,14 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           viewport={{ once: true }}
           transition={smoothSpring}
           whileHover={{
-            boxShadow: "0 0 80px rgba(59,130,246,0.18), inset 0 1px 0 rgba(59,130,246,0.15)",
+            boxShadow: "0 0 80px rgba(20,184,166,0.18), inset 0 1px 0 rgba(20,184,166,0.15)",
             transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
           }}
         >
           <motion.div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "linear-gradient(100deg, transparent 20%, rgba(59,130,246,0.04) 40%, rgba(147,197,253,0.06) 50%, rgba(59,130,246,0.04) 60%, transparent 80%)",
+              background: "linear-gradient(100deg, transparent 20%, rgba(20,184,166,0.04) 40%, rgba(94,234,212,0.06) 50%, rgba(20,184,166,0.04) 60%, transparent 80%)",
             }}
             animate={{
               x: ["-100%", "100%"],
@@ -70,7 +70,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           />
 
           <motion.div 
-            className="absolute top-0 left-0 w-6 h-6 border-t border-l border-blue-500/40"
+            className="absolute top-0 left-0 w-6 h-6 border-t border-l border-teal-500/40"
             animate={{ 
               opacity: [0.3, 0.9, 0.5, 1, 0.3],
               scale: [1, 1.02, 1, 1.03, 1],
@@ -78,7 +78,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
             transition={{ duration: animDurations.corner1, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div 
-            className="absolute top-0 right-0 w-6 h-6 border-t border-r border-blue-500/40"
+            className="absolute top-0 right-0 w-6 h-6 border-t border-r border-teal-500/40"
             animate={{ 
               opacity: [0.4, 1, 0.4, 0.8, 0.4],
               scale: [1, 1.03, 1, 1.02, 1],
@@ -86,7 +86,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
             transition={{ duration: animDurations.corner2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
           />
           <motion.div 
-            className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-blue-500/40"
+            className="absolute bottom-0 left-0 w-6 h-6 border-b border-l border-teal-500/40"
             animate={{ 
               opacity: [0.35, 0.85, 0.4, 1, 0.35],
               scale: [1, 1.02, 1, 1.04, 1],
@@ -94,7 +94,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
             transition={{ duration: animDurations.corner3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
           />
           <motion.div 
-            className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-blue-500/40"
+            className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-teal-500/40"
             animate={{ 
               opacity: [0.45, 0.95, 0.5, 0.85, 0.45],
               scale: [1, 1.04, 1, 1.02, 1],
@@ -103,7 +103,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           />
 
           <motion.h2 
-            className="text-heading mb-4 relative z-10"
+            className="text-heading mb-4 relative z-10 font-orbitron"
             initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -113,7 +113,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           </motion.h2>
           
           <motion.p 
-            className="text-body mb-8 max-w-xl mx-auto relative z-10"
+            className="text-body mb-8 max-w-xl mx-auto relative z-10 font-orbitron"
             initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

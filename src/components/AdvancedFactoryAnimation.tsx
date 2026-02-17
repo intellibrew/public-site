@@ -212,10 +212,10 @@ export default function AdvancedFactoryAnimation() {
       <div
         className="absolute flex items-center justify-center z-10"
         style={{
-          left: center - 20,
-          top: center - 20,
-          width: 40,
-          height: 40,
+          left: center - 28,
+          top: center - 28,
+          width: 56,
+          height: 56,
         }}
       >
         <motion.button
@@ -225,7 +225,7 @@ export default function AdvancedFactoryAnimation() {
           onMouseLeave={() => setHoveredNode(null)}
           onFocus={() => setHoveredNode("center")}
           onBlur={() => setHoveredNode(null)}
-          title="Scattered inputs, no single source of truth"
+          title="Uncertainty — scattered inputs, no single source of truth"
         >
           <motion.div
             animate={{ scale: hoveredNode === "center" ? 1.08 : [1, 1.04, 1] }}
@@ -240,17 +240,16 @@ export default function AdvancedFactoryAnimation() {
                 : "drop-shadow(0 0 8px rgba(251,113,133,0.5))",
             }}
           >
-            <svg 
-              className="w-8 h-8 text-red-400" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.5"
-              strokeLinecap="round" 
+            <svg
+              className="w-14 h-14 text-red-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </motion.div>

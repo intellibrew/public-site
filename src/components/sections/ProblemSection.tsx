@@ -25,7 +25,7 @@ export function ProblemSection() {
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 50%)",
+          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(20,184,166,0.08) 0%, transparent 50%)",
         }}
       />
 

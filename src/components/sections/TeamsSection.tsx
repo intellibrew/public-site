@@ -10,12 +10,12 @@ const teams = [
   },
   {
     icon: <Settings className="w-5 h-5" />,
-    title: "Process & Industrial Engineering",
+    title: "Industrial Engineering",
     items: ["Station design", "Cycle time modeling", "Layout iteration"],
   },
   {
     icon: <Package className="w-5 h-5" />,
-    title: "Manufacturing Ops & Procurement",
+    title: "Manufacturing Ops ",
     items: ["RFQ packs", "Equipment selection", "Capacity & bottlenecks"],
   },
 ];
@@ -26,17 +26,26 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(59,130,246,0.05) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(20,184,166,0.05) 0%, transparent 60%)",
         }}
       />
 
       <div className="mx-auto max-w-6xl px-6">
+        <motion.div
+          className="flex justify-center mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <span className="shiny-badge">Teams</span>
+        </motion.div>
         <motion.h2 
           className="text-center text-heading mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
           Built for manufacturing teams that ship.
         </motion.h2>
@@ -49,14 +58,14 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative rounded-2xl border border-blue-500/20 p-6 md:p-8"
+              className="relative rounded-2xl border border-teal-500/20 p-6 md:p-8"
               style={{
                 background: "linear-gradient(180deg, rgba(15,20,35,0.8) 0%, rgba(8,12,25,0.9) 100%)",
-                boxShadow: "0 0 25px rgba(59,130,246,0.05)",
+                boxShadow: "0 0 25px rgba(20,184,166,0.05)",
               }}
             >
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400">
                   {team.icon}
                 </div>
                 <h3 className="font-orbitron text-white text-[16px] md:text-[18px] leading-tight">
@@ -66,8 +75,8 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
 
               <ul className="space-y-3">
                 {team.items.map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-slate-400 text-[14px]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500/60 flex-shrink-0" />
+                  <li key={item} className="flex items-center gap-3 text-teal-300/90 text-[14px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500/60 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
