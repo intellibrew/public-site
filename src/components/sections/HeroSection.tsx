@@ -7,6 +7,8 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
+
+const SafeAnimatePresence = AnimatePresence as React.FC<React.PropsWithChildren<{ mode?: "wait" | "sync" | "popLayout" }>>;
 import { useMousePosition } from "@/hooks/useScrollAnimation";
 import { useCountUp } from "@/hooks/useCountUp";
 
@@ -61,7 +63,7 @@ function AnimatedWords() {
 
   return (
     <span className="inline-block relative min-w-[280px] md:min-w-[380px]">
-      <AnimatePresence mode="wait">
+      <SafeAnimatePresence mode="wait">
         <motion.span
           key={words[index]}
           initial={{ y: 40, opacity: 0, filter: "blur(8px)" }}
@@ -72,7 +74,7 @@ function AnimatedWords() {
         >
           {words[index]}
         </motion.span>
-      </AnimatePresence>
+      </SafeAnimatePresence>
     </span>
   );
 }
