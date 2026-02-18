@@ -120,8 +120,7 @@ export function UseCasesSection() {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse 50% 40% at 50% 50%, rgba(20,184,166,0.04) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
 

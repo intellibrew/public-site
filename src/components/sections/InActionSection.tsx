@@ -29,11 +29,11 @@ const actionCards = [
 
 export function InActionSection() {
   return (
-    <section id="in-action" className="relative bg-[#080a0f] py-24 overflow-hidden">
+    <section id="in-action" className="relative bg-[#060608] py-24 overflow-hidden">
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 50% 30% at 50% 20%, rgba(20,184,166,0.06) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
 
@@ -81,7 +81,7 @@ export function InActionSection() {
               key={card.title}
               className="group relative rounded-2xl border border-teal-500/20 p-5 transition-all duration-300 hover:border-teal-500/50 hover:shadow-[0_0_50px_rgba(20,184,166,0.2)]"
               style={{
-                background: "linear-gradient(180deg, rgba(12,16,28,0.9) 0%, rgba(8,12,22,0.95) 100%)",
+                background: "linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)",
                 boxShadow: "0 0 25px rgba(20,184,166,0.06)",
               }}
             >

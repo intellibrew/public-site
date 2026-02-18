@@ -33,12 +33,13 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
   }), []);
 
   return (
-    <section ref={sectionRef} id="contact" className="relative z-10 py-24">
-      <div className="mx-auto max-w-4xl px-6">
+    <section ref={sectionRef} id="contact" className="relative z-10 py-24 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)" }} />
+      <div className="relative z-10 mx-auto max-w-4xl px-6">
         <motion.div
           className="relative rounded-2xl border border-teal-500/30 p-10 md:p-14 text-center overflow-hidden"
           style={{
-            background: "linear-gradient(180deg, rgba(12,16,28,0.8) 0%, rgba(8,12,22,0.9) 100%)",
+            background: "linear-gradient(180deg, rgba(12,12,14,0.98) 0%, rgba(6,6,8,0.99) 100%)",
             boxShadow: "0 0 40px rgba(20,184,166,0.1), inset 0 1px 0 rgba(20,184,166,0.1)",
             scale,
             opacity,

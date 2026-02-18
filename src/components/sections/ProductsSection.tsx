@@ -194,6 +194,7 @@ export function ProductsSection() {
       data-testid="section-products"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/5 to-background pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)" }} />
 
       <div ref={containerRef} className="relative z-10 max-w-7xl mx-auto px-6">
         <motion.div

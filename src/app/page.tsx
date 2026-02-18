@@ -154,7 +154,7 @@ export default function Home() {
   )
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-white">
+    <div className="min-h-screen bg-[#060608] text-white">
       <ScrollProgress />
       <Header onBookDemo={() => setDemoOpen(true)} />
 
@@ -259,7 +259,7 @@ export default function Home() {
         <ClientsSection />
 
         {/* About, FAQ & Contact */}
-        <div className="relative bg-[#080a0f] overflow-hidden">
+        <div className="relative bg-[#060608] overflow-hidden">
           <AboutSection />
           <FAQSection />
           <CTASection onBookDemo={() => setDemoOpen(true)} />
@@ -931,7 +931,7 @@ function RequestDemoModal({
         initial={{ opacity: 0, scale: 0.96, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-teal-500/25 bg-[#0c1220] shadow-[0_0_40px_rgba(20,184,166,0.08),0_0_80px_rgba(20,184,166,0.04)]"
+        className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-teal-500/25 bg-[#08080a] shadow-[0_0_40px_rgba(20,184,166,0.08),0_0_80px_rgba(20,184,166,0.04)]"
         onClick={handleModalClick}
       >
         {/* Top accent */}
@@ -980,7 +980,7 @@ function RequestDemoModal({
                     value={form.name}
                     onChange={onChange}
                     placeholder="John Doe"
-                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
                 <div>
@@ -992,7 +992,7 @@ function RequestDemoModal({
                     value={form.email}
                     onChange={onChange}
                     placeholder="johndoe@company.com"
-                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
               </div>
@@ -1005,7 +1005,7 @@ function RequestDemoModal({
                     value={form.company}
                     onChange={onChange}
                     placeholder="Acme Manufacturing"
-                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
                 <div>
@@ -1015,7 +1015,7 @@ function RequestDemoModal({
                     value={form.phone}
                     onChange={onChange}
                     placeholder="+1 (555) 555-5555"
-                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
               </div>
@@ -1028,7 +1028,7 @@ function RequestDemoModal({
                   onChange={onChange}
                   rows={4}
                   placeholder="Share goals, current tools, timelines…"
-                  className="mt-1 w-full rounded-xl border border-teal-500/25 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50 resize-none"
+                  className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50 resize-none"
                 />
               </div>
 
@@ -1049,14 +1049,14 @@ function RequestDemoModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full px-5 py-2.5 text-sm font-medium border border-teal-500/40 text-slate-300 hover:text-white hover:bg-teal-500/15 hover:border-teal-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] disabled:opacity-50"
+                className="rounded-full px-5 py-2.5 text-sm font-medium border border-teal-500/40 text-slate-300 hover:text-white hover:bg-teal-500/15 hover:border-teal-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080a] disabled:opacity-50"
                 disabled={status === "submitting"}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] shadow-[0_4px_16px_rgba(20,184,166,0.12)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.18)]"
+                className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080a] shadow-[0_4px_16px_rgba(20,184,166,0.12)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.18)]"
                 disabled={status === "submitting" || status === "success"}
               >
                 <span>{status === "submitting" ? "Submitting…" : "Submit"}</span>

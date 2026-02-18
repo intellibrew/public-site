@@ -93,8 +93,9 @@ export function ClientsSection() {
   }, []);
 
   return (
-    <section id="clients" className="relative bg-[#080a0f] py-12 sm:py-16 md:py-20 overflow-hidden">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 mb-6 md:mb-10">
+    <section id="clients" className="relative bg-[#060608] py-12 sm:py-16 md:py-20 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)" }} />
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 mb-6 md:mb-10">
         <motion.p 
           className="text-center text-slate-400 text-sm sm:text-[16px] italic"
           initial={{ opacity: 0, y: 20 }}
@@ -107,14 +108,14 @@ export function ClientsSection() {
       </div>
 
       <div
-        className="relative w-full overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        className="relative z-10 w-full overflow-hidden cursor-grab active:cursor-grabbing select-none"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
-        <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 z-10 bg-gradient-to-r from-[#080a0f] to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 z-10 bg-gradient-to-l from-[#080a0f] to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 z-10 bg-gradient-to-r from-[#060608] to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 z-10 bg-gradient-to-l from-[#060608] to-transparent pointer-events-none" />
 
         <motion.div
           className="flex gap-6 sm:gap-10 md:gap-12 items-center"
@@ -123,7 +124,7 @@ export function ClientsSection() {
           {clients.map((client, index) => (
             <motion.div
               key={`first-${index}`}
-              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-teal-500/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center"
+              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-teal-500/20 bg-black/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center"
             >
               <img
                 src={client.logo}
@@ -137,7 +138,7 @@ export function ClientsSection() {
           {clients.map((client, index) => (
             <motion.div
               key={`second-${index}`}
-              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-teal-500/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center"
+              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-teal-500/20 bg-black/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center"
             >
               <img
                 src={client.logo}
@@ -151,7 +152,7 @@ export function ClientsSection() {
           {clients.map((client, index) => (
             <motion.div
               key={`third-${index}`}
-              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-teal-500/20 bg-slate-900/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center"
+              className="flex-shrink-0 px-4 py-3 sm:px-6 sm:py-4 rounded-lg sm:rounded-xl border border-teal-500/20 bg-black/30 min-w-[100px] sm:min-w-[140px] md:min-w-[160px] h-[60px] sm:h-[70px] md:h-[80px] flex items-center justify-center"
             >
               <img
                 src={client.logo}

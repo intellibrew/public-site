@@ -39,7 +39,7 @@ export function AboutSection() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.06) 0%, transparent 55%)",
+            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
 
@@ -69,7 +69,7 @@ export function AboutSection() {
         <motion.div
           className="rounded-2xl border border-teal-500/20 p-6 md:p-8 mb-6"
           style={{
-            background: "linear-gradient(180deg, rgba(12,16,28,0.8) 0%, rgba(8,12,22,0.9) 100%)",
+            background: "linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)",
             boxShadow: "0 0 30px rgba(20,184,166,0.06)",
           }}
           initial={{ opacity: 0, y: 20 }}
@@ -97,7 +97,7 @@ export function AboutSection() {
         <motion.div
           className="rounded-2xl border border-teal-500/20 p-6 md:p-8 mb-6"
           style={{
-            background: "linear-gradient(180deg, rgba(12,16,28,0.8) 0%, rgba(8,12,22,0.9) 100%)",
+            background: "linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)",
             boxShadow: "0 0 30px rgba(20,184,166,0.06)",
           }}
           initial={{ opacity: 0, y: 20 }}
@@ -128,7 +128,7 @@ export function AboutSection() {
         <motion.div
           className="rounded-2xl border border-teal-500/20 p-6 md:p-8"
           style={{
-            background: "linear-gradient(180deg, rgba(12,16,28,0.8) 0%, rgba(8,12,22,0.9) 100%)",
+            background: "linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)",
             boxShadow: "0 0 30px rgba(20,184,166,0.06)",
           }}
           initial={{ opacity: 0, y: 20 }}

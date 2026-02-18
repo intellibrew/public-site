@@ -25,7 +25,7 @@ export function IntroducingSection() {
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(20,184,166,0.08) 0%, transparent 50%)",
+          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
 
@@ -88,63 +88,67 @@ export function IntroducingSection() {
 function FlowDiagramMobile() {
   return (
     <div
-      className="mx-auto rounded-2xl border border-teal-500/25 overflow-hidden w-full max-w-full"
+      className="mx-auto rounded-2xl border border-teal-500/25 overflow-visible w-full max-w-full"
       style={{
-        background: "linear-gradient(180deg, rgba(10,15,30,0.55) 0%, rgba(5,10,20,0.9) 100%)",
+        background: "linear-gradient(180deg, rgba(10,10,12,0.95) 0%, rgba(4,4,6,0.98) 100%)",
         boxShadow: "0 0 40px rgba(20,184,166,0.08), inset 0 1px 0 rgba(255,255,255,0.02)",
       }}
     >
-      <div className="p-5 flex flex-col items-center gap-6">
-        <div className="w-full text-left space-y-3">
-          <p className="text-[10px] font-orbitron tracking-widest text-slate-500 uppercase mb-3">
+      <div className="relative p-5 flex flex-col items-center">
+        {/* Vertical line: under BOM/inputs → Outputs header only */}
+        <div className="absolute left-1/2 top-[4.75rem] bottom-[14rem] w-px -ml-px bg-gradient-to-b from-teal-500/30 via-teal-500/60 to-teal-500/30" />
+
+        {/* Inputs - above, connect down to spine */}
+        <div className="relative w-full flex flex-col items-center pb-2">
+          <p className="text-[10px] font-orbitron tracking-widest text-teal-400 uppercase mb-2">
             Inputs
           </p>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="flex flex-wrap justify-center gap-2">
             {inputs.map((input) => (
               <button
                 key={input.label}
                 type="button"
-                className="w-full rounded-full border border-slate-500/50 bg-slate-900/80 px-4 py-2.5 text-[13px] font-orbitron text-slate-300 tracking-wide text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-orbitron text-slate-300 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
                 title={input.tooltip}
               >
                 {input.label}
               </button>
             ))}
           </div>
+          {/* Connector: inputs → spine */}
+          <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/40 to-teal-500/60" />
         </div>
 
-        {/* Line Model connector */}
-        <div className="relative w-full flex flex-col items-center gap-3 py-1">
-          <div className="border-l border-dashed border-teal-500/30 h-8 w-0" />
-          <button
-            type="button"
-            className="rounded-full border-2 border-teal-400/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
-            style={{
-              background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-              boxShadow: "0 0 32px rgba(20,184,166,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
-            }}
-          >
-            <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">
-              Line Model
-            </span>
-          </button>
-          <div className="border-l border-dashed border-teal-500/30 h-8 w-0" />
+        {/* Line Model - ON the spine */}
+        <div className="relative flex flex-col items-center py-2">
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-full bg-teal-500/20 blur-md" />
+            <button
+              type="button"
+              className="relative rounded-full border-2 border-teal-400/70 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+              style={{
+                background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
+                boxShadow: "0 0 24px rgba(20,184,166,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
+              }}
+            >
+              <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">Line Model</span>
+            </button>
+          </div>
+          {/* Connector: spine → outputs */}
+          <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/60 to-teal-500/40" />
         </div>
 
-        <div className="w-full text-left space-y-3">
-          <p className="text-[10px] font-orbitron tracking-widest text-teal-400 uppercase mb-3">
+        {/* Outputs - below, fed by spine */}
+        <div className="relative w-full flex flex-col items-center pt-2">
+          <p className="text-[10px] font-orbitron tracking-widest text-teal-400 uppercase mb-2">
             Outputs
           </p>
-          <div className="flex flex-wrap gap-2.5 justify-start">
+          <div className="flex flex-col gap-2 w-full max-w-[200px]">
             {outputs.map((output) => (
               <button
                 key={output.label}
                 type="button"
-                className={
-                  "rounded-full border border-teal-500/40 bg-teal-950/60 px-4 py-2.5 text-[12px] font-orbitron text-teal-200 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]" +
-                  (output.label === "CAPEX/OPEX" ? " mr-3" : "") +
-                  (output.label === "Simulation" ? " ml-3" : "")
-                }
+                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-orbitron text-teal-200 tracking-wide text-center w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
                 title={output.tooltip}
               >
                 {output.label}
@@ -289,7 +293,7 @@ function FlowDiagram() {
       ref={containerRef}
       className="relative mx-auto rounded-2xl border border-teal-500/20 overflow-visible"
       style={{
-        background: "linear-gradient(180deg, rgba(10,15,30,0.9) 0%, rgba(5,10,20,0.95) 100%)",
+        background: "linear-gradient(180deg, rgba(10,10,12,0.98) 0%, rgba(4,4,6,0.99) 100%)",
         maxWidth: 900,
         boxShadow: "0 0 60px rgba(20,184,166,0.15), 0 0 100px rgba(20,184,166,0.08), inset 0 1px 0 rgba(255,255,255,0.03)",
       }}
@@ -355,7 +359,7 @@ function FlowDiagram() {
                     onMouseLeave={() => setHoveredNode(null)}
                     onFocus={() => setHoveredNode(`input-${input.label}`)}
                     onBlur={() => setHoveredNode(null)}
-                    className="group relative text-left w-full rounded-full border bg-slate-900/80 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+                    className="group relative text-left w-full rounded-full border bg-black/40 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
                     title={input.tooltip}
                     style={{
                       borderColor: isHovered ? "rgba(20,184,166,0.7)" : "rgba(20,184,166,0.3)",
@@ -377,7 +381,7 @@ function FlowDiagram() {
                           exit={{ opacity: 0, y: 6 }}
                           transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                           style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-teal-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-20 shadow-xl pointer-events-none"
+                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-sans whitespace-nowrap z-[100] shadow-xl pointer-events-none"
                         >
                           {input.tooltip}
                         </motion.span>
@@ -437,7 +441,7 @@ function FlowDiagram() {
                     onMouseLeave={() => setHoveredNode(null)}
                     onFocus={() => setHoveredNode(`output-${output.label}`)}
                     onBlur={() => setHoveredNode(null)}
-                    className="group relative w-full rounded-full border bg-teal-950/70 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
+                    className="group relative w-full rounded-full border bg-black/40 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
                     title={output.tooltip}
                     style={{
                       borderColor: isHovered ? "rgba(20,184,166,0.8)" : "rgba(20,184,166,0.4)",
@@ -459,7 +463,7 @@ function FlowDiagram() {
                           exit={{ opacity: 0, y: 6 }}
                           transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                           style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-teal-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-20 shadow-xl pointer-events-none"
+                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-sans whitespace-nowrap z-[100] shadow-xl pointer-events-none"
                         >
                           {output.tooltip}
                         </motion.span>

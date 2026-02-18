@@ -43,7 +43,7 @@ export function FAQSection() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 70% 45% at 50% 10%, rgba(20,184,166,0.06) 0%, transparent 55%)",
+            "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
 

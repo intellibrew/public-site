@@ -22,11 +22,11 @@ const teams = [
 
 export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
   return (
-    <section id="teams" className="relative bg-[#080a0f] py-24 overflow-hidden">
+    <section id="teams" className="relative bg-[#060608] py-24 overflow-hidden">
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 50%, rgba(20,184,166,0.05) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
 
@@ -60,7 +60,7 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative rounded-2xl border border-teal-500/20 p-6 md:p-8"
               style={{
-                background: "linear-gradient(180deg, rgba(15,20,35,0.8) 0%, rgba(8,12,25,0.9) 100%)",
+                background: "linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)",
                 boxShadow: "0 0 25px rgba(20,184,166,0.05)",
               }}
             >
