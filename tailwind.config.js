@@ -1,4 +1,4 @@
-﻿/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
@@ -43,7 +43,21 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      }
+      },
+      keyframes: {
+        flowDown: {
+          "0%, 100%": { transform: "translateY(0) scale(1)", opacity: "1" },
+          "50%": { transform: "translateY(180px) scale(1.1)", opacity: "0.95" },
+        },
+      },
+      animation: {
+        "flow-down": "flowDown 2.5s ease-in-out infinite",
+      },
+      fontFamily: {
+        orbitron: ["var(--font-orbitron)", "system-ui", "sans-serif"],
+        body: ["var(--font-body)", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        helvetica: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      },
     },
   },
   plugins: [],

@@ -24,13 +24,12 @@ import { ProblemSection } from "@/components/sections/ProblemSection";
 import { IntroducingSection } from "@/components/sections/IntroducingSection";
 import { ProductsSection } from "@/components/sections/ProductsSection";
 import { TeamsSection } from "@/components/sections/TeamsSection";
-import { InActionSection } from "@/components/sections/InActionSection";
 import { UseCasesSection } from "@/components/sections/UseCasesSection";
 import { ClientsSection } from "@/components/sections/ClientsSection";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { CTASection } from "@/components/sections/CTASection";
-import { SideNav } from "@/components/SideNav";
+import { HeroSection } from "@/components/sections/HeroSection";
 import ScrollProgress from "@/components/ScrollProgress";
 import FactoryFlowMap from "@/components/FactoryFlowMap";
 import { motion } from "framer-motion";
@@ -154,10 +153,9 @@ export default function Home() {
   )
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-white">
+    <div className="min-h-screen bg-[#060608] text-white">
       <ScrollProgress />
-      <Header onBookDemo={() => setDemoOpen(true)} />
-      <SideNav />
+      <Header />
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -166,10 +164,13 @@ export default function Home() {
       >
       {/* Main */}
       <main id="home" className="scroll-mt-24">
-        {/* Hero */}
+        {/* Hero - Mobile: video, full content */}
+        <HeroSection />
+
+        {/* Hero - Desktop: simple text + line model + factory background */}
         <section
           id="product"
-          className="relative overflow-hidden min-h-[80vh] md:min-h-screen"
+          className="relative overflow-hidden min-h-[80vh] md:min-h-screen hidden lg:block"
         >
           {/* Background factory image */}
           <div className="absolute inset-0">
@@ -180,12 +181,12 @@ export default function Home() {
               priority
               className="object-cover lg:object-fill"
             />
-            {/* Keep image crisp, bright center, darker corners + subtle site-blue tint */}
+            {/* Keep image crisp, darker corners + teal tint (no blue shadow) */}
             <div className="absolute inset-0 pointer-events-none">
-              {/* Corner vignettes */}
-              <div className="absolute inset-0 bg-[radial-gradient(1000px_800px_at_0%_0%,rgba(4,7,21,0.8),transparent_60%),radial-gradient(1000px_800px_at_100%_0%,rgba(4,7,21,0.8),transparent_60%),radial-gradient(1200px_900px_at_50%_100%,rgba(4,7,21,0.9),transparent_65%)]" />
-              {/* Soft blue tone over everything, but center stays bright */}
-              <div className="absolute inset-0 bg-[radial-gradient(900px_600px_at_40%_45%,rgba(37,99,235,0.06),transparent_70%),radial-gradient(circle_at_center,rgba(15,23,42,0.15),rgba(15,23,42,0.45))] mix-blend-soft-light" />
+              {/* Corner vignettes - teal-tinted dark instead of blue */}
+              <div className="absolute inset-0 bg-[radial-gradient(1000px_800px_at_0%_0%,rgba(2,12,14,0.8),transparent_60%),radial-gradient(1000px_800px_at_100%_0%,rgba(2,12,14,0.8),transparent_60%),radial-gradient(1200px_900px_at_50%_100%,rgba(2,12,14,0.9),transparent_65%)]" />
+              {/* Teal tone overlay to neutralize blue cast */}
+              <div className="absolute inset-0 bg-[radial-gradient(900px_600px_at_40%_45%,rgba(20,184,166,0.08),transparent_70%),radial-gradient(circle_at_center,rgba(8,20,22,0.2),rgba(8,20,22,0.5))] mix-blend-soft-light" />
             </div>
           </div>
 
@@ -224,7 +225,7 @@ export default function Home() {
                     factory
                   </span>
                   <span
-                    className="mt-2 block font-orbitron text-[rgb(0,77,255)]"
+                    className="mt-2 block font-orbitron text-primary"
                   >
                     in hours, not
                     <br />
@@ -238,29 +239,26 @@ export default function Home() {
 
         <ProblemSection />
 
-        {/* Introducing section */}
+        {/* Solution section */}
         <IntroducingSection />
 
         {/* Products section */}
         <ProductsSection />
 
-        {/* Teams section */}
-        <TeamsSection onBookDemo={() => setDemoOpen(true)} />
-
-        {/* In Action section */}
-        <InActionSection />
-
         {/* Use Cases section */}
         <UseCasesSection />
+
+        {/* Customers section */}
+        <TeamsSection />
 
         {/* Clients section */}
         <ClientsSection />
 
         {/* About, FAQ & Contact */}
-        <div className="relative bg-[#080a0f] overflow-hidden">
+        <div className="relative bg-[#060608] overflow-hidden">
           <AboutSection />
           <FAQSection />
-          <CTASection onBookDemo={() => setDemoOpen(true)} />
+          <CTASection />
         </div>
 
         {/* Demo request modal */}
@@ -291,24 +289,24 @@ export default function Home() {
         .ball { position: absolute; border-radius: 9999px; filter: blur(42px); opacity: 0.65; transform: translateZ(0); }
         .ball-1 {
           top: 8%; left: 12%; width: 22rem; height: 22rem;
-          background: radial-gradient(closest-side, rgba(99,102,241,0.45), rgba(14,165,233,0.35), rgba(8,145,178,0.22), transparent 70%);
+          background: radial-gradient(closest-side, rgba(20,184,166,0.35), rgba(94,234,212,0.25), rgba(20,184,166,0.15), transparent 70%);
         }
         .ball-2 {
           top: 52%; right: 8%; width: 26rem; height: 26rem;
-          background: radial-gradient(closest-side, rgba(14,165,233,0.35), rgba(56,189,248,0.3), rgba(99,102,241,0.22), transparent 70%);
+          background: radial-gradient(closest-side, rgba(94,234,212,0.28), rgba(20,184,166,0.25), rgba(20,184,166,0.15), transparent 70%);
         }
         .ball-3 {
           bottom: 6%; left: 28%; width: 24rem; height: 24rem;
-          background: radial-gradient(closest-side, rgba(56,189,248,0.3), rgba(14,165,233,0.26), rgba(99,102,241,0.18), transparent 70%);
+          background: radial-gradient(closest-side, rgba(20,184,166,0.25), rgba(94,234,212,0.2), rgba(20,184,166,0.12), transparent 70%);
         }
 
         /* Soft hero glow */
         .hero-soft-glow {
           position: absolute; inset: -20% -10% -30% -10%; pointer-events: none;
           background:
-            radial-gradient(40% 32% at 20% 22%, rgba(99,102,241,0.22), transparent 60%),
-            radial-gradient(52% 38% at 78% 18%, rgba(56,189,248,0.24), transparent 60%),
-            radial-gradient(48% 36% at 42% 82%, rgba(6,182,212,0.22), transparent 60%);
+            radial-gradient(40% 32% at 20% 22%, rgba(20,184,166,0.2), transparent 60%),
+            radial-gradient(52% 38% at 78% 18%, rgba(94,234,212,0.22), transparent 60%),
+            radial-gradient(48% 36% at 42% 82%, rgba(20,184,166,0.18), transparent 60%);
           filter: blur(34px); opacity: .9;
         }
 
@@ -339,7 +337,7 @@ export default function Home() {
         .btn-halo { position: relative; }
         .btn-halo::after {
           content: ""; position: absolute; inset: -14px; z-index: -2; border-radius: 9999px;
-          background: radial-gradient(60% 60% at 50% 50%, rgba(56,189,248,.35), rgba(59,130,246,.25), transparent 70%);
+          background: radial-gradient(60% 60% at 50% 50%, rgba(20,184,166,.3), rgba(94,234,212,.22), transparent 70%);
           filter: blur(18px); opacity: .9; transition: transform .3s ease, opacity .3s ease;
         }
         .btn-halo:hover::after { transform: scale(1.06); opacity: 1; }
@@ -583,7 +581,7 @@ export default function Home() {
           display:grid; place-items:center;
           width: 28px; height: 28px;
           border-radius: 999px;
-          background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(56,189,248,.12));
+          background: linear-gradient(135deg, rgba(20,184,166,.12), rgba(94,234,212,.12));
           border: 1px solid rgba(228,228,231,.9);
           box-shadow: 0 6px 14px -10px rgba(2,132,199,.25);
           transition: transform .25s ease;
@@ -653,7 +651,7 @@ function FlowCard({
       <div className="group relative overflow-hidden rounded-2xl border border-zinc-200/85 bg-white/90 p-6 backdrop-blur ring-1 ring-white shadow-[0_36px_120px_-44px_rgba(15,23,42,0.3)] transition hover:shadow-[0_44px_160px_-52px_rgba(2,132,199,0.33)]">
         <div
           aria-hidden
-          className="pointer-events-none absolute -inset-16 -z-10 bg-[conic-gradient(from_180deg_at_50%_50%,rgba(99,102,241,0.12),rgba(56,189,248,0.12),rgba(6,182,212,0.12),transparent,transparent,rgba(99,102,241,0.12))] blur-2xl animate-[halo_11s_ease-in-out_infinite]"
+          className="pointer-events-none absolute -inset-16 -z-10 bg-[conic-gradient(from_180deg_at_50%_50%,rgba(20,184,166,0.12),rgba(94,234,212,0.12),rgba(20,184,166,0.1),transparent,transparent,rgba(20,184,166,0.12))] blur-2xl animate-[halo_11s_ease-in-out_infinite]"
         />
         <div className="mb-3 flex items-center gap-3">
           <div className="relative grid h-10 w-10 place-items-center rounded-full ring-1 ring-zinc-200 bg-gradient-to-br from-indigo-600/10 via-sky-500/10 to-cyan-500/10 transition-transform duration-300 group-hover:-translate-y-0.5">
@@ -662,7 +660,7 @@ function FlowCard({
             </div>
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-full blur-2xl opacity-70 bg-[radial-gradient(closest-side,rgba(56,189,248,0.35),transparent)]"
+              className="pointer-events-none absolute inset-0 rounded-full blur-2xl opacity-70 bg-[radial-gradient(closest-side,rgba(20,184,166,0.3),transparent)]"
             />
           </div>
           <div className="text-base font-semibold tracking-tight">{title}</div>
@@ -725,7 +723,7 @@ function DemoCard({
           {/* top gradient strip */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[linear-gradient(180deg,rgba(59,130,246,0.22)_0%,rgba(14,165,233,0.18)_60%,transparent_100%)]"
+            className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-[linear-gradient(180deg,rgba(20,184,166,0.2)_0%,rgba(94,234,212,0.16)_60%,transparent_100%)]"
           />
         </div>
       </article>
@@ -784,7 +782,7 @@ function FeatureCard({ item, index }: { item: FeatureItem; index: number }) {
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-64 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(56,189,248,0.24),transparent)] blur-3xl animate-[halo_9s_ease-in-out_infinite]"
+          className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-64 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(20,184,166,0.22),transparent)] blur-3xl animate-[halo_9s_ease-in-out_infinite]"
           style={{ animationDelay: `${index * 0.35}s` }}
         />
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs">
@@ -929,11 +927,11 @@ function RequestDemoModal({
         initial={{ opacity: 0, scale: 0.96, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-blue-500/30 bg-[#0c1220] shadow-[0_0_60px_rgba(59,130,246,0.15),0_0_100px_rgba(59,130,246,0.08)]"
+        className="relative z-[121] w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-teal-500/25 bg-[#08080a] shadow-[0_0_40px_rgba(20,184,166,0.08),0_0_80px_rgba(20,184,166,0.04)]"
         onClick={handleModalClick}
       >
         {/* Top accent */}
-        <div className="h-1 w-full shrink-0 rounded-t-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500" />
+        <div className="h-1 w-full shrink-0 rounded-t-2xl bg-gradient-to-r from-teal-600 via-teal-500 to-teal-400" />
         <div className="flex flex-col flex-1 min-h-0 p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -948,7 +946,7 @@ function RequestDemoModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="shrink-0 rounded-full p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="shrink-0 rounded-full p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -978,7 +976,7 @@ function RequestDemoModal({
                     value={form.name}
                     onChange={onChange}
                     placeholder="John Doe"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
                 <div>
@@ -990,7 +988,7 @@ function RequestDemoModal({
                     value={form.email}
                     onChange={onChange}
                     placeholder="johndoe@company.com"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
               </div>
@@ -1003,7 +1001,7 @@ function RequestDemoModal({
                     value={form.company}
                     onChange={onChange}
                     placeholder="Acme Manufacturing"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
                 <div>
@@ -1013,7 +1011,7 @@ function RequestDemoModal({
                     value={form.phone}
                     onChange={onChange}
                     placeholder="+1 (555) 555-5555"
-                    className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50"
+                    className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50"
                   />
                 </div>
               </div>
@@ -1026,7 +1024,7 @@ function RequestDemoModal({
                   onChange={onChange}
                   rows={4}
                   placeholder="Share goals, current tools, timelines…"
-                  className="mt-1 w-full rounded-xl border border-blue-500/30 bg-slate-900/80 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-500/50 resize-none"
+                  className="mt-1 w-full rounded-xl border border-teal-500/25 bg-black/40 px-3 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50 focus:border-teal-500/50 resize-none"
                 />
               </div>
 
@@ -1043,18 +1041,18 @@ function RequestDemoModal({
             </div>
 
             {/* Buttons - always visible at bottom */}
-            <div className="flex items-center justify-end gap-3 pt-5 mt-4 shrink-0 border-t border-blue-500/20">
+            <div className="flex items-center justify-end gap-3 pt-5 mt-4 shrink-0 border-t border-teal-500/20">
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full px-5 py-2.5 text-sm font-medium border border-blue-500/50 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220] disabled:opacity-50"
+                className="rounded-full px-5 py-2.5 text-sm font-medium border border-teal-500/40 text-slate-300 hover:text-white hover:bg-teal-500/15 hover:border-teal-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080a] disabled:opacity-50"
                 disabled={status === "submitting"}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c1220]"
+                className="btn-cta-large rounded-full px-6 py-2.5 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08080a] shadow-[0_4px_16px_rgba(20,184,166,0.12)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.18)]"
                 disabled={status === "submitting" || status === "success"}
               >
                 <span>{status === "submitting" ? "Submitting…" : "Submit"}</span>

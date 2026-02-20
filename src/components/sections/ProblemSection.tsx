@@ -25,7 +25,7 @@ export function ProblemSection() {
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 50%)",
+          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
 
@@ -36,26 +36,19 @@ export function ProblemSection() {
         <div className="flex-1 space-y-6">
           <AnimateInView>
             <motion.span 
-              className="nav-demo-btn px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] cursor-default"
-              style={{
-                ["--shiny-cta-bg" as string]: "#1b0b10",
-                ["--shiny-cta-bg-subtle" as string]: "#3f151c",
-                ["--shiny-cta-fg" as string]: "#fecaca",
-                ["--shiny-cta-highlight" as string]: "#fb7185",
-                ["--shiny-cta-highlight-subtle" as string]: "rgba(252,165,165,0.9)",
-                pointerEvents: "none",
-              }}
+              className="shiny-badge px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] cursor-default"
+              style={{ pointerEvents: "none" }}
             >
               Problem
             </motion.span>
           </AnimateInView>
           <AnimateInView delay={60}>
             <h2 className="text-heading">
-              Factory planning is
+              <span>Factory planning is</span>
               <br />
-              still slow, manual,
+              <span className="text-primary">still slow, manual,</span>
               <br />
-              and dated.
+              <span className="text-primary">and dated.</span>
             </h2>
           </AnimateInView>
           <AnimateInView delay={120}>
@@ -83,9 +76,9 @@ export function ProblemSection() {
                   transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
                 >
                   <motion.span 
-                    className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-2xl border border-[#fb7185]/60 bg-[radial-gradient(circle_at_30%_0%,rgba(252,165,165,0.38),rgba(127,29,29,0.95))] text-[#fecaca] shadow-[0_10px_30px_-18px_rgba(248,113,113,0.95)]"
+                    className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-2xl border border-teal-500/50 bg-[radial-gradient(circle_at_30%_0%,rgba(94,234,212,0.35),rgba(20,184,166,0.2))] text-teal-200 shadow-[0_10px_30px_-18px_rgba(20,184,166,0.35)]"
                   >
-                    <span className="text-[#fda4af]">
+                    <span className="text-teal-300">
                       {icon}
                     </span>
                   </motion.span>

@@ -212,10 +212,10 @@ export default function AdvancedFactoryAnimation() {
       <div
         className="absolute flex items-center justify-center z-10"
         style={{
-          left: center - 20,
-          top: center - 20,
-          width: 40,
-          height: 40,
+          left: center - 28,
+          top: center - 28,
+          width: 56,
+          height: 56,
         }}
       >
         <motion.button
@@ -240,17 +240,16 @@ export default function AdvancedFactoryAnimation() {
                 : "drop-shadow(0 0 8px rgba(251,113,133,0.5))",
             }}
           >
-            <svg 
-              className="w-8 h-8 text-red-400" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.5"
-              strokeLinecap="round" 
+            <svg
+              className="w-14 h-14 text-red-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </motion.div>
@@ -262,7 +261,7 @@ export default function AdvancedFactoryAnimation() {
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                 style={{ transformOrigin: "center top" }}
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-30 shadow-xl pointer-events-none w-max max-w-[200px] text-center"
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-body whitespace-nowrap z-30 shadow-xl pointer-events-none w-max max-w-[200px] text-center"
               >
               </motion.span>
             )}
@@ -298,7 +297,7 @@ export default function AdvancedFactoryAnimation() {
               onMouseLeave={() => setHoveredNode(null)}
               onFocus={() => setHoveredNode(node.label)}
               onBlur={() => setHoveredNode(null)}
-              title={node.tooltip}
+              aria-label={node.tooltip}
             >
               <motion.div
                 animate={{ y: isHovered ? 0 : [0, -5, 0] }}
@@ -313,7 +312,7 @@ export default function AdvancedFactoryAnimation() {
                   animate={{ scale: isHovered ? 1.03 : 1 }}
                   transition={{ type: "spring", stiffness: 280, damping: 28 }}
                 >
-                  <div className="absolute inset-0 rounded-full bg-slate-900/90 backdrop-blur-md" />
+                  <div className="absolute inset-0 rounded-full bg-black/90 backdrop-blur-md" />
                   <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent" />
                   <div
                     className="absolute inset-0 rounded-full border transition-colors duration-300"
@@ -341,7 +340,7 @@ export default function AdvancedFactoryAnimation() {
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                     style={{ transformOrigin: "center bottom" }}
-                    className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-30 shadow-xl pointer-events-none"
+                    className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-body whitespace-nowrap z-30 shadow-xl pointer-events-none"
                   >
                     {node.tooltip}
                   </motion.span>

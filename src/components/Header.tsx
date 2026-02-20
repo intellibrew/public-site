@@ -14,28 +14,23 @@ const navLinks = [
   { label: "FAQ", href: "#faq" },
 ];
 
-export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
+export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
-  const handleBookDemo = useCallback(() => {
-    closeMobile();
-    onBookDemo?.();
-  }, [closeMobile, onBookDemo]);
-
   return (
-    <header className="sticky top-0 z-[80] isolate w-full bg-[rgba(4,7,21,0.7)] backdrop-blur-xl border-b border-white/5">
+    <header className="sticky top-0 z-[80] isolate w-full bg-[rgba(2,12,14,0.8)] backdrop-blur-xl border-b border-teal-500/10">
       <div className="mx-auto max-w-7xl px-4 md:px-6 text-[0.95rem]">
         <div className="flex h-[70px] items-center justify-between">
           <Link
             href="/"
             aria-label="NeoFab home"
-            className="shrink-0 font-bold tracking-tight text-[1.5rem] md:text-[1.7rem] hover:brand-glow text-white font-orbitron -ml-1 md:-ml-4 mr-8"
+            className="shrink-0 font-bold tracking-tight text-[1.5rem] md:text-[1.7rem] text-white font-orbitron -ml-1 md:-ml-4 mr-8 hover:text-teal-50 transition-colors"
           >
             <span className="text-white">NeoFab </span>
-            <span className="brand-ai-header">AI</span>
+            <span className="text-primary">AI</span>
           </Link>
 
           <nav
@@ -49,31 +44,13 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
                 <Link
                   key={link.label}
                   href={finalHref}
-                  className="relative hover:text-white hover:glow-text transition"
-                  style={{ color: "rgb(121, 131, 148)" }}
+                  className="relative text-slate-400 hover:text-teal-300 transition-colors"
                 >
                   {link.label}
                 </Link>
               );
             })}
           </nav>
-
-          <div className="hidden md:block ml-4">
-            {onBookDemo ? (
-              <button
-                type="button"
-                onClick={onBookDemo}
-                className="nav-demo-btn"
-                aria-label="Book a demo"
-              >
-                <span>Book a demo</span>
-              </button>
-            ) : (
-              <span className="nav-demo-btn cursor-default inline-flex" aria-hidden>
-                <span>Book a demo</span>
-              </span>
-            )}
-          </div>
 
           <button
             type="button"
@@ -97,7 +74,7 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
               onClick={closeMobile}
             />
             <div
-              className="fixed top-[70px] right-0 bottom-0 z-[9999] w-full max-w-[280px] bg-[#0a0e1a] border-l border-white/10 shadow-2xl md:hidden flex flex-col overflow-y-auto"
+              className="fixed top-[70px] right-0 bottom-0 z-[9999] w-full max-w-[280px] bg-[#060c0e] border-l border-teal-500/10 shadow-2xl md:hidden flex flex-col overflow-y-auto"
               role="dialog"
               aria-label="Mobile menu"
             >
@@ -119,22 +96,6 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
                     </Link>
                   );
                 })}
-                <div className="mt-4 pt-4 border-t border-white/10">
-                  {onBookDemo ? (
-                    <button
-                      type="button"
-                      onClick={handleBookDemo}
-                      className="w-full py-3 px-4 rounded-lg nav-demo-btn text-center"
-                      aria-label="Book a demo"
-                    >
-                      Book a demo
-                    </button>
-                  ) : (
-                    <span className="block w-full py-3 px-4 rounded-lg nav-demo-btn text-center cursor-default">
-                      Book a demo
-                    </span>
-                  )}
-                </div>
               </nav>
             </div>
           </>,

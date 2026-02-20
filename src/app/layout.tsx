@@ -1,6 +1,6 @@
 import "./globals.css"
 import type { Metadata } from "next"
-import { Orbitron, Montserrat } from "next/font/google"
+import { Orbitron, Space_Grotesk } from "next/font/google"
 import SmoothScroll from "@/components/SmoothScroll"
 
 const orbitron = Orbitron({
@@ -9,10 +9,10 @@ const orbitron = Orbitron({
   variable: "--font-orbitron",
 })
 
-const montserrat = Montserrat({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-sans",
+  variable: "--font-body",
 })
 
 export const metadata: Metadata = {
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${orbitron.variable} ${montserrat.variable}`}>
-      <body className="min-h-screen font-sans bg-background text-foreground">
+    <html lang="en" className={`${orbitron.variable} ${spaceGrotesk.variable}`}>
+      <body className="min-h-screen font-body bg-background text-foreground">
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
