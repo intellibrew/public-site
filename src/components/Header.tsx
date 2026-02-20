@@ -35,7 +35,7 @@ export default function Header({ onBookDemo }: { onBookDemo?: () => void }) {
             className="shrink-0 font-bold tracking-tight text-[1.5rem] md:text-[1.7rem] text-white font-orbitron -ml-1 md:-ml-4 mr-8 hover:text-teal-50 transition-colors"
           >
             <span className="text-white">NeoFab </span>
-            <span className="brand-ai-header">AI</span>
+            <span className="text-primary">AI</span>
           </Link>
 
           <nav

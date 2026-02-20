@@ -158,7 +158,7 @@ export function FAQSection() {
                         delay: 0.05,
                       }}
                     >
-                      <p className="text-body font-orbitron">
+                      <p className="text-body">
                         {faq.answer}
                       </p>
                     </motion.div>

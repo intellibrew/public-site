@@ -225,7 +225,7 @@ export default function AdvancedFactoryAnimation() {
           onMouseLeave={() => setHoveredNode(null)}
           onFocus={() => setHoveredNode("center")}
           onBlur={() => setHoveredNode(null)}
-          title="Uncertainty — scattered inputs, no single source of truth"
+          title="Scattered inputs, no single source of truth"
         >
           <motion.div
             animate={{ scale: hoveredNode === "center" ? 1.08 : [1, 1.04, 1] }}
@@ -261,7 +261,7 @@ export default function AdvancedFactoryAnimation() {
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                 style={{ transformOrigin: "center top" }}
-                className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-30 shadow-xl pointer-events-none w-max max-w-[200px] text-center"
+                className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-body whitespace-nowrap z-30 shadow-xl pointer-events-none w-max max-w-[200px] text-center"
               >
               </motion.span>
             )}
@@ -297,7 +297,7 @@ export default function AdvancedFactoryAnimation() {
               onMouseLeave={() => setHoveredNode(null)}
               onFocus={() => setHoveredNode(node.label)}
               onBlur={() => setHoveredNode(null)}
-              title={node.tooltip}
+              aria-label={node.tooltip}
             >
               <motion.div
                 animate={{ y: isHovered ? 0 : [0, -5, 0] }}
@@ -312,7 +312,7 @@ export default function AdvancedFactoryAnimation() {
                   animate={{ scale: isHovered ? 1.03 : 1 }}
                   transition={{ type: "spring", stiffness: 280, damping: 28 }}
                 >
-                  <div className="absolute inset-0 rounded-full bg-slate-900/90 backdrop-blur-md" />
+                  <div className="absolute inset-0 rounded-full bg-black/90 backdrop-blur-md" />
                   <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent" />
                   <div
                     className="absolute inset-0 rounded-full border transition-colors duration-300"
@@ -340,7 +340,7 @@ export default function AdvancedFactoryAnimation() {
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                     style={{ transformOrigin: "center bottom" }}
-                    className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-sans whitespace-nowrap z-30 shadow-xl pointer-events-none"
+                    className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-slate-800/95 border border-red-500/30 text-slate-300 text-xs font-body whitespace-nowrap z-30 shadow-xl pointer-events-none"
                   >
                     {node.tooltip}
                   </motion.span>

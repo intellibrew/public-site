@@ -38,7 +38,7 @@ export function IntroducingSection() {
           transition={{ duration: 0.5 }}
         >
           <span className="shiny-badge">
-            Introducing
+            Solution
           </span>
         </motion.div>
 
@@ -49,7 +49,8 @@ export function IntroducingSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Intelligence for Factories
+          Intelligence for{" "}
+          <span className="text-primary">Factories</span>
         </motion.h2>
 
         <motion.p 
@@ -59,7 +60,7 @@ export function IntroducingSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          One platform. Complete automation.
+          One platform. Complete automation. From inputs to a full production line model.
         </motion.p>
 
         <motion.div
@@ -100,7 +101,7 @@ function FlowDiagramMobile() {
 
         {/* Inputs - above, connect down to spine */}
         <div className="relative w-full flex flex-col items-center pb-2">
-          <p className="text-[10px] font-orbitron tracking-widest text-teal-400 uppercase mb-2">
+          <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
             Inputs
           </p>
           <div className="flex flex-wrap justify-center gap-2">
@@ -108,7 +109,7 @@ function FlowDiagramMobile() {
               <button
                 key={input.label}
                 type="button"
-                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-orbitron text-slate-300 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-body text-slate-300 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
                 title={input.tooltip}
               >
                 {input.label}
@@ -140,7 +141,7 @@ function FlowDiagramMobile() {
 
         {/* Outputs - below, fed by spine */}
         <div className="relative w-full flex flex-col items-center pt-2">
-          <p className="text-[10px] font-orbitron tracking-widest text-teal-400 uppercase mb-2">
+          <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
             Outputs
           </p>
           <div className="flex flex-col gap-2 w-full max-w-[200px]">
@@ -148,7 +149,7 @@ function FlowDiagramMobile() {
               <button
                 key={output.label}
                 type="button"
-                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-orbitron text-teal-200 tracking-wide text-center w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-body text-teal-200 tracking-wide text-center w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
                 title={output.tooltip}
               >
                 {output.label}
@@ -327,21 +328,21 @@ function FlowDiagram() {
           ))}
 
 
-          <FlowingDot pathId="path-in-0" delay={0} duration={1.8} />
-          <FlowingDot pathId="path-in-1" delay={0.6} duration={1.8} />
-          <FlowingDot pathId="path-in-2" delay={1.2} duration={1.8} />
+          <FlowingDot pathId="path-in-0" delay={0} duration={3} />
+          <FlowingDot pathId="path-in-1" delay={1} duration={3} />
+          <FlowingDot pathId="path-in-2" delay={2} duration={3} />
 
-          <FlowingDot pathId="path-out-0" delay={2.0} duration={1.5} />
-          <FlowingDot pathId="path-out-1" delay={2.2} duration={1.5} />
-          <FlowingDot pathId="path-out-2" delay={2.4} duration={1.5} />
-          <FlowingDot pathId="path-out-3" delay={2.6} duration={1.5} />
-          <FlowingDot pathId="path-out-4" delay={2.8} duration={1.5} />
+          <FlowingDot pathId="path-out-0" delay={3.2} duration={2.6} />
+          <FlowingDot pathId="path-out-1" delay={3.5} duration={2.6} />
+          <FlowingDot pathId="path-out-2" delay={3.8} duration={2.6} />
+          <FlowingDot pathId="path-out-3" delay={4.1} duration={2.6} />
+          <FlowingDot pathId="path-out-4" delay={4.4} duration={2.6} />
         </svg>
 
         <div className="relative z-10 flex items-center justify-between min-h-[260px]">
           
           <div className="flex items-center gap-4">
-            <div className="text-[10px] font-orbitron tracking-widest text-slate-500 uppercase writing-mode-vertical">
+            <div className="text-[10px] font-body tracking-widest text-slate-500 uppercase writing-mode-vertical">
               <span className="[writing-mode:vertical-lr] rotate-180">Inputs</span>
             </div>
             <div className="flex flex-col gap-5 w-[130px]">
@@ -367,7 +368,7 @@ function FlowDiagram() {
                     }}
                   >
                     <motion.span
-                      className="text-[13px] font-orbitron text-slate-300 tracking-wide block px-5 py-3"
+                      className="text-[13px] font-body text-slate-300 tracking-wide block px-5 py-3"
                       animate={{ scale: isHovered ? 1.03 : 1 }}
                       transition={{ type: "spring", stiffness: 280, damping: 28 }}
                     >
@@ -381,7 +382,7 @@ function FlowDiagram() {
                           exit={{ opacity: 0, y: 6 }}
                           transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                           style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-sans whitespace-nowrap z-[100] shadow-xl pointer-events-none"
+                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-body whitespace-nowrap z-[100] shadow-xl pointer-events-none"
                         >
                           {input.tooltip}
                         </motion.span>
@@ -419,7 +420,7 @@ function FlowDiagram() {
                 }}
               >
                 <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">
-                  AI Model
+                  NeoFab AI
                 </span>
               </div>
             </motion.button>
@@ -449,7 +450,7 @@ function FlowDiagram() {
                     }}
                   >
                     <motion.span
-                      className="text-[11px] font-orbitron text-teal-200 tracking-wide block px-4 py-2 text-center"
+                      className="text-[11px] font-body text-teal-200 tracking-wide block px-4 py-2 text-center"
                       animate={{ scale: isHovered ? 1.03 : 1 }}
                       transition={{ type: "spring", stiffness: 280, damping: 28 }}
                     >
@@ -463,7 +464,7 @@ function FlowDiagram() {
                           exit={{ opacity: 0, y: 6 }}
                           transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
                           style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-sans whitespace-nowrap z-[100] shadow-xl pointer-events-none"
+                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-body whitespace-nowrap z-[100] shadow-xl pointer-events-none"
                         >
                           {output.tooltip}
                         </motion.span>
@@ -473,7 +474,7 @@ function FlowDiagram() {
                 );
               })}
             </div>
-            <div className="text-[10px] font-orbitron tracking-widest text-teal-400 uppercase">
+            <div className="text-[10px] font-body tracking-widest text-teal-400 uppercase">
               <span className="[writing-mode:vertical-lr]">Outputs</span>
             </div>
           </div>
@@ -488,7 +489,7 @@ function FlowDiagram() {
             }}
             animate={{ x: ["-20%", "600%"] }}
             transition={{
-              duration: 3.5,
+              duration: 5.5,
               repeat: Infinity,
               ease: "linear",
             }}

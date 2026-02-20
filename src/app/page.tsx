@@ -24,7 +24,6 @@ import { ProblemSection } from "@/components/sections/ProblemSection";
 import { IntroducingSection } from "@/components/sections/IntroducingSection";
 import { ProductsSection } from "@/components/sections/ProductsSection";
 import { TeamsSection } from "@/components/sections/TeamsSection";
-import { InActionSection } from "@/components/sections/InActionSection";
 import { UseCasesSection } from "@/components/sections/UseCasesSection";
 import { ClientsSection } from "@/components/sections/ClientsSection";
 import { AboutSection } from "@/components/sections/AboutSection";
@@ -240,7 +239,7 @@ export default function Home() {
 
         <ProblemSection />
 
-        {/* Introducing section */}
+        {/* Solution section */}
         <IntroducingSection />
 
         {/* Products section */}
@@ -249,11 +248,8 @@ export default function Home() {
         {/* Use Cases section */}
         <UseCasesSection />
 
-        {/* Teams section */}
+        {/* Customers section */}
         <TeamsSection onBookDemo={() => setDemoOpen(true)} />
-
-        {/* In Action section */}
-        <InActionSection />
 
         {/* Clients section */}
         <ClientsSection />

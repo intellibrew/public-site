@@ -113,7 +113,7 @@ export function AboutSection() {
             {whatYouGet.map((item) => (
               <span
                 key={item}
-                className="px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/5 text-body text-[13px] font-orbitron"
+                className="px-4 py-2 rounded-full border border-teal-500/30 bg-teal-500/5 text-body text-[13px]"
               >
                 {item}
               </span>

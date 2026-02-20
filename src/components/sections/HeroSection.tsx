@@ -18,7 +18,7 @@ function VideoBackground() {
       <img
         src="/factorybackground.png"
         alt=""
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? "opacity-0" : "opacity-40"}`}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${videoLoaded ? "opacity-0" : "opacity-40"}`}
       />
 
       <video
@@ -26,8 +26,9 @@ function VideoBackground() {
         muted
         loop
         playsInline
+        preload="auto"
         onCanPlay={() => setVideoLoaded(true)}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-2000 ${videoLoaded ? "opacity-30" : "opacity-0"}`}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-400 ${videoLoaded ? "opacity-30" : "opacity-0"}`}
       >
         <source src="/hero-bg.mp4" type="video/mp4" />
       </video>

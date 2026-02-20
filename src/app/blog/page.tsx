@@ -56,15 +56,8 @@ export default function Blog() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080a0f] text-white">
+    <div className="min-h-screen bg-black text-white">
       <Header />
-
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(20,184,166,0.06) 0%, transparent 50%)",
-        }}
-      />
 
       <main className="relative mx-auto max-w-6xl px-4 sm:px-6 py-16 md:py-20">
         <AnimateInView className="pb-1">

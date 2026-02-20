@@ -22,7 +22,7 @@ const teams = [
 
 export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
   return (
-    <section id="teams" className="relative bg-[#060608] py-24 overflow-hidden">
+    <section id="customers" className="relative bg-[#060608] py-24 overflow-hidden">
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -38,7 +38,7 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <span className="shiny-badge">Teams</span>
+          <span className="shiny-badge">Customers</span>
         </motion.div>
         <motion.h2 
           className="text-center text-heading mb-16"

@@ -53,6 +53,11 @@ module.exports = {
       animation: {
         "flow-down": "flowDown 2.5s ease-in-out infinite",
       },
+      fontFamily: {
+        orbitron: ["var(--font-orbitron)", "system-ui", "sans-serif"],
+        body: ["var(--font-body)", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        helvetica: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      },
     },
   },
   plugins: [],

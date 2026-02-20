@@ -36,19 +36,19 @@ const stations: Station[] = [
 
 const STATUS_STYLES = {
   optimal: {
-    main: "rgba(20,184,166,0.98)", 
-    glow: "0 0 18px rgba(20,184,166,0.7)",
-    ring: "rgba(20,184,166,0.8)",
+    main: "rgba(20,184,166,0.75)",
+    glow: "0 0 12px rgba(20,184,166,0.45)",
+    ring: "rgba(20,184,166,0.5)",
   },
   bottleneck: {
-    main: "rgba(20,184,166,0.98)", 
-    glow: "0 0 18px rgba(20,184,166,0.75)",
-    ring: "rgba(20,184,166,0.85)",
+    main: "rgba(20,184,166,0.75)",
+    glow: "0 0 12px rgba(20,184,166,0.5)",
+    ring: "rgba(20,184,166,0.55)",
   },
   normal: {
-    main: "rgba(94,234,212,0.98)", 
-    glow: "0 0 18px rgba(94,234,212,0.7)",
-    ring: "rgba(94,234,212,0.8)",
+    main: "rgba(94,234,212,0.65)",
+    glow: "0 0 12px rgba(94,234,212,0.4)",
+    ring: "rgba(94,234,212,0.5)",
   },
 } as const;
 
@@ -122,10 +122,10 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
       >
         <defs>
           <linearGradient id="flowLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(20,184,166,0.14)" />
-            <stop offset="30%" stopColor="rgba(20,184,166,0.4)" />
-            <stop offset="70%" stopColor="rgba(20,184,166,0.4)" />
-            <stop offset="100%" stopColor="rgba(20,184,166,0.18)" />
+            <stop offset="0%" stopColor="rgba(20,184,166,0.06)" />
+            <stop offset="30%" stopColor="rgba(20,184,166,0.14)" />
+            <stop offset="70%" stopColor="rgba(20,184,166,0.14)" />
+            <stop offset="100%" stopColor="rgba(20,184,166,0.06)" />
           </linearGradient>
           <filter id="flowLineBlur" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blur" />
@@ -143,16 +143,16 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
             </feMerge>
           </filter>
           <radialGradient id="particleFill" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#99f6e4" />
-            <stop offset="70%" stopColor="#5eead4" />
-            <stop offset="100%" stopColor="#14b8a6" />
+            <stop offset="0%" stopColor="rgba(153,246,228,0.7)" />
+            <stop offset="70%" stopColor="rgba(94,234,212,0.5)" />
+            <stop offset="100%" stopColor="rgba(20,184,166,0.4)" />
           </radialGradient>
         </defs>
 
         <path
           d={pathD}
           fill="none"
-          stroke="rgba(20,184,166,0.18)"
+          stroke="rgba(20,184,166,0.08)"
           strokeWidth="1.4"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -161,7 +161,7 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
           d={pathD}
           fill="none"
           stroke="url(#flowLineGradient)"
-          strokeWidth="0.45"
+          strokeWidth="0.4"
           strokeLinecap="round"
           strokeLinejoin="round"
           filter="url(#flowLineBlur)"
@@ -170,12 +170,12 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
         <circle
           r="0.8"
           fill="url(#particleFill)"
-          fillOpacity="0.95"
+          fillOpacity="0.6"
         >
           <animateMotion dur="14s" repeatCount="indefinite" path={pathD} calcMode="linear" />
           <animate
             attributeName="opacity"
-            values="0.4;1;1;0.4"
+            values="0.25;0.7;0.7;0.25"
             dur="14s"
             repeatCount="indefinite"
           />
@@ -227,7 +227,7 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
                 height: isActive ? 22 : 16,
                 borderColor: isActive ? style.main : style.ring,
                 borderWidth: 1.5,
-                opacity: isActive ? 0.95 : 0.7,
+                opacity: isActive ? 0.9 : 0.5,
                 boxShadow: isActive ? style.glow : "none",
               }}
             />
@@ -239,7 +239,7 @@ export default function FactoryFlowMap({ onActiveChange }: FactoryFlowMapProps) 
                 width: isActive ? 11 : 8.5,
                 height: isActive ? 11 : 8.5,
                 backgroundColor: style.main,
-                boxShadow: isActive ? style.glow : `0 0 14px ${style.main}60`,
+                boxShadow: isActive ? style.glow : "0 0 8px rgba(20,184,166,0.2)",
               }}
             />
           </motion.button>

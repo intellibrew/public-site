@@ -114,7 +114,7 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           </motion.h2>
           
           <motion.p 
-            className="text-body mb-8 max-w-xl mx-auto relative z-10 font-orbitron"
+            className="text-body mb-8 max-w-xl mx-auto relative z-10"
             initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

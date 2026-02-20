@@ -97,7 +97,7 @@ function UseCaseCard({ item, index }: { item: (typeof cases)[0]; index: number }
               {count}
               {item.metricSuffix}
             </span>
-            <span className="text-xs text-muted-foreground font-orbitron">
+            <span className="text-xs text-muted-foreground font-body">
               {item.metricContext}
             </span>
           </div>
