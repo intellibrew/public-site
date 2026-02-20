@@ -61,7 +61,7 @@ export function AboutSection() {
             <span className="shiny-badge">About</span>
           </motion.div>
           <h2 className="text-heading mb-4 font-orbitron">
-            About NeoFab
+            About <span className="text-primary">NeoFab</span>
           </h2>
           <div className="mx-auto h-1 w-20 rounded-full bg-primary" />
         </motion.div>

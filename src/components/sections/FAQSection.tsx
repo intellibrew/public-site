@@ -67,7 +67,7 @@ export function FAQSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Your questions, answered
+          Your questions, <span className="text-primary">answered</span>
         </motion.h2>
 
         <motion.div

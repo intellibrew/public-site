@@ -20,7 +20,7 @@ const teams = [
   },
 ];
 
-export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
+export function TeamsSection() {
   return (
     <section id="customers" className="relative bg-[#060608] py-24 overflow-hidden">
       <div 
@@ -47,7 +47,7 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Built for manufacturing teams that ship.
+          Built for manufacturing <span className="text-primary">teams that ship.</span>
         </motion.h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">

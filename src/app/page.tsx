@@ -155,7 +155,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#060608] text-white">
       <ScrollProgress />
-      <Header onBookDemo={() => setDemoOpen(true)} />
+      <Header />
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -165,7 +165,7 @@ export default function Home() {
       {/* Main */}
       <main id="home" className="scroll-mt-24">
         {/* Hero - Mobile: video, full content */}
-        <HeroSection onBookDemo={() => setDemoOpen(true)} />
+        <HeroSection />
 
         {/* Hero - Desktop: simple text + line model + factory background */}
         <section
@@ -249,7 +249,7 @@ export default function Home() {
         <UseCasesSection />
 
         {/* Customers section */}
-        <TeamsSection onBookDemo={() => setDemoOpen(true)} />
+        <TeamsSection />
 
         {/* Clients section */}
         <ClientsSection />
@@ -258,7 +258,7 @@ export default function Home() {
         <div className="relative bg-[#060608] overflow-hidden">
           <AboutSection />
           <FAQSection />
-          <CTASection onBookDemo={() => setDemoOpen(true)} />
+          <CTASection />
         </div>
 
         {/* Demo request modal */}
