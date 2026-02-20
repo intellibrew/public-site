@@ -61,11 +61,6 @@ export function HeroSection({ onBookDemo }: HeroSectionProps = {}) {
   const yText = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  const scrollTo = (href: string) => {
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section
       ref={containerRef}
@@ -94,30 +89,6 @@ export function HeroSection({ onBookDemo }: HeroSectionProps = {}) {
           <span className="block text-primary">in hours, not</span>
           <span className="block text-primary">weeks</span>
         </motion.h1>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-          className="flex flex-row items-center justify-center gap-4 flex-nowrap"
-        >
-          <button
-            type="button"
-            onClick={onBookDemo ?? (() => scrollTo("#contact"))}
-            className="btn-cta-large inline-flex items-center justify-center px-6 py-3"
-            data-testid="button-hero-demo"
-          >
-            Book a Demo
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollTo("#products")}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-primary/50 bg-transparent px-6 py-3 text-sm font-medium font-orbitron text-primary hover:bg-primary/10 hover:border-primary transition-colors backdrop-blur-sm"
-            data-testid="button-hero-explore"
-          >
-            Explore Products
-          </button>
-        </motion.div>
       </motion.div>
     </section>
   );
