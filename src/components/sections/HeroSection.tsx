@@ -47,7 +47,11 @@ function VideoBackground() {
   );
 }
 
-export function HeroSection() {
+type HeroSectionProps = {
+  onBookDemo?: () => void;
+};
+
+export function HeroSection({ onBookDemo }: HeroSectionProps = {}) {
   const mouse = useMousePosition();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
