@@ -20,7 +20,7 @@ const teams = [
   },
 ];
 
-export function TeamsSection() {
+export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
   return (
     <section id="customers" className="relative bg-[#060608] py-24 overflow-hidden">
       <div 

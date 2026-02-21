@@ -120,19 +120,25 @@ function FlowDiagramMobile() {
           <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/40 to-teal-500/60" />
         </div>
 
-        {/* Line Model - ON the spine */}
+        {/* NeoFab AI - ON the spine (desktop-style layout) */}
         <div className="relative flex flex-col items-center py-2">
           <div className="relative">
-            <div className="absolute -inset-1 rounded-full bg-teal-500/20 blur-md" />
+            <div
+              className="absolute inset-[-20px] rounded-full pointer-events-none"
+              style={{
+                background: "radial-gradient(circle, rgba(20,184,166,0.22) 0%, transparent 70%)",
+              }}
+            />
+            <div className="absolute inset-[-10px] rounded-full border border-teal-500/40 pointer-events-none" />
             <button
               type="button"
-              className="relative rounded-full border-2 border-teal-400/70 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+              className="relative rounded-full border border-teal-400/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
               style={{
                 background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-                boxShadow: "0 0 24px rgba(20,184,166,0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
+                boxShadow: "0 0 50px rgba(20,184,166,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
               }}
             >
-              <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">Line Model</span>
+              <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">NeoFab AI</span>
             </button>
           </div>
           {/* Connector: spine → outputs */}
