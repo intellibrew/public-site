@@ -43,7 +43,7 @@ export function ProblemSection() {
             </motion.span>
           </AnimateInView>
           <AnimateInView delay={60}>
-            <h2 className="text-heading">
+            <h2 className="text-heading font-fragment">
               <span>Factory planning is</span>
               <br />
               <span className="text-primary">still slow, manual,</span>

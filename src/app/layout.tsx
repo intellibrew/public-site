@@ -1,6 +1,6 @@
 import "./globals.css"
 import type { Metadata } from "next"
-import { Orbitron, Space_Grotesk } from "next/font/google"
+import { Orbitron, Space_Grotesk, Fragment_Mono } from "next/font/google"
 import SmoothScroll from "@/components/SmoothScroll"
 
 const orbitron = Orbitron({
@@ -15,6 +15,12 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-body",
 })
 
+const fragmentMono = Fragment_Mono({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-fragment",
+})
 export const metadata: Metadata = {
   title: "NeoFab - AI Factory Setup",
   description:
@@ -24,7 +30,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${orbitron.variable} ${spaceGrotesk.variable}`}>
+    <html
+      lang="en"
+      className={`${orbitron.variable} ${spaceGrotesk.variable} ${fragmentMono.variable}`}
+    >
       <body className="min-h-screen font-body bg-background text-foreground">
         <SmoothScroll>{children}</SmoothScroll>
       </body>

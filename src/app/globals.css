@@ -166,6 +166,18 @@ html.lenis, html.lenis body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.font-fragment {
+  font-family: var(--font-fragment), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Apply Fragment Mono to all H2 / H3 headings sitewide */
+h2,
+h3 {
+  font-family: var(--font-fragment), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Typography scale: heading / subheading / body                             */
 /* -------------------------------------------------------------------------- */
@@ -257,7 +269,6 @@ html.lenis, html.lenis body {
   font-size: 0.9375rem;
 }
 
-/* Shimmer layers – visible and animated only on hover */
 .nav-demo-btn::before,
 .btn-cta-large::before {
   content: "";
@@ -958,7 +969,8 @@ html.lenis, html.lenis body {
   color: transparent;
 }
 
-.animated-gradient-text {
+.animated-gradient-text,
+.gradient-text-animated {
   background: linear-gradient(
     90deg,
     hsl(160 70% 40%),

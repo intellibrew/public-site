@@ -43,7 +43,7 @@ export function IntroducingSection() {
         </motion.div>
 
         <motion.h2 
-          className="text-center text-heading mb-4"
+          className="text-center text-heading mb-4 font-fragment"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -120,7 +120,7 @@ function FlowDiagramMobile() {
           <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/40 to-teal-500/60" />
         </div>
 
-        {/* NeoFab AI - ON the spine (desktop-style layout) */}
+        {/* Line Model - ON the spine */}
         <div className="relative flex flex-col items-center py-2">
           <div className="relative">
             <div
