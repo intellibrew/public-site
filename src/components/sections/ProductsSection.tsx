@@ -308,11 +308,11 @@ export function ProductsSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-20"
         >
-          <p className="text-xs font-mono text-primary uppercase tracking-widest mb-4">
-            Three Modules. One Output.
-          </p>
+          <div className="flex justify-center mb-4">
+            <span className="shiny-badge">Our Products</span>
+          </div>
           <h2
-            className="text-heading mb-4 font-orbitron"
+            className="text-heading mb-2"
             data-testid="text-products-heading"
           >
             NeoFab turns inputs into a{" "}
