@@ -1,60 +1,147 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import { useCountUp } from "@/hooks/useCountUp";
 import { motion, useInView } from "framer-motion";
-import { Settings, Hammer, Activity, ChevronRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Cpu, FileText, Activity, ChevronRight } from "lucide-react";
+import { FabPlanVisual, AnvilVisual, CenTorVisual } from "@/components/product-visuals";
+
+function LazyVideo({
+  src,
+  sources,
+  className,
+  ...props
+}: {
+  src?: string;
+  sources?: string[];
+  className?: string;
+  [key: string]: unknown;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const sourceList = sources ?? (src ? [src] : []);
+  const indexRef = useRef(0);
+
+  useEffect(() => {
+    const node = videoRef.current;
+    if (!node || sourceList.length === 0) return;
+
+    node.src = sourceList[0];
+
+    const handleEnded = () => {
+      if (sourceList.length > 1) {
+        indexRef.current = (indexRef.current + 1) % sourceList.length;
+        node.src = sourceList[indexRef.current];
+        node.play().catch(() => {});
+      } else {
+        node.currentTime = 0;
+        node.play().catch(() => {});
+      }
+    };
+
+    node.addEventListener("ended", handleEnded);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          node.play().catch(() => {});
+        } else {
+          node.pause();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(node);
+
+    return () => {
+      node.removeEventListener("ended", handleEnded);
+      observer.disconnect();
+    };
+  }, [sourceList.length]);
+
+  const prefersReduced =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  if (prefersReduced || sourceList.length === 0) return null;
+
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
+      preload="metadata"
+      className={className}
+      {...props}
+    />
+  );
+}
 
 const products = [
   {
-    id: "fabplan",
+    icon: Cpu,
     name: "FabPlan",
-    icon: Settings,
     tagline: "Design the line model from CAD + BOM",
     desc: "Convert CAD/BOM/specs into stations, takt, and an editable layout in hours. Get a first-pass line model that would normally take weeks.",
-    stat: "2 hrs",
+    stat: 2,
+    statSuffix: " hrs",
     statLabel: "First pass line model",
     flow: ["CAD / BOM", "Stations", "Layout"],
-    video: "/neofab (2).mp4",
-    gradient: "from-teal-500/20 via-teal-500/5 to-transparent",
-    accentColor: "text-teal-400",
-    bgAccent: "bg-teal-500/10",
-    borderAccent: "border-teal-500/20",
-    glow: "0 0 50px rgba(20,184,166,0.2), 0 0 0 1px rgba(20,184,166,0.15)",
-    hoverGlow: "0 0 60px rgba(20,184,166,0.35), 0 0 0 1px rgba(20,184,166,0.3)",
+    Visual: FabPlanVisual,
+    video: "/fabplan-hero-1.mp4",
+    videoSources: ["/fabplan-hero-1.mp4", "/fabplan-hero-2.mp4"],
+    color: "emerald",
+    gradient: "from-emerald-500/20 via-emerald-500/5 to-transparent",
+    accentColor: "text-emerald-400",
+    bgAccent: "bg-emerald-500/10",
+    borderAccent: "border-emerald-500/20",
+    videoOverlay: "from-emerald-950/60 via-emerald-950/30 to-emerald-950/60",
+    glowDefault: "0 0 0 1px rgba(16,185,129,0.12), 0 4px 24px -4px rgba(0,0,0,0.2)",
+    glowHover: "0 0 48px rgba(16,185,129,0.4), 0 0 0 1px rgba(16,185,129,0.35), 0 8px 32px -8px rgba(0,0,0,0.25)",
   },
   {
-    id: "anvil",
+    icon: FileText,
     name: "Anvil",
-    icon: Hammer,
     tagline: "Setup your factory with RFQs and equipment packs",
     desc: "Turn the line model into machine specs, supplier shortlists, and RFQ-ready documents. Go from design to procurement in days.",
-    stat: "3 days",
+    stat: 3,
+    statSuffix: " days",
     statLabel: "RFQ pack generation",
-    flow: ["Specs", "RFQ Pack", "Vendor Options"],
-    video: "/anvil.mp4",
-    gradient: "from-teal-500/20 via-teal-500/5 to-transparent",
-    accentColor: "text-teal-400",
-    bgAccent: "bg-teal-500/10",
-    borderAccent: "border-teal-500/20",
-    glow: "0 0 50px rgba(20,184,166,0.2), 0 0 0 1px rgba(20,184,166,0.15)",
-    hoverGlow: "0 0 60px rgba(20,184,166,0.35), 0 0 0 1px rgba(20,184,166,0.3)",
+    flow: ["Line Model", "RFQ Pack", "Vendor Options"],
+    Visual: AnvilVisual,
+    video: "/anvil-hero-1.mp4",
+    videoSources: ["/anvil-hero-1.mp4", "/anvil-hero-2.mp4"],
+    color: "blue",
+    gradient: "from-blue-500/20 via-blue-500/5 to-transparent",
+    accentColor: "text-blue-400",
+    bgAccent: "bg-blue-500/10",
+    borderAccent: "border-blue-500/20",
+    videoOverlay: "from-blue-950/60 via-blue-950/30 to-blue-950/60",
+    glowDefault: "0 0 0 1px rgba(59,130,246,0.12), 0 4px 24px -4px rgba(0,0,0,0.2)",
+    glowHover: "0 0 48px rgba(59,130,246,0.4), 0 0 0 1px rgba(59,130,246,0.35), 0 8px 32px -8px rgba(0,0,0,0.25)",
   },
   {
-    id: "centor",
-    name: "CenTor",
     icon: Activity,
+    name: "CenTor",
     tagline: "Simulate operations. Find bottlenecks before you build",
-    desc: "Model throughput, WIP, constraints, and the impact of changes across stations. Achieve measurable throughput uplift with targeted adjustments.",
-    stat: "30%",
+    desc: "Feed your CAD models and BOM into a digital twin simulation. Model throughput, WIP, constraints, and the impact of changes across stations.",
+    stat: 30,
+    statSuffix: "%",
     statLabel: "Throughput uplift",
-    flow: ["Throughput", "Bottlenecks", "Scenarios"],
-    video: "/centor.mp4",
-    gradient: "from-teal-500/20 via-teal-500/5 to-transparent",
-    accentColor: "text-teal-400",
-    bgAccent: "bg-teal-500/10",
-    borderAccent: "border-teal-500/20",
-    glow: "0 0 50px rgba(20,184,166,0.2), 0 0 0 1px rgba(20,184,166,0.15)",
-    hoverGlow: "0 0 60px rgba(20,184,166,0.35), 0 0 0 1px rgba(20,184,166,0.3)",
+    flow: ["CAD / BOM", "Process Flow", "Simulation"],
+    Visual: CenTorVisual,
+    video: "/centor-hero.mp4",
+    videoSources: ["/centor-hero.mp4"],
+    color: "violet",
+    gradient: "from-violet-500/20 via-violet-500/5 to-transparent",
+    accentColor: "text-violet-400",
+    bgAccent: "bg-violet-500/10",
+    borderAccent: "border-violet-500/20",
+    videoOverlay: "from-violet-950/60 via-violet-950/30 to-violet-950/60",
+    glowDefault: "0 0 0 1px rgba(139,92,246,0.12), 0 4px 24px -4px rgba(0,0,0,0.2)",
+    glowHover: "0 0 48px rgba(139,92,246,0.4), 0 0 0 1px rgba(139,92,246,0.35), 0 8px 32px -8px rgba(0,0,0,0.25)",
   },
 ];
 
@@ -66,118 +153,137 @@ function ProductCard({
   index: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const { count, ref: counterRef } = useCountUp(product.stat, 1800);
+
   const isReversed = index % 2 !== 0;
 
-  const hoverGlow = (product as { glow: string; hoverGlow?: string }).hoverGlow ?? product.glow;
+  const productWithGlow = product as (typeof product) & { glowDefault?: string; glowHover?: string };
+  const defaultGlow = productWithGlow.glowDefault ?? "0 4px 24px -4px rgba(0,0,0,0.2)";
+  const hoverGlow = productWithGlow.glowHover ?? defaultGlow;
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 60 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay: 0.1 }}
+      transition={{ duration: 0.8, delay: 0.1 }}
+      className="rounded-xl"
     >
       <motion.div
-        className="group rounded-2xl border border-border bg-card/80 backdrop-blur-sm overflow-hidden cursor-default"
-        style={{ boxShadow: product.glow }}
-        whileHover={{
-          scale: 1.01,
-          boxShadow: hoverGlow,
-          transition: { duration: 0.3, ease: "easeOut" },
-        }}
-        transition={{ duration: 0.3 }}
-        data-testid={`card-product-${product.name.toLowerCase()}`}
+        style={{ boxShadow: defaultGlow }}
+        initial={false}
+        whileHover={{ boxShadow: hoverGlow }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="rounded-xl"
       >
-        <div
-          className={`flex flex-col ${isReversed ? "lg:flex-row-reverse" : "lg:flex-row"}`}
+        <Card
+          className="bg-card/60 backdrop-blur-sm overflow-visible border-border/80 rounded-xl"
+          data-testid={`card-product-${product.name.toLowerCase()}`}
         >
-          <div className="lg:w-1/2 p-8 md:p-10 lg:p-12 flex flex-col justify-center">
-            <motion.div
-              initial={{ opacity: 0, x: isReversed ? 24 : -24 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.25 }}
-            >
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} border ${product.borderAccent} flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}
-                >
-                  <product.icon className={`w-6 h-6 ${product.accentColor}`} />
+        <CardContent className="p-0">
+          <div
+            className={`flex flex-col ${isReversed ? "lg:flex-row-reverse" : "lg:flex-row"}`}
+          >
+            <div className="lg:w-1/2 p-8 md:p-10 lg:p-12 flex flex-col justify-center">
+              <motion.div
+                initial={{ opacity: 0, x: isReversed ? 30 : -30 }}
+                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <div className="flex items-center gap-3 mb-5 flex-wrap">
+                  <div
+                    className={`w-12 h-12 rounded-lg bg-gradient-to-br ${product.gradient} ${product.borderAccent} border flex items-center justify-center`}
+                  >
+                    <product.icon
+                      className={`w-6 h-6 ${product.accentColor}`}
+                    />
+                  </div>
+                  <div>
+                    <h3
+                      className="text-lg md:text-xl font-bold text-foreground font-orbitron tracking-tight"
+                      data-testid={`text-product-name-${product.name.toLowerCase()}`}
+                    >
+                      {product.name}
+                    </h3>
+                  </div>
                 </div>
-                <h3
-                  className="text-lg md:text-xl font-bold text-foreground font-orbitron"
-                  data-testid={`text-product-name-${product.name.toLowerCase()}`}
+
+                <p
+                  className={`text-sm font-medium ${product.accentColor} mb-4 tracking-wide`}
                 >
-                  {product.name}
-                </h3>
-              </div>
+                  {product.tagline}
+                </p>
 
-              <p
-                className={`text-sm font-medium ${product.accentColor} mb-3 tracking-wide`}
-              >
-                {product.tagline}
-              </p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-lg">
+                  {product.desc}
+                </p>
 
-              <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-lg">
-                {product.desc}
-              </p>
-
-              <div className="flex items-center gap-2 mb-6 flex-wrap">
-                {product.flow.map((step, i) => (
-                  <span key={step} className="flex items-center gap-2">
-                    <span className="rounded-md border border-border bg-muted/50 px-2.5 py-1 font-mono text-xs text-muted-foreground">
-                      {step}
+                <div className="flex items-center gap-2 mb-6 flex-wrap">
+                  {product.flow.map((step, i) => (
+                    <span key={step} className="flex items-center gap-2">
+                      <Badge variant="secondary" className="font-mono text-xs">
+                        {step}
+                      </Badge>
+                      {i < product.flow.length - 1 && (
+                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                      )}
                     </span>
-                    {i < product.flow.length - 1 && (
-                      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                    )}
-                  </span>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              <div
-                className={`${product.bgAccent} ${product.borderAccent} border rounded-xl p-4 inline-flex items-center gap-4`}
-              >
-                <span
-                  className={`text-lg md:text-xl font-bold font-orbitron tabular-nums ${product.accentColor}`}
-                  data-testid={`text-stat-${product.name.toLowerCase()}`}
+                <div
+                  ref={counterRef}
+                  className={`${product.bgAccent} ${product.borderAccent} border rounded-lg p-5 inline-flex items-center gap-4`}
                 >
-                  {product.stat}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {product.statLabel}
-                </span>
-              </div>
-            </motion.div>
-          </div>
+                  <div
+                    className={`text-lg md:text-xl font-bold ${product.accentColor} tabular-nums`}
+                    data-testid={`text-stat-${product.name.toLowerCase()}`}
+                  >
+                    {count}
+                    {product.statSuffix}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {product.statLabel}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
 
-          <div className="lg:w-1/2 relative min-h-[240px] lg:min-h-[360px] overflow-hidden">
-            <motion.div
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.8, delay: 0.35 }}
-              className={`absolute inset-0 overflow-hidden transition-transform duration-500 ease-out group-hover:scale-105 ${
-                isReversed ? "lg:rounded-l-2xl" : "lg:rounded-r-2xl"
-              } rounded-b-2xl lg:rounded-b-none origin-center`}
+            <div
+              className="lg:w-1/2 relative min-h-[300px] lg:min-h-[420px]"
+              data-testid={`visual-product-${product.name.toLowerCase()}`}
             >
-              <video
-                className="w-full h-full object-cover object-top"
-                autoPlay
-                loop
-                muted
-                playsInline
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={isInView ? { opacity: 1 } : {}}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className={`absolute inset-0 overflow-hidden rounded-b-xl lg:rounded-b-none ${isReversed ? "lg:rounded-l-xl" : "lg:rounded-r-xl"}`}
               >
-                <source src={product.video} type="video/mp4" />
-              </video>
-              <div
-                className={`absolute inset-0 bg-gradient-to-${
-                  isReversed ? "r" : "l"
-                } from-card via-card/40 to-transparent pointer-events-none`}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-card/60 via-transparent to-transparent pointer-events-none" />
-            </motion.div>
+                {isInView && (
+                  <>
+                    <LazyVideo
+                      src={product.videoSources ? undefined : product.video}
+                      sources={product.videoSources}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      data-testid={`video-product-${product.name.toLowerCase()}`}
+                    />
+
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-b ${product.videoOverlay}`}
+                    />
+                    <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
+
+                    <div className="absolute inset-0 z-10">
+                      <product.Visual />
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            </div>
           </div>
-        </div>
+        </CardContent>
+      </Card>
       </motion.div>
     </motion.div>
   );
@@ -185,47 +291,38 @@ function ProductCard({
 
 export function ProductsSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true, amount: 0.08 });
+  const isInView = useInView(containerRef, { once: true, amount: 0.1 });
 
   return (
     <section
       id="products"
-      className="relative py-24 md:py-32"
+      className="relative py-24 md:py-40"
       data-testid="section-products"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/5 to-background pointer-events-none" />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)" }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background" />
 
       <div ref={containerRef} className="relative z-10 max-w-7xl mx-auto px-6">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16 md:mb-20"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-20"
         >
-          <motion.div
-            className="flex justify-center mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-          >
+          <div className="flex justify-center mb-4">
             <span className="shiny-badge">Our Products</span>
-          </motion.div>
+          </div>
           <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight font-orbitron mb-3"
+            className="text-heading mb-2"
             data-testid="text-products-heading"
           >
             NeoFab turns inputs into a{" "}
-            <span className="text-primary">complete line model</span>
+            <span className="gradient-text-animated">complete line model</span>
           </h2>
-          <p className="text-xs font-mono text-primary uppercase tracking-widest">
-            Three modules. One output.
-          </p>
         </motion.div>
 
-        <div className="space-y-12 md:space-y-16">
+        <div className="space-y-12">
           {products.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+            <ProductCard key={product.name} product={product} index={i} />
           ))}
         </div>
       </div>
