@@ -179,7 +179,7 @@ export default function FactoryFlowStoryCard({
       <div className="ffs-body">
         <p ref={labelRef} className="ffs-label">
             <span className="ffs-prefix" aria-hidden>
-              //
+              {"//"}
             </span>
             <SplitLabel text={label} />
           </p>

@@ -211,7 +211,7 @@ function HoloTablet({
           <span className="holo-lock-text">
             <span className="holo-lock-label">
               <span className="holo-prefix" aria-hidden>
-                //
+                {"//"}
               </span>
               <SplitText
                 text={isBottleneckView ? "Bottleneck detected" : "Target locked"}

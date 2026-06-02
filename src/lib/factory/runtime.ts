@@ -109,8 +109,6 @@ export function mountFactoryScene(
     onConveyorFocusChange?.(conveyorFocusState?.phase ?? "idle");
   };
 
-  let input!: ReturnType<typeof bindSceneInput>;
-
   const resetFactoryView = () => {
     if (focusState) {
       snapFocusExit(focusState, camera, controls);
@@ -131,7 +129,7 @@ export function mountFactoryScene(
     controls.update();
   };
 
-  input = bindSceneInput({
+  const input = bindSceneInput({
     camera,
     controls,
     element: renderer.domElement,
