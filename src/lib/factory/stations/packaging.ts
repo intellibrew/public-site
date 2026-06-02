@@ -5,13 +5,17 @@ import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import type { PackagingRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickPackaging(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.packagingRig as PackagingRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.91, 1, progress);
-  const phase = elapsedMs * 0.00072;
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "packaging");
+  const animMs = stationAnimationTime(group, elapsedMs, "packaging", baseLive);
+  const phase = animMs * 0.00072;
 
   const rawPlunge = Math.sin(phase * 0.44) * 0.5 + 0.5;
   const plunge = smoothstep(0.46, 1.0, rawPlunge) * live;

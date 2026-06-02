@@ -1,19 +1,23 @@
 import * as THREE from "three";
 import { smoothstep } from "../math";
-import { box, cylinder, sphere, torus } from "../mesh";
+import { box, cylinder, sphere, torus, beltTurnQuarter, prepareBeltMaterial } from "../mesh";
 import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import { applyProductShape, makeProduct, PRODUCT_SHAPE_CUBE } from "../products";
-import { pickPlacePhase } from "../stationMotion";
+import { subAssemblyPickPlacePhase } from "../stationMotion";
 import type { SubAssemblyRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickSubAssembly(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.subAssemblyRig as SubAssemblyRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.9, 1, progress);
-  const pose = pickPlacePhase(elapsedMs * 0.00034);
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "subAssembly");
+  const animMs = stationAnimationTime(group, elapsedMs, "subAssembly", baseLive);
+  const pose = subAssemblyPickPlacePhase(animMs * 0.0002);
 
   rig.baseYaw.rotation.y = pose.yaw * live;
   rig.shoulder.rotation.z = pose.shoulder * live;
@@ -47,13 +51,28 @@ export function buildSubAssembly(materials: Materials) {
   const beltY = 0.178;
   const armLen = 0.86;
   const beltW = 0.22;
+  const cornerR = beltW * 0.54;
+  const legLen = armLen - cornerR;
+  const beltMat = prepareBeltMaterial(materials.belt, 2.2, 1.6);
 
   group.add(box([0.36, 0.028, 0.36], [0, 0.03, 0], materials.machineDark, false));
   group.add(box([0.3, 0.012, 0.3], [0, 0.052, 0], materials.zone, false));
-  group.add(box([beltW, 0.016, armLen], [0, beltY, armLen * 0.5], materials.belt, false));
-  group.add(box([armLen, 0.016, beltW], [-armLen * 0.5, beltY, 0], materials.belt, false));
-  group.add(box([beltW * 0.92, 0.008, 0.032], [0, beltY + 0.012, armLen * 0.5], materials.darkSteel, false));
-  group.add(box([0.032, 0.008, beltW * 0.92], [-armLen * 0.5, beltY + 0.012, 0], materials.darkSteel, false));
+
+  const zLeg = box([beltW, 0.016, legLen], [0, beltY, cornerR + legLen * 0.5], beltMat, false);
+  const xLeg = box([legLen, 0.016, beltW], [-(cornerR + legLen * 0.5), beltY, 0], beltMat, false);
+  const cornerBelt = beltTurnQuarter(cornerR, beltW, 0.016, [0, beltY, 0], beltMat);
+  group.add(zLeg, xLeg, cornerBelt);
+
+  group.add(box([beltW * 0.92, 0.008, 0.032], [0, beltY + 0.012, cornerR + legLen * 0.5], materials.darkSteel, false));
+  group.add(
+    box([0.032, 0.008, beltW * 0.92], [-(cornerR + legLen * 0.5), beltY + 0.012, 0], materials.darkSteel, false)
+  );
+
+  const cornerDeck = cylinder(cornerR * 0.92, cornerR * 0.98, 0.008, [0, beltY - 0.004, 0], materials.machineDark, 36);
+  group.add(cornerDeck);
+
+  const cornerRim = cylinder(cornerR * 1.02, cornerR * 1.04, 0.006, [0, beltY + 0.013, 0], materials.darkSteel, 36);
+  group.add(cornerRim);
 
   group.add(cylinder(0.3, 0.33, 0.12, [0, 0.06, 0], materials.darkSteel, 30));
   group.add(cylinder(0.2, 0.22, 0.22, [0, 0.23, 0], materials.machineDark, 28));
@@ -73,9 +92,13 @@ export function buildSubAssembly(materials: Materials) {
   targetPulseMat.opacity = 0.18;
   group.add(sourcePulse, targetPulse);
 
+  const armMount = new THREE.Group();
+  armMount.position.set(0, 0.45, 0);
+  armMount.rotation.y = Math.PI;
+  group.add(armMount);
+
   const baseYaw = new THREE.Group();
-  baseYaw.position.set(0, 0.45, 0);
-  group.add(baseYaw);
+  armMount.add(baseYaw);
   baseYaw.add(cylinder(0.16, 0.18, 0.1, [0, -0.05, 0], materials.darkSteel, 24));
   baseYaw.add(cylinder(0.14, 0.16, 0.18, [0, 0.02, 0], materials.orange, 24));
   baseYaw.add(cylinder(0.11, 0.12, 0.05, [0, 0.13, 0], materials.machineLight, 20));

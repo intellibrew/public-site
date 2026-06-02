@@ -7,13 +7,17 @@ import type { Materials } from "../materials";
 import { applyProductShape, blendProductShape, makeProduct, PRODUCT_SHAPE_CUBE, PRODUCT_SHAPE_CUBOID } from "../products";
 import { pressPhase } from "../stationMotion";
 import type { StampingRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickStamping(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.stampingRig as StampingRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.87, 0.99, progress);
-  const cycle = pressPhase(elapsedMs * 0.00078);
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "stamping");
+  const animMs = stationAnimationTime(group, elapsedMs, "stamping", baseLive);
+  const cycle = pressPhase(animMs * 0.00078);
   const stroke = cycle.stroke * live;
   const impact = cycle.impact * live;
 

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import type { Materials } from "./materials";
-import { RENDERER_SETTINGS, SCENE_BACKGROUND } from "./sceneConfig";
+import { getEffectivePixelRatio, RENDERER_SETTINGS, SCENE_BACKGROUND } from "./sceneConfig";
 
 export function makeSceneRenderer(mount: HTMLDivElement) {
   const renderer = new THREE.WebGLRenderer({
@@ -10,9 +10,9 @@ export function makeSceneRenderer(mount: HTMLDivElement) {
   });
 
   renderer.setClearColor(SCENE_BACKGROUND, 1);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, RENDERER_SETTINGS.pixelRatioCap));
+  renderer.setPixelRatio(getEffectivePixelRatio());
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = RENDERER_SETTINGS.toneExposure;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -29,6 +29,7 @@ export function fitRendererToMount(
   renderer: THREE.WebGLRenderer
 ) {
   const { clientWidth, clientHeight } = mount;
+  renderer.setPixelRatio(getEffectivePixelRatio());
   renderer.setSize(clientWidth, clientHeight, false);
   camera.aspect = clientWidth / Math.max(1, clientHeight);
   camera.updateProjectionMatrix();

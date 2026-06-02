@@ -5,13 +5,17 @@ import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import type { PaintBoothRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickPaintBooth(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.paintRig as PaintBoothRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.89, 0.99, progress);
-  const phase = elapsedMs * 0.00088;
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "paint");
+  const animMs = stationAnimationTime(group, elapsedMs, "paint", baseLive);
+  const phase = animMs * 0.00088;
   const sprayPulse = (Math.sin(phase * 2.6) * 0.5 + 0.5) * live;
   const flicker = (Math.sin(phase * 21) * 0.28 + Math.sin(phase * 37 + 1.1) * 0.18 + 0.54);
 

@@ -3,16 +3,16 @@ import { lerp, smoothstep } from "./math";
 import type { LightRig } from "./types";
 
 const LIGHT_LEVELS = {
-  key: 2.05,
-  fill: 0.78,
-  rim: 0.72,
-  skylight: 1.05,
-  hallFill: 1.15,
-  backWall: 0.48,
-  overhead: 0.62,
-  hemisphere: 0.78,
-  ambient: 0.52,
-  exposure: 1.24,
+  key: 2.38,
+  fill: 0.94,
+  rim: 0.86,
+  skylight: 1.22,
+  hallFill: 1.32,
+  backWall: 0.58,
+  overhead: 0.72,
+  hemisphere: 0.92,
+  ambient: 0.64,
+  exposure: 1.38,
 };
 
 export function makeLightRig(scene: THREE.Scene, shell: THREE.Group): LightRig {
@@ -21,7 +21,7 @@ export function makeLightRig(scene: THREE.Scene, shell: THREE.Group): LightRig {
   const key = new THREE.DirectionalLight(0xfff7ed, LIGHT_LEVELS.key);
   key.position.set(5.2, 7.4, 4.8);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.mapSize.set(1024, 1024);
   key.shadow.bias = -0.00012;
   key.shadow.normalBias = 0.02;
   key.shadow.camera.near = 0.5;
@@ -64,16 +64,18 @@ export function updateLighting(
   elapsedMs: number,
   renderer: THREE.WebGLRenderer
 ) {
-  const floorReveal = smoothstep(0, 0.15, progress);
-  const wallsReveal = smoothstep(0.1, 0.25, progress);
-  const machineReveal = smoothstep(0.5, 0.85, progress);
+  const floorReveal = smoothstep(0, 0.12, progress);
+  const wallsReveal = smoothstep(0.06, 0.2, progress);
+  const machineReveal = smoothstep(0.2, 0.58, progress);
+  const conveyorReveal = smoothstep(0.62, 0.78, progress);
   const flicker = 0.965 + 0.035 * Math.sin(elapsedMs * 0.0038 + 0.6);
 
-  rig.key.intensity = LIGHT_LEVELS.key * lerp(0.88, 1, floorReveal) * lerp(1, 1.04, machineReveal);
+  rig.key.intensity =
+    LIGHT_LEVELS.key * lerp(0.88, 1, floorReveal) * lerp(1, 1.04, machineReveal);
   rig.fill.intensity = LIGHT_LEVELS.fill * lerp(0.72, 1.08, wallsReveal);
   rig.rim.intensity = LIGHT_LEVELS.rim * lerp(0.58, 1.05, wallsReveal);
   rig.skylight.intensity = LIGHT_LEVELS.skylight * lerp(0.75, 1, floorReveal);
-  rig.hallFill.intensity = LIGHT_LEVELS.hallFill * lerp(0.7, 1, machineReveal);
+  rig.hallFill.intensity = LIGHT_LEVELS.hallFill * lerp(0.7, 1, machineReveal) * lerp(0.85, 1, conveyorReveal);
   rig.backWallGlow.intensity =
     LIGHT_LEVELS.backWall * lerp(0.35, 1, wallsReveal) * (0.82 + 0.18 * Math.sin(elapsedMs * 0.0012));
   rig.hemisphere.intensity = LIGHT_LEVELS.hemisphere * lerp(0.82, 1.06, floorReveal);

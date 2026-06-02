@@ -27,7 +27,7 @@ export type QcRig = {
   scanBeam: THREE.Mesh;
   greenLamp: THREE.Mesh;
   redLamp: THREE.Mesh;
-  branchPulse: THREE.Mesh;
+  branchPulse?: THREE.Mesh;
   rejectLight: THREE.PointLight;
 };
 export type ProductShape = { width: number; height: number; depth: number };

@@ -8,6 +8,61 @@ export function cloneMaterial(material: THREE.Material) {
   return material.clone();
 }
 
+export function floorGridTexture(options?: {
+  base?: string;
+  minor?: string;
+  major?: string;
+  size?: number;
+  cells?: number;
+  majorEvery?: number;
+}) {
+  const {
+    base = "#070d10",
+    minor = "rgba(45, 212, 191, 0.085)",
+    major = "rgba(94, 234, 212, 0.2)",
+    size = 512,
+    cells = 16,
+    majorEvery = 4,
+  } = options ?? {};
+
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d");
+
+  if (context) {
+    context.fillStyle = base;
+    context.fillRect(0, 0, size, size);
+
+    const step = size / cells;
+    for (let i = 0; i <= cells; i += 1) {
+      const pos = Math.round(i * step) + 0.5;
+      const isMajor = i % majorEvery === 0;
+      context.strokeStyle = isMajor ? major : minor;
+      context.lineWidth = isMajor ? 1.25 : 1;
+      context.beginPath();
+      context.moveTo(pos, 0);
+      context.lineTo(pos, size);
+      context.stroke();
+      context.beginPath();
+      context.moveTo(0, pos);
+      context.lineTo(size, pos);
+      context.stroke();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = true;
+  return texture;
+}
+
+/** @deprecated Use floorGridTexture — kept for wall panels. */
 export function floorTexture(base: string, line: string, gridSize = 128) {
   const canvas = document.createElement("canvas");
   canvas.width = 1024;
@@ -18,28 +73,17 @@ export function floorTexture(base: string, line: string, gridSize = 128) {
     context.fillStyle = base;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < 9000; i += 1) {
-      const shade = 16 + Math.floor(Math.random() * 34);
-      const alpha = 0.018 + Math.random() * 0.025;
-      context.fillStyle = `rgba(${shade}, ${shade + 8}, ${shade + 10}, ${alpha})`;
-      context.fillRect(
-        Math.random() * canvas.width,
-        Math.random() * canvas.height,
-        1 + Math.random() * 2.4,
-        1 + Math.random() * 2.4
-      );
-    }
-
     context.strokeStyle = line;
     context.lineWidth = 1;
     for (let position = 0; position <= canvas.width; position += gridSize) {
+      const p = position + 0.5;
       context.beginPath();
-      context.moveTo(position, 0);
-      context.lineTo(position, canvas.height);
+      context.moveTo(p, 0);
+      context.lineTo(p, canvas.height);
       context.stroke();
       context.beginPath();
-      context.moveTo(0, position);
-      context.lineTo(canvas.width, position);
+      context.moveTo(0, p);
+      context.lineTo(canvas.width, p);
       context.stroke();
     }
   }
@@ -47,7 +91,6 @@ export function floorTexture(base: string, line: string, gridSize = 128) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(2.2, 1.45);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
 }
@@ -94,14 +137,16 @@ export function beltTexture() {
   return texture;
 }
 
+export const FLOOR_GRID_CELL = 0.4;
+export const FLOOR_GRID_TILE = 16 * FLOOR_GRID_CELL;
+
 export function makeMaterials() {
-  const floorMap = floorTexture("#070d10", "rgba(45, 212, 191, 0.10)", 128);
   const wallMap = floorTexture("#071113", "rgba(148, 163, 184, 0.055)", 180);
   const beltMap = beltTexture();
 
   return {
-    floor: makeMaterial({ color: 0x070d10, roughness: 0.82, metalness: 0.18, map: floorMap }),
-    floorInset: makeMaterial({ color: 0x0a1518, roughness: 0.55, metalness: 0.28, map: floorMap }),
+    floor: makeMaterial({ color: 0x070d10, roughness: 0.78, metalness: 0.16 }),
+    floorInset: makeMaterial({ color: 0x0a1518, roughness: 0.62, metalness: 0.22 }),
     zone: makeMaterial({
       color: 0x0f3d3f,
       emissive: 0x0f766e,

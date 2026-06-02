@@ -16,3 +16,8 @@ export function lerp(a: number, b: number, t: number) {
 export function lerpVector(a: THREE.Vector3, b: THREE.Vector3, t: number) {
   return new THREE.Vector3(lerp(a.x, b.x, t), lerp(a.y, b.y, t), lerp(a.z, b.z, t));
 }
+
+export function easeOutCubic(t: number) {
+  const c = clamp(t);
+  return 1 - Math.pow(1 - c, 3);
+}

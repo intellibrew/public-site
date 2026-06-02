@@ -6,3 +6,4 @@ export { tickWelding, buildWelding } from "./stations/welding";
 export { tickPaintBooth, buildPaintBooth } from "./stations/paint";
 export { tickFinalAssembly, buildFinalAssembly } from "./stations/finalAssembly";
 export { tickPackaging, buildPackaging } from "./stations/packaging";
+export { tickQualityCheck, buildQualityCheck } from "./stations/qualityCheck";

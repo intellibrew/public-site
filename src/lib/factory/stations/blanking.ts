@@ -7,13 +7,17 @@ import type { Materials } from "../materials";
 import { applyProductShape, blendProductShape, makeProduct, PRODUCT_SHAPE_CUBOID, PRODUCT_SHAPE_RECTANGLE } from "../products";
 import { pressPhase } from "../stationMotion";
 import type { BlankingRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickBlankingPress(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.blankingRig as BlankingRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.86, 0.98, progress);
-  const cycle = pressPhase(elapsedMs * 0.00042);
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "blanking");
+  const animMs = stationAnimationTime(group, elapsedMs, "blanking", baseLive);
+  const cycle = pressPhase(animMs * 0.00042);
   const stroke = cycle.stroke * live;
   const impact = cycle.impact * live;
 

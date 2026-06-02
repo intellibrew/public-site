@@ -61,3 +61,42 @@ export function line(points: THREE.Vector3[], color: number, opacity: number) {
     new THREE.LineBasicMaterial({ color, transparent: true, opacity })
   );
 }
+
+export function beltTurnQuarter(
+  radius: number,
+  beltWidth: number,
+  thickness: number,
+  position: [number, number, number],
+  material: THREE.Material
+) {
+  const outer = radius;
+  const inner = Math.max(0.035, radius - beltWidth);
+  const shape = new THREE.Shape();
+  shape.moveTo(0, outer);
+  shape.absarc(0, 0, outer, Math.PI / 2, Math.PI, false);
+  shape.lineTo(-inner, 0);
+  shape.absarc(0, 0, inner, Math.PI, Math.PI / 2, true);
+  shape.lineTo(0, outer);
+
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+  geo.rotateX(Math.PI / 2);
+  geo.translate(0, thickness / 2, 0);
+
+  const mesh = new THREE.Mesh(geo, cloneMaterial(material));
+  mesh.position.set(...position);
+  mesh.receiveShadow = true;
+  mesh.castShadow = false;
+  return mesh;
+}
+
+export function prepareBeltMaterial(material: THREE.Material, repeatU = 2.4, repeatV = 1.8) {
+  const beltMat = cloneMaterial(material) as THREE.MeshStandardMaterial;
+  if (beltMat.map) {
+    beltMat.map = beltMat.map.clone();
+    beltMat.map.wrapS = THREE.RepeatWrapping;
+    beltMat.map.wrapT = THREE.RepeatWrapping;
+    beltMat.map.repeat.set(repeatU, repeatV);
+    beltMat.map.needsUpdate = true;
+  }
+  return beltMat;
+}

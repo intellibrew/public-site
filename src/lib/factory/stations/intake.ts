@@ -7,13 +7,17 @@ import type { Materials } from "../materials";
 import { applyProductShape, makeProduct, PRODUCT_SHAPE_RECTANGLE } from "../products";
 import { intakePhase } from "../stationMotion";
 import type { IntakeRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickIntake(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.intakeRig as IntakeRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.85, 0.98, progress);
-  const cycle = intakePhase(elapsedMs * 0.00038);
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "intake");
+  const animMs = stationAnimationTime(group, elapsedMs, "intake", baseLive);
+  const cycle = intakePhase(animMs * 0.00038);
   const travel = cycle.travel * live;
   const pos = lerpVector(rig.start, rig.end, travel);
   rig.carrier.position.set(pos.x, 0.128 + cycle.lift * 0.04 * live, pos.z);

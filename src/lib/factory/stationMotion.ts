@@ -61,6 +61,37 @@ export function pickPlacePhase(phase01: number): RobotJointPose {
     targetRelease: { yaw: -1.58, shoulder: -0.54, elbow: 0.8, wrist: -0.4, grip: 0.066, carry: 0 },
   } as const;
 
+  return samplePickPlaceTimeline(t, poses);
+}
+
+/** Sub-assembly: same pick/place endpoints, sweep arcs left → right with line flow. */
+export function subAssemblyPickPlacePhase(phase01: number): RobotJointPose {
+  const t = phase01 - Math.floor(phase01);
+  const poses = {
+    home: { yaw: 1.08, shoulder: -0.82, elbow: 1.14, wrist: -0.24, grip: 0.064, carry: 0 },
+    sourceHover: { yaw: 0.04, shoulder: -0.58, elbow: 0.86, wrist: -0.36, grip: 0.064, carry: 0 },
+    sourcePick: { yaw: 0.08, shoulder: -0.5, elbow: 0.76, wrist: -0.42, grip: 0.034, carry: 1 },
+    carryLift: { yaw: 0.82, shoulder: -0.9, elbow: 1.02, wrist: -0.16, grip: 0.034, carry: 1 },
+    targetHover: { yaw: -1.52, shoulder: -0.62, elbow: 0.9, wrist: -0.34, grip: 0.034, carry: 1 },
+    targetPlace: { yaw: -1.58, shoulder: -0.54, elbow: 0.8, wrist: -0.4, grip: 0.034, carry: 1 },
+    targetRelease: { yaw: -1.58, shoulder: -0.54, elbow: 0.8, wrist: -0.4, grip: 0.066, carry: 0 },
+  } as const;
+
+  return samplePickPlaceTimeline(t, poses);
+}
+
+function samplePickPlaceTimeline(
+  t: number,
+  poses: {
+    home: RobotJointPose;
+    sourceHover: RobotJointPose;
+    sourcePick: RobotJointPose;
+    carryLift: RobotJointPose;
+    targetHover: RobotJointPose;
+    targetPlace: RobotJointPose;
+    targetRelease: RobotJointPose;
+  }
+): RobotJointPose {
   if (t < 0.1) return blendArmPose(poses.home, poses.home, t / 0.1);
   if (t < 0.22) return blendArmPose(poses.home, poses.sourceHover, smoothstep(0.1, 0.22, t));
   if (t < 0.28) return blendArmPose(poses.sourceHover, poses.sourcePick, smoothstep(0.22, 0.28, t));

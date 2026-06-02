@@ -5,13 +5,17 @@ import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import type { FinalAssemblyRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickFinalAssembly(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.finalAssemblyRig as FinalAssemblyRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.9, 1, progress);
-  const phase = elapsedMs * 0.00084;
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "finalAssembly");
+  const animMs = stationAnimationTime(group, elapsedMs, "finalAssembly", baseLive);
+  const phase = animMs * 0.00084;
 
   const gantryCycle = Math.sin(phase * 0.62) * 0.5 + 0.5;
   rig.gantryCarriage.position.x = lerp(0.52, 2.6, gantryCycle);

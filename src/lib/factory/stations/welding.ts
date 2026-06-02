@@ -5,15 +5,19 @@ import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import type { WeldingRig } from "../types";
+import { machineLiveMultiplier } from "../flowOptimization";
+import { stationAnimationTime } from "../flowAnimation";
 
 export function tickWelding(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.weldingRig as WeldingRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.89, 0.99, progress);
-  const phase = elapsedMs * 0.0021;
+  const baseLive = smoothstep(0.78, 0.95, progress);
+  const live = machineLiveMultiplier(baseLive, "welding");
+  const animMs = stationAnimationTime(group, elapsedMs, "welding", baseLive);
+  const phase = animMs * 0.0021;
   const weldPeriod = 4200;
-  const weldPhase = (elapsedMs % weldPeriod) / weldPeriod;
+  const weldPhase = (animMs % weldPeriod) / weldPeriod;
   const seamStart = -0.06;
   const seamEnd = 0.3;
   const travel = smoothstep(0.06, 0.74, weldPhase) * (1 - smoothstep(0.78, 0.94, weldPhase));
@@ -24,7 +28,7 @@ export function tickWelding(group: THREE.Group, progress: number, elapsedMs: num
     Math.sin(phase * 31) * 0.42 +
     Math.sin(phase * 53 + 0.7) * 0.28 +
     Math.sin(phase * 79 + 1.4) * 0.18 +
-    Math.sin(elapsedMs * 0.017 + 0.3) * 0.12;
+    Math.sin(animMs * 0.017 + 0.3) * 0.12;
   const flicker = clamp((flickerRaw + 1) * 0.5);
   const arcPulse = arcActive * (0.55 + flicker * 0.45);
 
@@ -51,7 +55,7 @@ export function tickWelding(group: THREE.Group, progress: number, elapsedMs: num
 
   rig.sparkFlecks.forEach((fleck, index) => {
     const burstSeed = index * 0.73 + 0.19;
-    const burstT = ((elapsedMs * 0.0018 + burstSeed) % 1) * arcActive;
+    const burstT = ((animMs * 0.0018 + burstSeed) % 1) * arcActive;
     const angle = index * 0.92 + Math.sin(index * 1.7) * 0.4;
     const speed = 0.09 + (index % 4) * 0.028;
     fleck.position.set(
@@ -75,7 +79,7 @@ export function tickWelding(group: THREE.Group, progress: number, elapsedMs: num
   rig.sparkLight.intensity = (0.65 + flicker * 3.4) * arcPulse;
   rig.sparkLight.position.y = 0.39 + flicker * 0.02 * arcActive;
 
-  rig.chillerFan.rotation.z = elapsedMs * 0.0038;
+  rig.chillerFan.rotation.z = animMs * 0.0038 * (live > 0.02 ? 1 : 0);
 
   const beaconMat = rig.statusBeacon.material as THREE.MeshStandardMaterial;
   const weldingHue = arcActive > 0.08;
@@ -90,7 +94,7 @@ export function tickWelding(group: THREE.Group, progress: number, elapsedMs: num
   });
 
   rig.smokeWisps.forEach((wisp, index) => {
-    const drift = ((elapsedMs * 0.00042 + index * 0.31) % 1) * arcActive;
+    const drift = ((animMs * 0.00042 + index * 0.31) % 1) * arcActive;
     wisp.position.y = 0.04 + drift * 0.22;
     wisp.position.x = (index - 1) * 0.04 * drift;
     wisp.scale.setScalar(0.35 + drift * 0.75);

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { clamp, lerp, lerpVector, smoothstep } from "./math";
-import { box, cylinder } from "./mesh";
+import { box, cylinder, prepareBeltMaterial } from "./mesh";
 import { prepGroup } from "./reveal";
 import { LAYOUT, layoutPoint } from "./layout";
 import { makePath, pointOnPath } from "./path";
@@ -13,7 +13,9 @@ import {
   PRODUCT_SHAPE_RECTANGLE,
 } from "./products";
 import type { Materials } from "./materials";
-import type { BeltRig, ConveyorBeltSegment, ConveyorMover, QcRig } from "./types";
+import type { BeltRig, ConveyorBeltSegment, ConveyorMover } from "./types";
+import { getCurrentFlowState, OPTIMIZED_MOVER_COUNT } from "./flowOptimization";
+import { buildQualityCheck, tickQualityCheck } from "./stations/qualityCheck";
 
 const PAINT_THRESHOLD = 0.581;
 
@@ -26,19 +28,48 @@ const QUALITY_CHECK_BRANCH_END = layoutPoint({ x: 64, y: 30.5 });
 
 const PACKAGING_THRESHOLD = 0.964;
 
+type FlowMotionState = {
+  lastElapsed: number;
+  smoothedLive: number;
+  motionMs: number;
+};
+
+function getFlowMotion(group: THREE.Group): FlowMotionState {
+  if (!group.userData.flowMotion) {
+    group.userData.flowMotion = {
+      lastElapsed: 0,
+      smoothedLive: 1,
+      motionMs: 0,
+    } satisfies FlowMotionState;
+  }
+  return group.userData.flowMotion as FlowMotionState;
+}
+
 export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: number) {
-  const live = smoothstep(0.85, 0.95, progress);
+  const flow = getCurrentFlowState();
+  const revealLive = smoothstep(0.72, 0.88, progress);
+  const targetLive = revealLive * flow.conveyorLive;
+
+  const motion = getFlowMotion(group);
+  const deltaMs =
+    motion.lastElapsed > 0 ? Math.min(48, Math.max(0, elapsedMs - motion.lastElapsed)) : 16;
+  motion.lastElapsed = elapsedMs;
+
+  const smoothFactor = 1 - Math.pow(0.001, deltaMs / 520);
+  motion.smoothedLive = lerp(motion.smoothedLive, targetLive, smoothFactor);
+  motion.motionMs += deltaMs * motion.smoothedLive;
 
   const beltRig = group.userData.beltRig as BeltRig | undefined;
-  if (beltRig && live > 0.02) {
-    const travel = elapsedMs * beltRig.travelRate * live;
+  if (beltRig) {
+    const travel = motion.motionMs * beltRig.travelRate;
     beltRig.segments.forEach((segment) => {
       const map = segment.beltMaterial.map;
       if (map) {
         map.offset.x = ((travel * segment.scrollSign * 0.92) % 1 + 1) % 1;
       }
+      const rollerSpin = travel * segment.scrollSign * beltRig.rollerRate;
       segment.rollers.forEach((roller) => {
-        roller.rotation.z = travel * segment.scrollSign * beltRig.rollerRate;
+        roller.rotation.z = rollerSpin;
       });
     });
   }
@@ -46,10 +77,17 @@ export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: nu
   const movers = group.userData.movers as ConveyorMover[] | undefined;
   if (!movers?.length) return;
 
+  const activeCount = Math.min(movers.length, Math.max(0, flow.activeMoverCount));
   let qcScanActivity = 0;
   let qcRejectActivity = 0;
   movers.forEach((mover, index) => {
-    const t = elapsedMs * 0.000105 * mover.speed + mover.offset;
+    const isActive = index < activeCount;
+    if (!isActive) {
+      mover.mesh.visible = false;
+      return;
+    }
+
+    const t = motion.motionMs * 0.000105 * mover.speed + mover.offset;
     const normalizedT = ((t % 1) + 1) % 1;
     const productSerial = Math.floor(t) * movers.length + index;
     const isRejected = productSerial % 10 === 0;
@@ -72,12 +110,12 @@ export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: nu
     }
 
     const productShape = productShapeAt(normalizedT);
-    const bob = Math.sin(t * Math.PI * 2 + index) * 0.003 * live;
+    const bob = Math.sin(t * Math.PI * 2 + index) * 0.003 * motion.smoothedLive;
     const nextPoint = pointOnPath(mover.path, t + 0.003);
     const heading = Math.atan2(nextPoint.x - point.x, nextPoint.z - point.z);
     mover.mesh.position.set(point.x, productY(productShape, bob), point.z);
-    mover.mesh.visible = live > 0.02;
-    mover.mesh.rotation.y = lerp(mover.mesh.rotation.y, heading, 0.18 * live);
+    mover.mesh.visible = revealLive > 0.02;
+    mover.mesh.rotation.y = lerp(mover.mesh.rotation.y, heading, 0.14);
     applyProductShape(mover.mesh, productShape);
 
     const isPainted = normalizedT >= PAINT_THRESHOLD;
@@ -91,7 +129,7 @@ export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: nu
       const fadeIn = smoothstep(PACKAGING_THRESHOLD, PACKAGING_THRESHOLD + 0.014, normalizedT);
       moverMat.color.setHex(0xf59e0b);
       moverMat.emissive.setHex(0xd97706);
-      moverMat.emissiveIntensity = (0.38 + fadeIn * 0.28) * live;
+      moverMat.emissiveIntensity = (0.38 + fadeIn * 0.28) * revealLive;
     } else if (isPainted) {
       moverMat.color.setHex(0x22c55e);
       moverMat.emissive.setHex(0x16a34a);
@@ -106,33 +144,22 @@ export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: nu
     const isAssembled = normalizedT >= FINAL_ASSEMBLY_THRESHOLD;
     if (isAssembled) {
       const fadeIn = smoothstep(FINAL_ASSEMBLY_THRESHOLD, FINAL_ASSEMBLY_THRESHOLD + 0.018, normalizedT);
-      edgesMat.opacity = fadeIn * 0.9 * live;
+      edgesMat.opacity = fadeIn * 0.9 * revealLive;
     } else {
       edgesMat.opacity = 0;
     }
   });
 
-  const qcRig = group.userData.qualityCheckRig as QcRig | undefined;
-  if (qcRig) {
-    qcRig.rejectPusher.position.z = lerp(0.23, -0.19, qcRejectActivity);
+  const qcStation = group.userData.qcStationGroup as THREE.Group | undefined;
+  if (qcStation) {
+    tickQualityCheck(qcStation, progress, qcScanActivity, qcRejectActivity);
+  }
 
-    const beamMat = qcRig.scanBeam.material as THREE.MeshStandardMaterial;
-    beamMat.opacity = (0.12 + qcScanActivity * 0.42 + qcRejectActivity * 0.18) * live;
-    beamMat.emissiveIntensity = (0.5 + qcScanActivity * 1.2) * live;
-
-    const greenMat = qcRig.greenLamp.material as THREE.MeshStandardMaterial;
-    greenMat.emissiveIntensity = (0.25 + qcScanActivity * 1.4) * live * (1 - qcRejectActivity * 0.65);
-    greenMat.opacity = (0.28 + qcScanActivity * 0.48) * live * (1 - qcRejectActivity * 0.5);
-
-    const redMat = qcRig.redLamp.material as THREE.MeshStandardMaterial;
-    redMat.emissiveIntensity = (0.35 + qcRejectActivity * 2.4) * live;
-    redMat.opacity = (0.2 + qcRejectActivity * 0.68) * live;
-
-    const branchMat = qcRig.branchPulse.material as THREE.MeshStandardMaterial;
-    branchMat.opacity = qcRejectActivity * 0.42 * live;
-    branchMat.emissiveIntensity = qcRejectActivity * 1.5 * live;
-
-    qcRig.rejectLight.intensity = qcRejectActivity * 1.6 * live;
+  const branchPulse = group.userData.qualityCheckBranchPulse as THREE.Mesh | undefined;
+  if (branchPulse) {
+    const branchMat = branchPulse.material as THREE.MeshStandardMaterial;
+    branchMat.opacity = qcRejectActivity * 0.42 * revealLive;
+    branchMat.emissiveIntensity = qcRejectActivity * 1.5 * revealLive;
   }
 }
 
@@ -146,6 +173,43 @@ export function buildConveyor(materials: Materials) {
   const beltTravelRate = 0.000105 * primaryRun.speed;
   const beltRollerRate = beltTravelRate * primaryPath.length / 0.026;
 
+  const addConveyorCorner = (point: THREE.Vector3, width: number) => {
+    const beltY = 0.178;
+    const outer = width * 0.86;
+
+    group.add(
+      cylinder(outer * 0.96, outer, 0.01, [point.x, beltY - 0.005, point.z], materials.machineDark, 36)
+    );
+
+    const beltDisc = cylinder(
+      outer * 0.74,
+      outer * 0.74,
+      0.022,
+      [point.x, beltY, point.z],
+      prepareBeltMaterial(materials.belt, 1.8, 1.8),
+      36
+    );
+    beltDisc.userData.conveyorPickable = true;
+    group.add(beltDisc);
+
+    group.add(
+      cylinder(outer * 0.92, outer * 0.94, 0.008, [point.x, beltY + 0.015, point.z], materials.darkSteel, 36)
+    );
+
+    const accent = cylinder(
+      outer * 0.56,
+      outer * 0.56,
+      0.003,
+      [point.x, beltY + 0.017, point.z],
+      materials.tealGlow,
+      36
+    );
+    const accentMat = accent.material as THREE.MeshStandardMaterial;
+    accentMat.transparent = true;
+    accentMat.opacity = 0.28;
+    group.add(accent);
+  };
+
   const addConveyorSegment = (start: THREE.Vector3, end: THREE.Vector3, width = 0.26) => {
     const dx = end.x - start.x;
     const dz = end.z - start.z;
@@ -155,15 +219,8 @@ export function buildConveyor(materials: Materials) {
     segment.position.set((start.x + end.x) / 2, 0, (start.z + end.z) / 2);
     segment.rotation.y = angle;
 
-    const belt = box([length, 0.022, width], [0, 0.178, 0], materials.belt, false);
+    const belt = box([length, 0.022, width], [0, 0.178, 0], prepareBeltMaterial(materials.belt, Math.max(2.4, length * 4.8), Math.max(1.8, width * 5.2)), false);
     const beltMat = belt.material as THREE.MeshStandardMaterial;
-    if (beltMat.map) {
-      beltMat.map = beltMat.map.clone();
-      beltMat.map.wrapS = THREE.RepeatWrapping;
-      beltMat.map.wrapT = THREE.RepeatWrapping;
-      beltMat.map.repeat.set(Math.max(2.4, length * 4.8), Math.max(1.8, width * 5.2));
-      beltMat.map.needsUpdate = true;
-    }
 
     const rOff = width / 2 + 0.014;
     [-rOff, rOff].forEach((z) => {
@@ -201,6 +258,7 @@ export function buildConveyor(materials: Materials) {
     });
 
     segment.add(belt);
+    belt.userData.conveyorPickable = true;
     beltSegments.push({ beltMaterial: beltMat, rollers, scrollSign: 1 });
     group.add(segment);
   };
@@ -208,21 +266,19 @@ export function buildConveyor(materials: Materials) {
   const addConveyorRun = (points: THREE.Vector3[], width = 0.26, movingPackages = 0, speed = 1) => {
     points.slice(0, -1).forEach((point, index) => addConveyorSegment(point, points[index + 1], width));
 
-    points.slice(1, -1).forEach((point) => {
-      const disc = cylinder(width * 0.72, width * 0.72, 0.014, [point.x, 0.178, point.z], materials.darkSteel, 18);
-      group.add(disc);
-      const ring = cylinder(width * 0.62, width * 0.62, 0.005, [point.x, 0.192, point.z], materials.tealGlow, 18);
-      group.add(ring);
-    });
+    points.slice(1, -1).forEach((point) => addConveyorCorner(point, width));
 
     const path = makePath(points);
-    for (let i = 0; i < movingPackages; i += 1) {
+    const packageCount = Math.max(movingPackages, OPTIMIZED_MOVER_COUNT);
+    for (let i = 0; i < packageCount; i += 1) {
       const cube = makeProduct(materials.machineLight, [points[0].x, productY(PRODUCT_SHAPE_RECTANGLE), points[0].z]);
       const edgesGeo = new THREE.EdgesGeometry(cube.geometry);
       const edgesMat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
       const edges = new THREE.LineSegments(edgesGeo, edgesMat);
       cube.add(edges);
-      movers.push({ mesh: cube, edges, path, speed, offset: i / Math.max(1, movingPackages) });
+      movers.push({ mesh: cube, edges, path, speed, offset: i / packageCount });
+      cube.userData.conveyorPickable = true;
+      cube.visible = i < movingPackages;
       group.add(cube);
     }
   };
@@ -255,88 +311,14 @@ export function buildConveyor(materials: Materials) {
   rejectTray.add(box([0.38, 0.012, 0.026], [0, 0.37, -0.236], materials.redLight));
   group.add(rejectTray);
 
-  const qcStation = new THREE.Group();
+  const qcStation = buildQualityCheck(materials);
   qcStation.position.set(QUALITY_CHECK_BRANCH_START.x, 0, QUALITY_CHECK_BRANCH_START.z);
-
-  qcStation.add(box([0.82, 0.036, 0.52], [0, 0.224, 0], materials.machineDark, false));
-  qcStation.add(box([0.7, 0.01, 0.4], [0, 0.248, 0], materials.zone, false));
-  qcStation.add(box([0.055, 0.72, 0.055], [-0.38, 0.58, -0.24], materials.machineDark));
-  qcStation.add(box([0.055, 0.72, 0.055], [-0.38, 0.58, 0.24], materials.machineDark));
-  qcStation.add(box([0.055, 0.72, 0.055], [0.38, 0.58, -0.24], materials.machineDark));
-  qcStation.add(box([0.055, 0.72, 0.055], [0.38, 0.58, 0.24], materials.machineDark));
-  qcStation.add(box([0.86, 0.07, 0.08], [0, 0.94, -0.24], materials.darkSteel));
-  qcStation.add(box([0.86, 0.07, 0.08], [0, 0.94, 0.24], materials.darkSteel));
-  qcStation.add(box([0.09, 0.07, 0.56], [-0.38, 0.94, 0], materials.darkSteel));
-  qcStation.add(box([0.09, 0.07, 0.56], [0.38, 0.94, 0], materials.darkSteel));
-  qcStation.add(box([0.68, 0.014, 0.026], [0, 0.99, -0.24], materials.tealGlow));
-  qcStation.add(box([0.68, 0.014, 0.026], [0, 0.99, 0.24], materials.tealGlow));
-
-  qcStation.add(box([0.32, 0.18, 0.28], [0, 0.79, 0], materials.machine));
-  qcStation.add(box([0.22, 0.06, 0.22], [0, 0.67, 0], materials.darkSteel));
-  const qcLens = cylinder(0.04, 0.045, 0.07, [0, 0.62, 0], materials.glass, 14);
-  qcLens.rotation.x = Math.PI / 2;
-  qcStation.add(qcLens);
-  const scanBeam = box([0.62, 0.012, 0.44], [0, 0.48, 0], materials.tealGlow, false);
-  const scanBeamMat = scanBeam.material as THREE.MeshStandardMaterial;
-  scanBeamMat.transparent = true;
-  scanBeamMat.opacity = 0.14;
-  scanBeamMat.emissiveIntensity = 0.5;
-  qcStation.add(scanBeam);
-
-  qcStation.add(box([0.04, 0.42, 0.04], [0.48, 0.82, 0.24], materials.darkSteel));
-  const greenLamp = cylinder(0.046, 0.046, 0.04, [0.48, 1.04, 0.24], materials.paintGreen, 16);
-  const redLamp = cylinder(0.046, 0.046, 0.04, [0.48, 1.1, 0.24], materials.redLight, 16);
-  const greenLampMat = greenLamp.material as THREE.MeshStandardMaterial;
-  const redLampMat = redLamp.material as THREE.MeshStandardMaterial;
-  greenLampMat.transparent = true;
-  redLampMat.transparent = true;
-  greenLampMat.opacity = 0.42;
-  redLampMat.opacity = 0.22;
-  qcStation.add(greenLamp, redLamp);
-
-  qcStation.add(box([0.32, 0.38, 0.16], [-0.42, 0.39, 0.34], materials.machineDark));
-  qcStation.add(box([0.24, 0.1, 0.12], [-0.42, 0.52, 0.24], materials.machineLight));
-  const rejectPusher = new THREE.Group();
-  rejectPusher.position.set(-0.2, 0.29, 0.23);
-  rejectPusher.add(box([0.36, 0.07, 0.06], [0, 0, 0], materials.steel));
-  rejectPusher.add(box([0.46, 0.18, 0.045], [0, 0.02, -0.08], materials.warning));
-  rejectPusher.add(box([0.38, 0.016, 0.02], [0, 0.12, -0.106], materials.darkSteel));
-  qcStation.add(rejectPusher);
-  qcStation.add(box([0.12, 0.08, 0.38], [-0.42, 0.3, 0.07], materials.darkSteel));
-
-  qcStation.add(box([0.036, 0.42, 0.42], [0.53, 0.45, -0.02], materials.machineLight));
-  const guardPanel = box([0.012, 0.34, 0.36], [0.552, 0.45, -0.02], materials.safetyGlass, false);
-  const guardMat = guardPanel.material as THREE.MeshStandardMaterial;
-  guardMat.opacity = 0.22;
-  qcStation.add(guardPanel);
-  qcStation.add(box([0.26, 0.48, 0.18], [0.64, 0.34, -0.3], materials.machineDark));
-  qcStation.add(box([0.17, 0.12, 0.026], [0.64, 0.43, -0.392], materials.glass));
-  qcStation.add(box([0.13, 0.012, 0.024], [0.64, 0.34, -0.394], materials.tealGlow));
-  qcStation.add(cylinder(0.026, 0.026, 0.034, [0.58, 0.25, -0.394], materials.redLight, 12));
-  qcStation.add(cylinder(0.022, 0.022, 0.034, [0.66, 0.25, -0.394], materials.paintGreen, 12));
-
-  const rejectLight = new THREE.PointLight(0xef4444, 0, 1.4);
-  rejectLight.position.set(0, 0.48, -0.24);
-  qcStation.add(rejectLight);
   group.add(qcStation);
-
-  group.userData.qualityCheckRig = {
-    rejectPusher,
-    scanBeam,
-    greenLamp,
-    redLamp,
-    branchPulse,
-    rejectLight,
-  } satisfies QcRig;
-
-  const conveyorCorners = LAYOUT.conveyorRuns.flatMap((run) => run.points.map((point) => layoutPoint(point)));
-  conveyorCorners.forEach((point) => {
-    const node = cylinder(0.094, 0.094, 0.014, [point.x, 0.205, point.z], materials.tealGlow, 20);
-    const cap = cylinder(0.048, 0.048, 0.018, [point.x, 0.214, point.z], materials.safetyGlass, 16);
-    group.add(node, cap);
-  });
+  group.userData.qcStationGroup = qcStation;
+  group.userData.qualityCheckBranchPulse = branchPulse;
 
   group.userData.movers = movers;
+  group.userData.isConveyorRoot = true;
   group.userData.beltRig = {
     segments: beltSegments,
     travelRate: beltTravelRate,
