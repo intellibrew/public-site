@@ -5,55 +5,31 @@ import Header from "@/components/Header";
 import FactoryBuildExperience from "@/components/FactoryBuildExperience";
 import { clamp, smoothstep } from "@/lib/factory/math";
 
-export const FACTORY_SCROLL_HEIGHT = "540svh";
+export const FACTORY_SCROLL_HEIGHT = "220svh";
 const HERO_FADE_START = 0;
-const HERO_FADE_END = 0.14;
-const BUILD_SCROLL_START = 0.12;
-const BUILD_SCROLL_END = 0.96;
-export const BUILD_COMPLETE_PROGRESS = 0.999;
-
-function readScrollY() {
-  return window.scrollY ?? document.documentElement.scrollTop;
-}
+const HERO_FADE_END = 0.42;
 
 function scrollProgress(container: HTMLElement) {
   const scrollable = container.offsetHeight - window.innerHeight;
-  return scrollable > 0 ? clamp(readScrollY() / scrollable, 0, 1) : 0;
-}
-
-function scrollToBuildProgress(scroll: number) {
-  const linear = clamp(
-    (scroll - BUILD_SCROLL_START) / (BUILD_SCROLL_END - BUILD_SCROLL_START),
-    0,
-    1
-  );
-  return smoothstep(0, 1, linear);
-}
-
-function isConstructionComplete(scroll: number, buildProgress: number) {
-  return scroll >= BUILD_SCROLL_END - 0.004 && buildProgress >= BUILD_COMPLETE_PROGRESS;
+  const y = window.scrollY ?? document.documentElement.scrollTop;
+  return scrollable > 0 ? clamp(y / scrollable, 0, 1) : 0;
 }
 
 export default function FactoryLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
   const buildProgressRef = useRef(0);
   const storyEnabledRef = useRef(false);
-  const returningToHeroRef = useRef(false);
   const [heroOpacity, setHeroOpacity] = useState(1);
   const [factoryVisible, setFactoryVisible] = useState(false);
   const [factoryInteractive, setFactoryInteractive] = useState(false);
   const [storyEnabled, setStoryEnabled] = useState(false);
   const getBuildProgress = useCallback(() => buildProgressRef.current, []);
-  const getStoryEnabled = useCallback(
-    () => storyEnabledRef.current && buildProgressRef.current >= BUILD_COMPLETE_PROGRESS,
-    []
-  );
+  const getStoryEnabled = useCallback(() => storyEnabledRef.current, []);
 
   useEffect(() => {
     const resetScroll = () => {
       buildProgressRef.current = 0;
       storyEnabledRef.current = false;
-      returningToHeroRef.current = false;
       setStoryEnabled(false);
       setHeroOpacity(1);
       setFactoryVisible(false);
@@ -77,30 +53,25 @@ export default function FactoryLanding() {
     const syncFromScroll = () => {
       scheduled = false;
       const scroll = scrollProgress(container);
-      const heroActive = scroll < HERO_FADE_END;
-      const rawBuildProgress = scrollToBuildProgress(scroll);
-      const buildProgress = heroActive ? 0 : rawBuildProgress;
+      const heroOpacityNext = 1 - smoothstep(HERO_FADE_START, HERO_FADE_END, scroll);
+      const heroActive = heroOpacityNext > 0.02;
+      const buildProgress = heroActive ? 0 : 1;
       buildProgressRef.current = buildProgress;
 
-      const heroHidden = 1 - smoothstep(HERO_FADE_START, HERO_FADE_END, scroll);
-      if (Math.abs(heroOpacityValue - heroHidden) > 0.001) {
-        heroOpacityValue = heroHidden;
-        setHeroOpacity(heroHidden);
+      if (Math.abs(heroOpacityValue - heroOpacityNext) > 0.001) {
+        heroOpacityValue = heroOpacityNext;
+        setHeroOpacity(heroOpacityNext);
       }
 
-      const constructionComplete = isConstructionComplete(scroll, buildProgress);
-      if (!storyEnabledRef.current && constructionComplete) {
+      const showFactory = !heroActive;
+      if (!storyEnabledRef.current && showFactory) {
         storyEnabledRef.current = true;
       }
-      const storyActive = storyEnabledRef.current && constructionComplete;
+      const storyActive = storyEnabledRef.current && showFactory;
       setStoryEnabled((prev) => (prev === storyActive ? prev : storyActive));
-
-      const showFactory =
-        !heroActive && (buildProgress > 0.002 || storyEnabledRef.current);
       setFactoryVisible((prev) => (prev === showFactory ? prev : showFactory));
 
-      const interactive = showFactory && scroll > HERO_FADE_END;
-      setFactoryInteractive((prev) => (prev === interactive ? prev : interactive));
+      setFactoryInteractive((prev) => (prev === showFactory ? prev : showFactory));
     };
 
     const scheduleSync = () => {
@@ -117,65 +88,6 @@ export default function FactoryLanding() {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("scroll", scheduleSync);
       window.removeEventListener("resize", scheduleSync);
-    };
-  }, []);
-
-  useEffect(() => {
-    let touchStartY = 0;
-
-    const returnToHero = () => {
-      if (returningToHeroRef.current) return;
-      returningToHeroRef.current = true;
-      buildProgressRef.current = 0;
-      setStoryEnabled(false);
-      setHeroOpacity(1);
-      setFactoryVisible(false);
-      setFactoryInteractive(false);
-      window.scrollTo({ top: 0, behavior: "auto" });
-      window.setTimeout(() => {
-        returningToHeroRef.current = false;
-      }, 260);
-    };
-
-    const detailOverlayOpen = () => Boolean(document.querySelector(".holo-overlay"));
-    const shouldReturnToHero = () =>
-      storyEnabledRef.current && readScrollY() > 8 && !detailOverlayOpen();
-
-    const onWheel = (event: WheelEvent) => {
-      if (event.deltaY >= 0 || !shouldReturnToHero()) return;
-      event.preventDefault();
-      returnToHero();
-    };
-
-    const onTouchStart = (event: TouchEvent) => {
-      touchStartY = event.touches[0]?.clientY ?? 0;
-    };
-
-    const onTouchMove = (event: TouchEvent) => {
-      const currentY = event.touches[0]?.clientY ?? touchStartY;
-      const swipingDownToScrollUp = currentY - touchStartY > 8;
-      if (!swipingDownToScrollUp || !shouldReturnToHero()) return;
-      event.preventDefault();
-      returnToHero();
-    };
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!["ArrowUp", "PageUp", "Home"].includes(event.key)) return;
-      if (!shouldReturnToHero()) return;
-      event.preventDefault();
-      returnToHero();
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("keydown", onKeyDown);
     };
   }, []);
 
@@ -225,7 +137,7 @@ export default function FactoryLanding() {
           </div>
 
           <p className="absolute inset-x-0 bottom-10 text-center font-fragment text-[9px] uppercase tracking-[0.28em] text-teal-400/55">
-            Scroll to build
+            Scroll to enter
           </p>
         </div>
       </div>
