@@ -247,12 +247,12 @@ export function flowCaption(
     case "underproduction":
       return {
         label: "Below target throughput",
-        detail: "Line running below capacity — identify bottlenecks to locate constraints",
+        detail: "Line running below capacity - identify bottlenecks to locate constraints",
       };
     case "bottleneck":
       return {
         label: "Line stalled",
-        detail: `${constraintName} constraint — click the stalled station`,
+        detail: `${constraintName} constraint - click the stalled station`,
       };
     case "optimizing":
       return {
@@ -262,7 +262,7 @@ export function flowCaption(
     case "optimized":
       return {
         label: "Factory optimized",
-        detail: "Full production flow restored — balanced output from intake to packaging",
+        detail: "Full production flow restored - balanced output from intake to packaging",
       };
     default:
       return null;

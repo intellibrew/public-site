@@ -7,9 +7,10 @@ type SceneInputOptions = {
   controls: OrbitControls;
   element: HTMLCanvasElement;
   onResetView?: () => void;
+  getIsInteractive?: () => boolean;
 };
 
-export function bindSceneInput({ camera, controls, element, onResetView }: SceneInputOptions) {
+export function bindSceneInput({ camera, controls, element, onResetView, getIsInteractive }: SceneInputOptions) {
   let cameraOverride = false;
   let targetZoomDistance: number | null = null;
   let lastTapTime = 0;
@@ -23,8 +24,7 @@ export function bindSceneInput({ camera, controls, element, onResetView }: Scene
     element.style.cursor = "grab";
   };
   const onWheel = (event: WheelEvent) => {
-    if (!event.ctrlKey && !event.metaKey) return;
-
+    if (!(getIsInteractive?.() ?? true)) return;
     event.preventDefault();
     event.stopPropagation();
 

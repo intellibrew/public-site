@@ -62,7 +62,6 @@ export function floorGridTexture(options?: {
   return texture;
 }
 
-/** @deprecated Use floorGridTexture — kept for wall panels. */
 export function floorTexture(base: string, line: string, gridSize = 128) {
   const canvas = document.createElement("canvas");
   canvas.width = 1024;

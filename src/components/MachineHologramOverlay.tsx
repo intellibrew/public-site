@@ -20,6 +20,7 @@ type MachineHologramOverlayProps = {
   stationId: string | null;
   visible: boolean;
   variant?: "inspect" | "bottleneck";
+  showBottleneckAnalysis?: boolean;
   onClose: () => void;
   onOptimize?: () => void;
 };
@@ -43,22 +44,23 @@ function SplitText({ text }: { text: string }) {
 function MetricRow({ metric }: { metric: MachineDefinition["metrics"][number] }) {
   const pct = (metric.value / metric.max) * 100;
   const decimals = metric.unit === "%" || metric.unit === "s" ? 1 : 0;
+  const displayValue = decimals > 0 ? metric.value.toFixed(decimals) : String(Math.round(metric.value));
 
   return (
     <div className="holo-metric-row">
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[10px] uppercase tracking-[0.16em] text-teal-300/55">
+      <div className="flex min-w-0 items-baseline justify-between gap-2">
+        <span className="min-w-0 truncate pr-2 text-[10px] uppercase tracking-[0.16em] text-teal-300/55">
           {metric.label}
         </span>
         <span
-          className="holo-metric-value font-orbitron text-[13px] tabular-nums text-teal-100"
+          className="holo-metric-value shrink-0 font-orbitron text-[13px] tabular-nums text-teal-100"
         >
           <span
             className="holo-metric-num"
             data-value={metric.value}
             data-decimals={decimals}
           >
-            0
+            {displayValue}
           </span>
           {metric.unit && (
             <span className="holo-metric-unit ml-0.5 text-[9px] font-normal text-teal-400/60">
@@ -68,7 +70,7 @@ function MetricRow({ metric }: { metric: MachineDefinition["metrics"][number] })
         </span>
       </div>
       <div className="holo-metric-track">
-        <div className="holo-metric-fill" data-width={`${pct}%`} style={{ width: "0%" }} />
+        <div className="holo-metric-fill" data-width={`${pct}%`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -129,6 +131,7 @@ type HoloTabletProps = {
   machine: MachineDefinition;
   index: number;
   isBottleneckView: boolean;
+  showBottleneckAnalysis: boolean;
   onClose: (event: React.PointerEvent | React.MouseEvent) => void;
   onOptimize?: () => void;
 };
@@ -137,6 +140,7 @@ function HoloTablet({
   machine,
   index,
   isBottleneckView,
+  showBottleneckAnalysis,
   onClose,
   onOptimize,
 }: HoloTabletProps) {
@@ -146,8 +150,8 @@ function HoloTablet({
     const tablet = tabletRef.current;
     if (!tablet) return;
 
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
-    if (isMobile) return;
+    const isCompact = window.matchMedia("(max-width: 1024px)").matches;
+    if (isCompact) return;
 
     let ctx: ReturnType<typeof playHoloEnterAnimation> | undefined;
     const frameId = requestAnimationFrame(() => {
@@ -239,23 +243,29 @@ function HoloTablet({
           }`}
         >
           <div className="flex flex-col gap-2 px-3 pb-6 pt-1 md:gap-3 md:px-5 md:py-4 md:pb-6">
-            <div className="shrink-0">
-              <LineFlow
-                upstream={machine.upstream}
-                current={machine.name}
-                downstream={machine.downstream}
-              />
-            </div>
+            {showBottleneckAnalysis && (
+              <div className="shrink-0">
+                <LineFlow
+                  upstream={machine.upstream}
+                  current={machine.name}
+                  downstream={machine.downstream}
+                />
+              </div>
+            )}
 
             <div
               className={`grid gap-3 md:gap-3.5 ${
-                isBottleneckView
-                  ? "grid-cols-1 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)_minmax(0,0.85fr)]"
-                  : "grid-cols-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)_minmax(0,0.9fr)]"
+                !showBottleneckAnalysis
+                  ? "grid-cols-1"
+                  : isBottleneckView
+                    ? "grid-cols-1 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)_minmax(0,0.85fr)]"
+                    : "grid-cols-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)_minmax(0,0.9fr)]"
               }`}
             >
           <div
-            className={`hidden min-h-0 min-w-0 md:flex md:flex-col ${isBottleneckView ? "" : "gap-3"}`}
+            className={`${
+              showBottleneckAnalysis ? "hidden min-h-0 min-w-0 md:flex md:flex-col" : "hidden"
+            } ${isBottleneckView ? "" : "gap-3"}`}
           >
             {!isBottleneckView ? (
               <>
@@ -341,32 +351,38 @@ function HoloTablet({
                 <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-teal-400/55 md:text-[11px]">
                   {machine.tagline}
                 </p>
-                {isBottleneckView ? (
+                {isBottleneckView && showBottleneckAnalysis ? (
                   <div className="holo-bottleneck holo-bottleneck--embedded mt-3">
                     <span className="holo-bottleneck-label">Root cause</span>
                     <p>{machine.bottleneck}</p>
                   </div>
-                ) : (
+                ) : !isBottleneckView ? (
                   <>
                     <p className="mt-2.5 text-[12px] leading-relaxed text-slate-300/88 md:text-[13px]">
                       {machine.description}
                     </p>
 
-                    <div className="holo-bottleneck mt-3">
-                      <span className="holo-bottleneck-label">Constraint</span>
-                      <p>{machine.bottleneck}</p>
-                    </div>
+                    {showBottleneckAnalysis && (
+                      <div className="holo-bottleneck mt-3">
+                        <span className="holo-bottleneck-label">Constraint</span>
+                        <p>{machine.bottleneck}</p>
+                      </div>
+                    )}
                   </>
-                )}
+                ) : null}
               </div>
 
-              <div className="mt-2 flex flex-col gap-2 md:hidden">
+              <div
+                className={`mt-2 flex flex-col gap-2 ${
+                  showBottleneckAnalysis ? "md:hidden" : ""
+                }`}
+              >
                 <DataChip label="Process" value={machine.process} />
                 <DataChip label="Takt" value={machine.takt} />
                 <DataChip label="Input" value={machine.material} />
               </div>
 
-              <div className="mt-2 space-y-2.5 md:hidden">
+              <div className={`mt-2 space-y-2.5 ${showBottleneckAnalysis ? "md:hidden" : ""}`}>
                 {machine.metrics.map((metric) => (
                   <MetricRow key={metric.label} metric={metric} />
                 ))}
@@ -375,7 +391,9 @@ function HoloTablet({
           </div>
 
           <div
-            className={`hidden min-h-0 min-w-0 md:flex md:flex-col ${isBottleneckView ? "" : "gap-3"}`}
+            className={`${
+              showBottleneckAnalysis ? "hidden min-h-0 min-w-0 md:flex md:flex-col" : "hidden"
+            } ${isBottleneckView ? "" : "gap-3"}`}
           >
             {!isBottleneckView ? (
               <>
@@ -459,6 +477,7 @@ export default function MachineHologramOverlay({
   stationId,
   visible,
   variant = "inspect",
+  showBottleneckAnalysis = true,
   onClose,
   onOptimize,
 }: MachineHologramOverlayProps) {
@@ -521,8 +540,9 @@ export default function MachineHologramOverlay({
             machine={machine}
             index={index}
             isBottleneckView={isBottleneckView}
+            showBottleneckAnalysis={showBottleneckAnalysis}
             onClose={handleClose}
-            onOptimize={onOptimize}
+            onOptimize={showBottleneckAnalysis ? onOptimize : undefined}
           />
         </motion.div>
       )}

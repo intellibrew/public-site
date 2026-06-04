@@ -35,7 +35,6 @@ function addFloorGrid(
   group.add(lineSegments(majorPoints, 0x5eead4, 0.48));
 }
 
-/** Edge trim with mitered corners — side spans stop short so pieces never stack. */
 function addTrimFrame(
   group: THREE.Group,
   halfW: number,
@@ -56,7 +55,6 @@ function addTrimFrame(
 
 export function buildFloor(materials: Materials) {
   const group = prepGroup(new THREE.Group());
-  group.userData.buildFromScale = 0.58;
   group.userData.buildFromLift = 0.44;
 
   const hallWidth = 13.9;

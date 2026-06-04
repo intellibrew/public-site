@@ -367,6 +367,8 @@ h3 {
   .shiny-badge::after,
   .shiny-badge-red::after,
   .nav-demo-btn > span::before,
+  .factory-scene-backdrop::before,
+  .factory-scene-backdrop::after,
   .btn-cta-large > span::before,
   .shiny-badge > span::before {
     animation-duration: 0s !important;
@@ -1230,6 +1232,64 @@ h3 {
     opacity: 1;
     transform: translateY(0);
     filter: blur(0);
+  }
+}
+
+.factory-scene-backdrop {
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 58% 46% at 50% 58%, rgba(20, 184, 166, 0.11), transparent 68%),
+    radial-gradient(ellipse 48% 38% at 80% 24%, rgba(45, 212, 191, 0.08), transparent 64%),
+    radial-gradient(ellipse 42% 36% at 18% 70%, rgba(14, 116, 144, 0.1), transparent 66%),
+    #050708;
+}
+
+.factory-scene-backdrop::before,
+.factory-scene-backdrop::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -18%;
+}
+
+.factory-scene-backdrop::before {
+  background:
+    linear-gradient(rgba(94, 234, 212, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(94, 234, 212, 0.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 72% 62% at center, black 0%, transparent 76%);
+  opacity: 0.52;
+  transform: perspective(900px) rotateX(62deg) translate3d(0, 0, 0);
+  transform-origin: center 68%;
+  animation: factory-backdrop-grid-drift 18s linear infinite;
+}
+
+.factory-scene-backdrop::after {
+  background:
+    radial-gradient(circle at 22% 42%, rgba(34, 197, 157, 0.2), transparent 22%),
+    radial-gradient(circle at 70% 34%, rgba(45, 212, 191, 0.16), transparent 24%),
+    radial-gradient(circle at 52% 76%, rgba(14, 165, 233, 0.1), transparent 26%);
+  filter: blur(34px);
+  mix-blend-mode: screen;
+  opacity: 0.62;
+  animation: factory-backdrop-aurora-drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes factory-backdrop-grid-drift {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 0 72px, 72px 0;
+  }
+}
+
+@keyframes factory-backdrop-aurora-drift {
+  from {
+    transform: translate3d(-2.5vw, 1.5vh, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2vw, -2vh, 0) scale(1.08);
   }
 }
 
@@ -2621,7 +2681,7 @@ h3 {
   color: rgba(94, 234, 212, 0.45);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1024px) {
   .holo-overlay {
     align-items: flex-start;
   }
@@ -2737,34 +2797,61 @@ h3 {
   }
 
   .ffs-card {
-    top: 4.5rem;
-    left: 0.65rem;
-    width: calc(100vw - 1.3rem);
-    padding: 0.65rem 0.8rem 0.65rem 0.95rem;
+    top: calc(70px + 0.5rem);
+    left: 0.55rem;
+    width: calc(100vw - 1.1rem);
+    padding: 0.5rem 0.65rem 0.5rem 0.8rem;
+    background:
+      linear-gradient(180deg, rgba(8, 14, 18, 0.5) 0%, rgba(4, 8, 12, 0.58) 100%);
+    backdrop-filter: blur(12px) saturate(1.08);
+    -webkit-backdrop-filter: blur(12px) saturate(1.08);
   }
 
   .ffs-label {
-    font-size: 9px;
-    letter-spacing: 0.16em;
+    font-size: 7.5px;
+    letter-spacing: 0.14em;
   }
 
   .ffs-detail {
-    font-size: 11px;
-    line-height: 1.45;
+    margin-top: 0.24rem;
+    max-width: calc(100% - 2.5rem);
+    font-size: 9.5px;
+    line-height: 1.32;
+  }
+
+  .ffs-seq {
+    top: 0.45rem;
+    right: 0.6rem;
+    font-size: 7px;
+  }
+
+  .factory-story-stack {
+    bottom: max(0.8rem, env(safe-area-inset-bottom, 0px)) !important;
+    gap: 0.65rem;
+    padding-inline: 0.6rem;
   }
 
   .factory-machine-hint {
-    bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
-    left: 0.65rem;
-    right: 0.65rem;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: min(100%, calc(100vw - 1.3rem));
     transform: none;
     justify-content: center;
     text-align: center;
     line-height: 1.35;
     white-space: normal;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    padding: 0.4rem 0.65rem;
+    font-size: 7.5px;
+    letter-spacing: 0.08em;
+    padding: 0.34rem 0.55rem;
+  }
+
+  .factory-stage::before {
+    opacity: 0.48;
+  }
+
+  .factory-stage::after {
+    opacity: 0.16;
   }
 
   .machine-preview-viewport {
@@ -2804,12 +2891,13 @@ h3 {
   }
 
   .ffs-card {
-    top: 4rem;
-    padding: 0.55rem 0.75rem;
+    top: calc(70px + 0.4rem);
+    padding: 0.45rem 0.6rem 0.45rem 0.75rem;
   }
 
   .ffs-detail {
-    margin-top: 0.3rem;
-    font-size: 10px;
+    margin-top: 0.22rem;
+    font-size: 9px;
+    line-height: 1.28;
   }
 }

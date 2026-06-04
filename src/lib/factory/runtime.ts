@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { makeBuildSequence } from "./buildSequence";
 import { configureControls, makeSceneCamera, updateCameraForProgress } from "./sceneCamera";
-import { SCENE_BACKGROUND, SCENE_FOG } from "./sceneConfig";
+import { SCENE_FOG } from "./sceneConfig";
 import { bindSceneInput } from "./sceneInput";
 import { disposeScene, fitRendererToMount, makeSceneRenderer } from "./sceneRenderer";
 import { makeMaterials } from "./materials";
@@ -19,27 +19,13 @@ import {
   type FocusState,
   updateFocusRing,
 } from "./sceneFocus";
-import {
-  applyConveyorFocusVisibility,
-  beginConveyorFocusExit,
-  conveyorFocusBlend,
-  overrideFlowForConveyorFocus,
-  snapConveyorFocusExit,
-  startConveyorFocus,
-  tickConveyorFocus,
-  type ConveyorFocusPhase,
-  type ConveyorFocusState,
-} from "./conveyorFocus";
 import { computeFlowState, dormantFlowState, type StorySnapshot } from "./flowOptimization";
 import { updateShellWallFade } from "./shellWalls";
 
 export type FactorySceneHandle = {
   dispose: () => void;
   focusStation: (stationId: string | null, options?: { immediate?: boolean }) => void;
-  focusConveyor: () => void;
-  exitConveyorFocus: () => void;
   getFocusPhase: () => "idle" | "entering" | "active" | "exiting";
-  getConveyorFocusPhase: () => ConveyorFocusPhase;
   resetView: () => void;
 };
 
@@ -48,9 +34,8 @@ export type FactorySceneOptions = {
   getStoryActive?: () => boolean;
   getStorySnapshot: () => StorySnapshot;
   onFocusChange?: (stationId: string | null, phase: "idle" | "entering" | "active" | "exiting") => void;
-  onConveyorFocusChange?: (phase: ConveyorFocusPhase) => void;
   onStationHover?: (stationId: string | null) => void;
-  onConveyorHover?: (hovered: boolean) => void;
+  simplified?: boolean;
 };
 
 export function mountFactoryScene(
@@ -62,40 +47,41 @@ export function mountFactoryScene(
     getStoryActive,
     getStorySnapshot,
     onFocusChange,
-    onConveyorFocusChange,
     onStationHover,
-    onConveyorHover,
+    simplified = false,
   } = options;
+
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(SCENE_FOG.color, SCENE_FOG.density);
-  scene.background = new THREE.Color(SCENE_BACKGROUND);
+  scene.background = null;
 
   const renderer = makeSceneRenderer(mount);
   const camera = makeSceneCamera();
   const controls = new OrbitControls(camera, renderer.domElement);
   configureControls(controls);
 
+  if (simplified) {
+    controls.enablePan = false;
+    controls.enableZoom = false;
+  }
+
   const materials = makeMaterials();
   const build = makeBuildSequence(materials);
+  const factoryRoot = new THREE.Group();
+  scene.add(factoryRoot);
   const initialProgress = clamp(getProgress());
   build.steps.forEach((step) => {
-    scene.add(step.group);
+    factoryRoot.add(step.group);
     revealPart(step, initialProgress);
   });
   build.flowVisuals.root.visible = false;
-  scene.add(build.flowVisuals.root);
+  factoryRoot.add(build.flowVisuals.root);
   const lights = makeLightRig(scene, build.shell.group);
-
-  const qcStation = build.conveyor.group.userData.qcStationGroup as THREE.Group | undefined;
-  const hiddenDuringConveyorFocus = qcStation
-    ? [...build.machineGroups, qcStation]
-    : build.machineGroups;
 
   const focusRing = makeFocusRing();
   scene.add(focusRing);
 
   let focusState: FocusState | null = null;
-  let conveyorFocusState: ConveyorFocusState | null = null;
   let lastFrameMs = performance.now();
 
   const notifyFocus = () => {
@@ -103,10 +89,6 @@ export function mountFactoryScene(
       focusState?.stationId ?? null,
       focusState?.phase ?? "idle"
     );
-  };
-
-  const notifyConveyorFocus = () => {
-    onConveyorFocusChange?.(conveyorFocusState?.phase ?? "idle");
   };
 
   const resetFactoryView = () => {
@@ -118,31 +100,30 @@ export function mountFactoryScene(
       focusRing.visible = false;
       notifyFocus();
     }
-    if (conveyorFocusState) {
-      snapConveyorFocusExit(conveyorFocusState, camera, controls);
-      conveyorFocusState = null;
-      applyConveyorFocusVisibility(hiddenDuringConveyorFocus, build.shell.group, 0);
-      notifyConveyorFocus();
-    }
     input.resetCameraOverride();
     updateCameraForProgress(camera, controls, clamp(getProgress()));
     controls.update();
   };
 
+  const getIsInteractive = () => getProgress() >= 0.999;
+
   const input = bindSceneInput({
     camera,
     controls,
     element: renderer.domElement,
-    onResetView: resetFactoryView,
+    onResetView: simplified ? undefined : resetFactoryView,
+    getIsInteractive,
   });
+
+  if (simplified) {
+    renderer.domElement.style.cursor = "default";
+  }
 
   const picker = bindStationPicking({
     camera,
     element: renderer.domElement,
     stationGroups: build.stationGroups,
-    conveyorGroup: build.conveyor.group,
     onHover: (id) => onStationHover?.(id),
-    onConveyorHover: (hovered) => onConveyorHover?.(hovered),
     onSelect: (id) => {
       if (getStorySnapshot().phase === "optimizing") return;
       const group = build.stationGroups.get(id);
@@ -153,21 +134,7 @@ export function mountFactoryScene(
       focusRing.position.set(0, 0, 0);
       notifyFocus();
     },
-    onConveyorSelect: () => {
-      if (getStorySnapshot().phase === "optimizing") return;
-      if (conveyorFocusState) return;
-      if (focusState) {
-        focusState = null;
-        focusRing.parent?.remove(focusRing);
-        scene.add(focusRing);
-        focusRing.visible = false;
-        notifyFocus();
-      }
-      conveyorFocusState = startConveyorFocus(camera, controls);
-      notifyConveyorFocus();
-    },
     isFocusActive: () => focusState !== null,
-    isConveyorFocusActive: () => conveyorFocusState !== null,
   });
 
   const setSize = () => {
@@ -188,6 +155,8 @@ export function mountFactoryScene(
   };
   document.addEventListener("visibilitychange", onVisibilityChange);
 
+  let smoothedP = clamp(getProgress());
+
   const render = () => {
     frameId = window.requestAnimationFrame(render);
     if (!isPageVisible) return;
@@ -196,38 +165,37 @@ export function mountFactoryScene(
     const deltaSec = Math.min(0.05, (now - lastFrameMs) / 1000);
     lastFrameMs = now;
 
-    const p = clamp(getProgress());
+    const rawP = clamp(getProgress());
+    const lerpFactor = Math.min(1, deltaSec * 40);
+    smoothedP += (rawP - smoothedP) * lerpFactor;
+    if (rawP >= 0.999) smoothedP = 1;
+    const p = smoothedP;
+
     build.steps.forEach((step) => revealPart(step, p));
 
     updateLighting(lights, p, now, renderer);
     const storyActive = getStoryActive?.() ?? false;
     build.flowVisuals.root.visible = storyActive;
-    const baseFlow = storyActive
+    const flowState = storyActive
       ? computeFlowState(getStorySnapshot(), now)
       : dormantFlowState(getStorySnapshot());
-    const conveyorBlend = conveyorFocusBlend(conveyorFocusState);
-    const flowState = overrideFlowForConveyorFocus(baseFlow, conveyorBlend);
     build.updateMachines(p, now, flowState);
-    applyConveyorFocusVisibility(hiddenDuringConveyorFocus, build.shell.group, conveyorBlend);
 
-    updateShellWallFade(build.shell.group, camera);
+    factoryRoot.rotation.y = 0;
+    factoryRoot.scale.setScalar(1);
+    // "Rising from abyss" effect: factory lifts from -1.2 units below its
+    // authored position at p = 0 up to y = 0 at p = 1. Because p is smoothed,
+    // the rise is a fluid upward glide rather than a series of visible jumps.
+    factoryRoot.position.set(0, (1 - p) * -1.2, 0);
+
+    updateShellWallFade(build.shell.group, camera, {
+      hideWalls: false,
+    });
 
     const hasOverride = input.hasCameraOverride();
     input.tickZoom();
 
-    if (conveyorFocusState) {
-      const prevPhase = conveyorFocusState.phase;
-      const result = tickConveyorFocus(conveyorFocusState, deltaSec, camera, controls);
-      conveyorFocusState = result.state;
-      if (prevPhase !== conveyorFocusState?.phase) {
-        notifyConveyorFocus();
-      }
-      if (result.done) {
-        applyConveyorFocusVisibility(hiddenDuringConveyorFocus, build.shell.group, 0);
-        notifyConveyorFocus();
-      }
-      focusRing.visible = false;
-    } else if (focusState) {
+    if (focusState) {
       const prevPhase = focusState.phase;
       const result = tickFocus(focusState, deltaSec, camera, controls);
       focusState = result.state;
@@ -255,7 +223,6 @@ export function mountFactoryScene(
     focusStation: (stationId) => {
       if (stationId === null) {
         if (!focusState) return;
-
         focusState = null;
         focusRing.parent?.remove(focusRing);
         scene.add(focusRing);
@@ -263,7 +230,6 @@ export function mountFactoryScene(
         notifyFocus();
         return;
       }
-      if (conveyorFocusState) return;
       const group = build.stationGroups.get(stationId);
       if (!group) return;
       focusState = startFocus(focusState, stationId, camera, controls, group);
@@ -272,26 +238,7 @@ export function mountFactoryScene(
       focusRing.position.set(0, 0, 0);
       notifyFocus();
     },
-    focusConveyor: () => {
-      if (conveyorFocusState || getStorySnapshot().phase === "optimizing") return;
-      if (focusState) {
-        focusState = null;
-        focusRing.parent?.remove(focusRing);
-        scene.add(focusRing);
-        focusRing.visible = false;
-        notifyFocus();
-      }
-      conveyorFocusState = startConveyorFocus(camera, controls);
-      notifyConveyorFocus();
-    },
-    exitConveyorFocus: () => {
-      if (!conveyorFocusState) return;
-      if (conveyorFocusState.phase === "exiting") return;
-      conveyorFocusState = beginConveyorFocusExit(conveyorFocusState);
-      notifyConveyorFocus();
-    },
     getFocusPhase: () => focusState?.phase ?? "idle",
-    getConveyorFocusPhase: () => conveyorFocusState?.phase ?? "idle",
     resetView: resetFactoryView,
     dispose: () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);

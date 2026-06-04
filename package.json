@@ -32,7 +32,7 @@
     "start": "next start",
     "lint": "next lint",
     "export": "next build && next export",
-    "deploy": "echo neofab.ai > out/CNAME && gh-pages -d out"
+    "deploy": "next build && echo neofab.ai > out/CNAME && gh-pages -d out"
   },
   "browserslist": {
     "production": [

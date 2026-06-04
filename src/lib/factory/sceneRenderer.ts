@@ -1,15 +1,20 @@
 import * as THREE from "three";
 import type { Materials } from "./materials";
-import { getEffectivePixelRatio, RENDERER_SETTINGS, SCENE_BACKGROUND } from "./sceneConfig";
+import {
+  CAMERA_SETTINGS,
+  getEffectivePixelRatio,
+  RENDERER_SETTINGS,
+  SCENE_BACKGROUND,
+} from "./sceneConfig";
 
 export function makeSceneRenderer(mount: HTMLDivElement) {
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
-    alpha: false,
+    alpha: true,
     powerPreference: "high-performance",
   });
 
-  renderer.setClearColor(SCENE_BACKGROUND, 1);
+  renderer.setClearColor(SCENE_BACKGROUND, 0);
   renderer.setPixelRatio(getEffectivePixelRatio());
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -29,9 +34,26 @@ export function fitRendererToMount(
   renderer: THREE.WebGLRenderer
 ) {
   const { clientWidth, clientHeight } = mount;
+  const aspect = clientWidth / Math.max(1, clientHeight);
+
+  // FOV is widened smoothly for portrait/narrow viewports so the factory
+  // fills the vertical extent without any scene rotation tricks.
+  const portraitBlend = Math.min(
+    1,
+    Math.max(0, (0.85 - aspect) / (0.85 - 0.45))
+  );
+  const smoothBlend = portraitBlend * portraitBlend * (3 - 2 * portraitBlend);
+
   renderer.setPixelRatio(getEffectivePixelRatio());
   renderer.setSize(clientWidth, clientHeight, false);
-  camera.aspect = clientWidth / Math.max(1, clientHeight);
+  camera.aspect = aspect;
+  camera.fov = THREE.MathUtils.lerp(
+    CAMERA_SETTINGS.fov,
+    CAMERA_SETTINGS.portraitFov,
+    smoothBlend
+  );
+  camera.userData.factoryViewportWidth = clientWidth;
+  camera.userData.factoryViewportHeight = clientHeight;
   camera.updateProjectionMatrix();
 }
 

@@ -41,8 +41,8 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     capabilities: ["9-roll straightener", "Hydraulic mandrel", "AC servo feed", "Loop photocontrol"],
     specs: [
       { label: "Coil weight", value: "≤ 15 T" },
-      { label: "Strip width", value: "600–1,600 mm" },
-      { label: "Strip thickness", value: "0.8–4.0 mm" },
+      { label: "Strip width", value: "600-1,600 mm" },
+      { label: "Strip thickness", value: "0.8-4.0 mm" },
       { label: "Feed accuracy", value: "±0.1 mm" },
     ],
     metrics: [
@@ -64,7 +64,7 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
       "A 400-ton hydraulic press executes shear blanking on the incoming strip, separating flat panels to defined geometry. Each blank is produced to nominal dimensions and tolerance before transfer to the forming stations.",
     bottleneck: "Clearance drift past 10% per side triggers a burr-height inspection hold. A sharpening cycle takes ~35 min and is the single largest planned-downtime event on this node.",
     process: "Hydraulic shear blanking",
-    material: "Flat strip 0.8–4.0 mm",
+    material: "Flat strip 0.8-4.0 mm",
     takt: "3.3 s / stroke · 18 SPM",
     upstream: "Material intake",
     downstream: "Stamping cell",
@@ -92,7 +92,7 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     tagline: "6-station progressive die forming",
     description:
       "Blanked panels are processed through a six-station progressive die, executing pierce, form, and trim operations in sequence. Exiting panels are fully formed and released to sub-assembly.",
-    bottleneck: "Pilot pin wear causes registration error > 0.08 mm, triggering misfeed. Stock lifter timing is the first tuning point — a worn lifter delays strip release by ~12 ms and buckles the web at high SPM.",
+    bottleneck: "Pilot pin wear causes registration error > 0.08 mm, triggering misfeed. Stock lifter timing is the first tuning point - a worn lifter delays strip release by ~12 ms and buckles the web at high SPM.",
     process: "Progressive die forming",
     material: "Blanked sheet panel",
     takt: "2.7 s / stroke · 22 SPM",
@@ -122,9 +122,9 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     tagline: "6-axis robotic fastening cell",
     description:
       "Six-axis robots retrieve stamped panels and perform orientated fastening with specified hardware. The cell delivers repeatable joint placement and torque-controlled assembly within defined cycle time.",
-    bottleneck: "Pneumatic bowl-feeder jams account for ~3 stoppages per shift, each costing 90 s. Root cause is M8 nut flash exceeding 0.15 mm — a supplier dimensional tolerance issue, not a machine fault.",
+    bottleneck: "Pneumatic bowl-feeder jams account for ~3 stoppages per shift, each costing 90 s. Root cause is M8 nut flash exceeding 0.15 mm - a supplier dimensional tolerance issue, not a machine fault.",
     process: "Robotic pick · orient · fasten",
-    material: "Stamped panel + M6–M10 hardware",
+    material: "Stamped panel + M6-M10 hardware",
     takt: "94 s / assembly cycle",
     upstream: "Stamping cell",
     downstream: "Welding station",
@@ -132,7 +132,7 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     specs: [
       { label: "Reach", value: "1.4 m" },
       { label: "TCP repeatability", value: "±0.02 mm" },
-      { label: "Torque range", value: "12–65 Nm (M6–M10)" },
+      { label: "Torque range", value: "12-65 Nm (M6-M10)" },
       { label: "F/T sensor", value: "300 N · 30 Nm" },
     ],
     metrics: [
@@ -191,7 +191,7 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     capabilities: ["Electrostatic rotary atomiser", "Zn-phosphate pretreat", "Cross-draft 0.35 m/s", "Inline film thickness gauge"],
     specs: [
       { label: "Coating", value: "2K polyurethane" },
-      { label: "Dry film build", value: "90–110 µm" },
+      { label: "Dry film build", value: "90-110 µm" },
       { label: "Bake cycle", value: "160 °C × 25 min" },
       { label: "Transfer efficiency", value: "85% (electrostatic)" },
     ],
@@ -242,7 +242,7 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     tagline: "Gantry + floor robot integration cell",
     description:
       "Coated chassis and kit components are integrated across four sequential work zones using servo gantry and robotic assembly. All remaining fasteners are applied and verified before unit completion.",
-    bottleneck: "Torque audit failures generate a rework loop averaging +1.8 min per unit. Pre-kitted sub-assemblies and Fieldbus torque traceability are reducing this — the target is < 0.4% rework rate by Q3.",
+    bottleneck: "Torque audit failures generate a rework loop averaging +1.8 min per unit. Pre-kitted sub-assemblies and Fieldbus torque traceability are reducing this - the target is < 0.4% rework rate by Q3.",
     process: "Gantry + robot multi-zone assembly",
     material: "Coated chassis + kit parts",
     takt: "4.2 min / unit",
@@ -251,7 +251,7 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     capabilities: ["Servo gantry ±0.1 mm", "DC transducer tooling", "12 poka-yoke/zone", "Fieldbus torque log"],
     specs: [
       { label: "Gantry span", value: "3.0 m" },
-      { label: "Torque range", value: "15–250 Nm · ±2%" },
+      { label: "Torque range", value: "15-250 Nm · ±2%" },
       { label: "Work zones", value: "4" },
       { label: "Takt time", value: "4.2 min" },
     ],
@@ -272,7 +272,7 @@ export const MACHINE_DEFINITIONS: MachineDefinition[] = [
     tagline: "Heat-seal, palletise & GS1 label",
     description:
       "Completed assemblies are heat-sealed, unitised, palletised, and marked with traceability labels for outbound logistics. Units released from this station are cleared for dispatch.",
-    bottleneck: "Print contrast falling below 80% AIM barcode grade causes inline verifier rejects. Each reprint adds ~45 s per pallet. Cause: thermal printhead wear — now replaced at 800k label cycles, not on failure.",
+    bottleneck: "Print contrast falling below 80% AIM barcode grade causes inline verifier rejects. Each reprint adds ~45 s per pallet. Cause: thermal printhead wear - now replaced at 800k label cycles, not on failure.",
     process: "Heat-seal · stretch wrap · GS1 label",
     material: "Finished assembly unit",
     takt: "60 s / unit · 30/pallet",

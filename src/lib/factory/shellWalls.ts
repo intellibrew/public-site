@@ -43,7 +43,11 @@ function fadeForSide(
   return Math.max(backFade, leftFade);
 }
 
-export function updateShellWallFade(shell: THREE.Group, camera: THREE.Camera) {
+export function updateShellWallFade(
+  shell: THREE.Group,
+  camera: THREE.Camera,
+  options: { hideWalls?: boolean } = {}
+) {
   const { backZ, leftX, fadeStart, fadeEnd } = SHELL_WALL_LAYOUT;
   const cam = camera.position;
 
@@ -55,6 +59,12 @@ export function updateShellWallFade(shell: THREE.Group, camera: THREE.Camera) {
 
     const side = obj.userData.shellWall as ShellWallSide | undefined;
     if (!side) return;
+
+    if (options.hideWalls) {
+      obj.visible = false;
+      return;
+    }
+    obj.visible = true;
 
     const surface = (obj.userData.shellSurface as ShellSurfaceKind | undefined) ?? "trim";
     const fade = fadeForSide(side, backFade, leftFade);

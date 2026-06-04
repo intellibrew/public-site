@@ -12,7 +12,7 @@ const cases = [
     desc: "CAD + BOM → complete line model with stations, layout & costs.",
     metricValue: 48,
     metricSuffix: " hrs",
-    metricContext: "vs 6–10 weeks",
+    metricContext: "vs 6-10 weeks",
   },
   {
     icon: TrendingUp,
@@ -28,7 +28,7 @@ const cases = [
     desc: "Spec-ready packs from your line model.",
     metricValue: 3,
     metricSuffix: " days",
-    metricContext: "vs 2–3 weeks",
+    metricContext: "vs 2-3 weeks",
   },
   {
     icon: MapPin,
