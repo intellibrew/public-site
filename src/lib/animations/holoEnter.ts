@@ -28,7 +28,7 @@ export function playHoloEnterAnimation(root: HTMLElement, options: HoloEnterOpti
     const border = root.querySelector<SVGRectElement>(".holo-border-stroke");
     const borderLength = border?.getTotalLength() ?? 2800;
     const tl = gsap.timeline({
-      defaults: { ease: "power3.out", force3D: false },
+      defaults: { ease: "power3.out", force3D: true },
       onComplete: () => {
         clearHoloTransforms(root);
       },

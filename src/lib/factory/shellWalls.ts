@@ -23,6 +23,16 @@ const FADED_OPACITY: Record<ShellSurfaceKind, number> = {
   trim: 0.14,
 };
 
+type ShellWallEntry = {
+  mesh: THREE.Mesh;
+  material: THREE.MeshStandardMaterial;
+  side: ShellWallSide;
+  surface: ShellSurfaceKind;
+  visible?: boolean;
+  opacity?: number;
+  depthWrite?: boolean;
+};
+
 export function tagShellWallMesh(
   mesh: THREE.Mesh,
   side: ShellWallSide,
@@ -43,6 +53,32 @@ function fadeForSide(
   return Math.max(backFade, leftFade);
 }
 
+function getShellWallEntries(shell: THREE.Group): ShellWallEntry[] {
+  const existing = shell.userData.shellWallEntries as ShellWallEntry[] | undefined;
+  if (existing) return existing;
+
+  const entries: ShellWallEntry[] = [];
+  shell.traverse((obj) => {
+    if (!(obj instanceof THREE.Mesh)) return;
+
+    const side = obj.userData.shellWall as ShellWallSide | undefined;
+    if (!side) return;
+
+    const material = obj.material as THREE.MeshStandardMaterial;
+    if (!material?.isMaterial) return;
+
+    entries.push({
+      mesh: obj,
+      material,
+      side,
+      surface: (obj.userData.shellSurface as ShellSurfaceKind | undefined) ?? "trim",
+    });
+  });
+
+  shell.userData.shellWallEntries = entries;
+  return entries;
+}
+
 export function updateShellWallFade(
   shell: THREE.Group,
   camera: THREE.Camera,
@@ -54,31 +90,37 @@ export function updateShellWallFade(
   const backFade = 1 - smoothstep(backZ - fadeEnd, backZ + fadeStart, cam.z);
   const leftFade = 1 - smoothstep(leftX - fadeEnd, leftX + fadeStart, cam.x);
 
-  shell.traverse((obj) => {
-    if (!(obj instanceof THREE.Mesh)) return;
-
-    const side = obj.userData.shellWall as ShellWallSide | undefined;
-    if (!side) return;
-
+  getShellWallEntries(shell).forEach((entry) => {
     if (options.hideWalls) {
-      obj.visible = false;
+      if (entry.visible !== false) {
+        entry.mesh.visible = false;
+        entry.visible = false;
+      }
       return;
     }
-    obj.visible = true;
+    if (entry.visible !== true) {
+      entry.mesh.visible = true;
+      entry.visible = true;
+    }
 
-    const surface = (obj.userData.shellSurface as ShellSurfaceKind | undefined) ?? "trim";
-    const fade = fadeForSide(side, backFade, leftFade);
-    const material = obj.material as THREE.MeshStandardMaterial;
-    if (!material?.isMaterial) return;
-
+    const fade = fadeForSide(entry.side, backFade, leftFade);
     const targetOpacity = THREE.MathUtils.lerp(
-      BASE_OPACITY[surface],
-      FADED_OPACITY[surface],
+      BASE_OPACITY[entry.surface],
+      FADED_OPACITY[entry.surface],
       clamp(fade, 0, 1)
     );
+    const targetDepthWrite = targetOpacity > 0.45;
 
-    material.transparent = true;
-    material.opacity = targetOpacity;
-    material.depthWrite = targetOpacity > 0.45;
+    if (entry.material.transparent !== true) {
+      entry.material.transparent = true;
+    }
+    if (entry.opacity === undefined || Math.abs(entry.opacity - targetOpacity) > 0.001) {
+      entry.material.opacity = targetOpacity;
+      entry.opacity = targetOpacity;
+    }
+    if (entry.depthWrite !== targetDepthWrite) {
+      entry.material.depthWrite = targetDepthWrite;
+      entry.depthWrite = targetDepthWrite;
+    }
   });
 }

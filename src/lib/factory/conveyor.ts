@@ -15,6 +15,12 @@ import {
 import type { Materials } from "./materials";
 import type { BeltRig, ConveyorBeltSegment, ConveyorMover } from "./types";
 import { getCurrentFlowState, OPTIMIZED_MOVER_COUNT } from "./flowOptimization";
+import {
+  crossedPackagingThreshold,
+  PACKAGING_PATH_T,
+  queuePackagingArrival,
+} from "./packagingFlow";
+import { crossedSubAssemblyThreshold, queueSubAssemblyArrival } from "./subAssemblyFlow";
 import { buildQualityCheck, tickQualityCheck } from "./stations/qualityCheck";
 
 const PAINT_THRESHOLD = 0.581;
@@ -25,8 +31,6 @@ const QUALITY_CHECK_THRESHOLD = 0.874;
 const QUALITY_CHECK_DIVERSION_SPAN = 0.055;
 const QUALITY_CHECK_BRANCH_START = layoutPoint({ x: 64, y: 36 });
 const QUALITY_CHECK_BRANCH_END = layoutPoint({ x: 64, y: 30.5 });
-
-const PACKAGING_THRESHOLD = 0.964;
 
 type FlowMotionState = {
   lastElapsed: number;
@@ -91,6 +95,18 @@ export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: nu
     const normalizedT = ((t % 1) + 1) % 1;
     const productSerial = Math.floor(t) * movers.length + index;
     const isRejected = productSerial % 10 === 0;
+
+    if (mover.lastPathT !== undefined) {
+      if (revealLive > 0.45 && !isRejected) {
+        if (crossedSubAssemblyThreshold(mover.lastPathT, t)) {
+          queueSubAssemblyArrival();
+        }
+        if (crossedPackagingThreshold(mover.lastPathT, t)) {
+          queuePackagingArrival();
+        }
+      }
+    }
+    mover.lastPathT = t;
     let point = pointOnPath(mover.path, t);
 
     if (isRejected && normalizedT >= QUALITY_CHECK_THRESHOLD) {
@@ -119,14 +135,14 @@ export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: nu
     applyProductShape(mover.mesh, productShape);
 
     const isPainted = normalizedT >= PAINT_THRESHOLD;
-    const isPackaged = !isRejected && normalizedT >= PACKAGING_THRESHOLD;
+    const isPackaged = !isRejected && normalizedT >= PACKAGING_PATH_T;
     const moverMat = mover.mesh.material as THREE.MeshStandardMaterial;
     if (isPainted && isRejected) {
       moverMat.color.setHex(0xef4444);
       moverMat.emissive.setHex(0xdc2626);
       moverMat.emissiveIntensity = 0.45;
     } else if (isPackaged) {
-      const fadeIn = smoothstep(PACKAGING_THRESHOLD, PACKAGING_THRESHOLD + 0.014, normalizedT);
+      const fadeIn = smoothstep(PACKAGING_PATH_T, PACKAGING_PATH_T + 0.014, normalizedT);
       moverMat.color.setHex(0xf59e0b);
       moverMat.emissive.setHex(0xd97706);
       moverMat.emissiveIntensity = (0.38 + fadeIn * 0.28) * revealLive;
@@ -152,7 +168,7 @@ export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: nu
 
   const qcStation = group.userData.qcStationGroup as THREE.Group | undefined;
   if (qcStation) {
-    tickQualityCheck(qcStation, progress, qcScanActivity, qcRejectActivity);
+    tickQualityCheck(qcStation, progress, qcScanActivity, qcRejectActivity, elapsedMs);
   }
 
   const branchPulse = group.userData.qualityCheckBranchPulse as THREE.Mesh | undefined;
@@ -292,8 +308,8 @@ export function buildConveyor(materials: Materials) {
 
   const branchMid = lerpVector(QUALITY_CHECK_BRANCH_START, QUALITY_CHECK_BRANCH_END, 0.58);
   const branchLength = QUALITY_CHECK_BRANCH_START.distanceTo(QUALITY_CHECK_BRANCH_END);
-  const qcBranchNode = cylinder(0.112, 0.112, 0.014, [QUALITY_CHECK_BRANCH_START.x, 0.207, QUALITY_CHECK_BRANCH_START.z], materials.darkSteel, 20);
-  const qcBranchRing = cylinder(0.094, 0.094, 0.006, [QUALITY_CHECK_BRANCH_START.x, 0.218, QUALITY_CHECK_BRANCH_START.z], materials.tealGlow, 20);
+  const qcBranchNode = cylinder(0.1, 0.1, 0.012, [QUALITY_CHECK_BRANCH_START.x, 0.208, QUALITY_CHECK_BRANCH_START.z], materials.machineDark, 20);
+  const qcBranchRing = cylinder(0.082, 0.082, 0.005, [QUALITY_CHECK_BRANCH_START.x, 0.217, QUALITY_CHECK_BRANCH_START.z], materials.tealGlow, 20);
   const branchPulse = box([0.048, 0.01, branchLength * 0.52], [branchMid.x, 0.218, branchMid.z], materials.tealGlow, false);
   const branchPulseMat = branchPulse.material as THREE.MeshStandardMaterial;
   branchPulseMat.transparent = true;
@@ -303,12 +319,14 @@ export function buildConveyor(materials: Materials) {
 
   const rejectTray = new THREE.Group();
   rejectTray.position.set(QUALITY_CHECK_BRANCH_END.x, 0, QUALITY_CHECK_BRANCH_END.z);
-  rejectTray.add(box([0.52, 0.04, 0.42], [0, 0.19, 0], materials.machineDark, false));
-  rejectTray.add(box([0.44, 0.014, 0.34], [0, 0.219, 0], materials.redLight, false));
-  rejectTray.add(box([0.55, 0.18, 0.046], [0, 0.29, -0.21], materials.darkSteel));
-  rejectTray.add(box([0.046, 0.14, 0.36], [-0.28, 0.27, 0], materials.darkSteel));
-  rejectTray.add(box([0.046, 0.14, 0.36], [0.28, 0.27, 0], materials.darkSteel));
-  rejectTray.add(box([0.38, 0.012, 0.026], [0, 0.37, -0.236], materials.redLight));
+  rejectTray.add(box([0.48, 0.036, 0.38], [0, 0.19, 0], materials.machineDark, false));
+  rejectTray.add(box([0.42, 0.01, 0.3], [0, 0.214, 0], materials.zone, false));
+  rejectTray.add(box([0.36, 0.006, 0.24], [0, 0.222, 0], materials.redLight, false));
+  rejectTray.add(box([0.5, 0.16, 0.038], [0, 0.28, -0.19], materials.darkSteel));
+  rejectTray.add(box([0.038, 0.12, 0.32], [-0.25, 0.26, 0], materials.darkSteel));
+  rejectTray.add(box([0.038, 0.12, 0.32], [0.25, 0.26, 0], materials.darkSteel));
+  rejectTray.add(box([0.34, 0.01, 0.018], [0, 0.36, -0.208], materials.redLight, false));
+  rejectTray.add(box([0.22, 0.008, 0.012], [0, 0.368, -0.208], materials.tealGlow, false));
   group.add(rejectTray);
 
   const qcStation = buildQualityCheck(materials);

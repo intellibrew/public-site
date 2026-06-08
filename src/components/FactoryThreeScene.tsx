@@ -9,6 +9,7 @@ export type FocusPhase = "idle" | "entering" | "active" | "exiting";
 type FactoryThreeSceneProps = {
   getBuildProgress: () => number;
   getStoryActive: () => boolean;
+  getScenePaused?: () => boolean;
   storyRef: React.MutableRefObject<StorySnapshot>;
   onFocusChange?: (stationId: string | null, phase: FocusPhase) => void;
   onStationHover?: (stationId: string | null) => void;
@@ -21,6 +22,7 @@ type FactoryThreeSceneProps = {
 export default function FactoryThreeScene({
   getBuildProgress,
   getStoryActive,
+  getScenePaused,
   storyRef,
   onFocusChange,
   onStationHover,
@@ -37,6 +39,7 @@ export default function FactoryThreeScene({
     const scene = mountFactoryScene(mount, {
       getProgress: getBuildProgress,
       getStoryActive,
+      getScenePaused,
       getStorySnapshot: () => storyRef.current,
       onFocusChange,
       onStationHover,
@@ -62,6 +65,7 @@ export default function FactoryThreeScene({
     storyRef,
     getBuildProgress,
     getStoryActive,
+    getScenePaused,
     simplified,
   ]);
 

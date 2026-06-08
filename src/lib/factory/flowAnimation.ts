@@ -1,13 +1,27 @@
 import type * as THREE from "three";
-import { clamp } from "./math";
+import { clamp, smoothstep } from "./math";
 import { machineLiveMultiplier } from "./flowOptimization";
+
+const STATION_REVEAL_LIVE: Record<string, [number, number]> = {
+  intake: [0.2, 0.3],
+  blanking: [0.24, 0.32],
+  stamping: [0.28, 0.36],
+  subAssembly: [0.32, 0.4],
+  welding: [0.36, 0.44],
+  paint: [0.4, 0.48],
+  packaging: [0.48, 0.6],
+};
+
+export function stationBaseLive(progress: number, stationId: string) {
+  const [start, end] = STATION_REVEAL_LIVE[stationId] ?? [0.78, 0.95];
+  return smoothstep(start, end, progress);
+}
 
 type AnimClock = {
   lastMs: number;
   timeMs: number;
 };
 
-/** Accumulated station time that stops advancing when the line is frozen. */
 export function stationAnimationTime(
   group: THREE.Group,
   globalElapsedMs: number,

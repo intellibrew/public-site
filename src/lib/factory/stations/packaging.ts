@@ -1,47 +1,94 @@
 import * as THREE from "three";
-import { lerp, smoothstep } from "../math";
+import { lerp } from "../math";
 import { box, cylinder } from "../mesh";
 import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
+import { applyProductShape, makeProduct, PRODUCT_SHAPE_CUBE } from "../products";
 import type { PackagingRig } from "../types";
 import { machineLiveMultiplier } from "../flowOptimization";
-import { stationAnimationTime } from "../flowAnimation";
+import { stationAnimationTime, stationBaseLive } from "../flowAnimation";
+import {
+  advancePackagingFlow,
+  packagingPreviewSnapshot,
+} from "../packagingFlow";
+
+function applyStackLayers(
+  layers: THREE.Mesh[],
+  visibleLayers: number,
+  live: number
+) {
+  const fullLayers = Math.floor(visibleLayers);
+  const partial = visibleLayers - fullLayers;
+
+  layers.forEach((layer, index) => {
+    if (index < fullLayers) {
+      layer.visible = live > 0.05;
+      layer.scale.y = 1;
+      return;
+    }
+    if (index === fullLayers && partial > 0.02) {
+      layer.visible = live > 0.05;
+      layer.scale.y = 0.22 + partial * 0.78;
+      return;
+    }
+    layer.visible = false;
+    layer.scale.y = 0.2;
+  });
+}
 
 export function tickPackaging(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.packagingRig as PackagingRig | undefined;
   if (!rig) return;
 
-  const baseLive = smoothstep(0.78, 0.95, progress);
+  const baseLive = stationBaseLive(progress, "packaging");
   const live = machineLiveMultiplier(baseLive, "packaging");
   const animMs = stationAnimationTime(group, elapsedMs, "packaging", baseLive);
-  const phase = animMs * 0.00072;
 
-  const rawPlunge = Math.sin(phase * 0.44) * 0.5 + 0.5;
-  const plunge = smoothstep(0.46, 1.0, rawPlunge) * live;
-  rig.sealHead.position.y = lerp(1.86, 1.28, plunge);
+  const cycle = group.userData.isPreview
+    ? packagingPreviewSnapshot()
+    : advancePackagingFlow(elapsedMs, live);
+
+  rig.sealHead.position.y = lerp(rig.sealHomeY, rig.sealDownY, cycle.seal);
 
   const beamMat = rig.sealBeam.material as THREE.MeshStandardMaterial;
-  beamMat.opacity = (0.08 + plunge * 0.54) * live;
-  beamMat.emissiveIntensity = (0.3 + plunge * 2.1) * live;
+  beamMat.opacity = (0.08 + cycle.seal * 0.54) * live;
+  beamMat.emissiveIntensity = (0.3 + cycle.seal * 2.1) * live;
 
-  const swingCycle = Math.sin(phase * 0.32) * 0.5 + 0.5;
-  rig.gantryCrane.position.x = lerp(2.2, 4.3, swingCycle);
-  rig.gantryCrane.position.z = lerp(-0.38, -1.04, Math.sin(phase * 0.18) * 0.5 + 0.5);
+  rig.gantryCrane.position.lerpVectors(rig.craneHome, rig.cranePick, cycle.crane);
 
-  const amberPulse = Math.sin(phase * 3.8) * 0.5 + 0.5;
+  applyStackLayers(rig.palletALayers, cycle.stackALayers, live);
+  applyStackLayers(rig.palletBLayers, cycle.stackBLayers, live);
+
+  rig.inboundProduct.visible = cycle.inbound > 0.04 && live > 0.05;
+  rig.inboundProduct.scale.setScalar(0.82 + cycle.inbound * 0.18);
+  applyProductShape(rig.inboundProduct, PRODUCT_SHAPE_CUBE);
+
+  const outboundSpin = animMs * 0.005 * live;
+  rig.outboundRollers.forEach((roller, index) => {
+    roller.rotation.x = outboundSpin * (index % 2 === 0 ? 1 : -1);
+  });
+
+  rig.labelLights.forEach((light, index) => {
+    const labelMat = light.material as THREE.MeshStandardMaterial;
+    const flash = cycle.label * (0.55 + Math.sin(animMs * 0.012 + index) * 0.45);
+    labelMat.emissiveIntensity = (0.2 + flash * 1.6) * live;
+    labelMat.opacity = (0.35 + flash * 0.55) * live;
+  });
+
+  const amberPulse = Math.sin(animMs * 0.0038) * 0.5 + 0.5;
   const alMat = rig.amberLamp.material as THREE.MeshStandardMaterial;
-  alMat.opacity = (0.28 + amberPulse * 0.52 + plunge * 0.22) * live;
-  alMat.emissiveIntensity = (0.28 + amberPulse * 1.2 + plunge * 1.4) * live;
+  alMat.opacity = (0.28 + amberPulse * 0.52 + cycle.seal * 0.22) * live;
+  alMat.emissiveIntensity = (0.28 + amberPulse * 1.2 + cycle.seal * 0.4) * live;
 
-  const beaconSpin = Math.sin(phase * 5.6) * 0.5 + 0.5;
+  const beaconSpin = Math.sin(animMs * 0.0056) * 0.5 + 0.5;
   const sbMat = rig.statusBeacon.material as THREE.MeshStandardMaterial;
   sbMat.opacity = (0.38 + beaconSpin * 0.52) * live;
   sbMat.emissiveIntensity = (0.4 + beaconSpin * 1.8) * live;
   rig.statusBeacon.scale.setScalar(0.92 + beaconSpin * 0.12 * live);
 
-  const lightBase = 0.12 + beaconSpin * 0.4;
-  rig.packingLight.intensity = (lightBase + plunge * 2.2) * live;
+  rig.packingLight.intensity =
+    (0.12 + beaconSpin * 0.4 + cycle.seal * 2.2 + cycle.label * 0.8) * live;
 }
 
 export function buildPackaging(materials: Materials) {
@@ -74,8 +121,10 @@ export function buildPackaging(materials: Materials) {
   group.add(box([0.022, 1.44, 0.022], [ 1.3, 0.92, -0.22], materials.darkSteel));
   group.add(box([0.022, 1.44, 0.022], [ 1.3, 0.92,  0.22], materials.darkSteel));
 
+  const sealHomeY = 1.86;
+  const sealDownY = 1.22;
   const sealHead = new THREE.Group();
-  sealHead.position.set(0.4, 1.86, 0);
+  sealHead.position.set(0.4, sealHomeY, 0);
   group.add(sealHead);
   sealHead.add(box([1.0, 0.18, 0.58], [0, 0, 0], materials.machineLight));
   sealHead.add(box([0.8, 0.06, 0.46], [0, -0.12, 0], materials.steel));
@@ -139,37 +188,68 @@ export function buildPackaging(materials: Materials) {
   group.add(spoolCore);
   group.add(box([0.044, 0.044, 0.46], [1.88, 0.42, -0.92], materials.steel));
   group.add(box([0.52, 0.028, 0.044], [1.88, 0.42, -0.7], materials.steel));
-  group.add(cylinder(0.032, 0.032, 0.038, [1.66, 0.30, -0.476], materials.tealGlow, 12));
-  group.add(cylinder(0.028, 0.028, 0.038, [1.74, 0.30, -0.476], materials.paintGreen, 12));
-  group.add(cylinder(0.024, 0.024, 0.038, [1.82, 0.30, -0.476], materials.machineLight, 12));
+  const labelLights = [
+    cylinder(0.032, 0.032, 0.038, [1.66, 0.30, -0.476], materials.tealGlow, 12),
+    cylinder(0.028, 0.028, 0.038, [1.74, 0.30, -0.476], materials.paintGreen, 12),
+    cylinder(0.024, 0.024, 0.038, [1.82, 0.30, -0.476], materials.machineLight, 12),
+  ];
+  labelLights.forEach((light) => {
+    const mat = light.material as THREE.MeshStandardMaterial;
+    mat.transparent = true;
+    group.add(light);
+  });
 
-  const paX = 2.88, paZ = -0.68;
+  const paX = 2.88;
+  const paZ = -0.68;
   group.add(box([1.18, 0.09, 0.98], [paX, 0.045, paZ], materials.darkSteel));
   ([-0.42, 0, 0.42] as number[]).forEach((oz) => {
     group.add(box([0.96, 0.04, 0.16], [paX, 0.02, paZ + oz], materials.darkSteel, false));
   });
+  const palletALayers: THREE.Mesh[] = [];
   for (let i = 0; i < 4; i += 1) {
     const by = 0.09 + i * 0.27;
     const layerMat = i % 2 === 0 ? materials.machineLight : materials.package;
-    group.add(box([1.04, 0.23, 0.82], [paX, by + 0.115, paZ], layerMat));
+    const layer = box([1.04, 0.23, 0.82], [paX, by + 0.115, paZ], layerMat);
+    layer.visible = false;
+    palletALayers.push(layer);
+    group.add(layer);
     group.add(box([0.26, 0.14, 0.038], [paX - 0.22, by + 0.1, paZ - 0.41], materials.enamel, false));
   }
 
-  const pbX = 4.12, pbZ = -0.72;
+  const pbX = 4.12;
+  const pbZ = -0.72;
   group.add(box([0.98, 0.09, 0.82], [pbX, 0.045, pbZ], materials.darkSteel));
   ([-0.32, 0.32] as number[]).forEach((oz) => {
     group.add(box([0.78, 0.04, 0.14], [pbX, 0.02, pbZ + oz], materials.darkSteel, false));
   });
+  const palletBLayers: THREE.Mesh[] = [];
   for (let i = 0; i < 3; i += 1) {
     const by = 0.09 + i * 0.25;
-    group.add(box([0.84, 0.21, 0.68], [pbX, by + 0.105, pbZ], i % 2 === 0 ? materials.package : materials.machineLight));
+    const layer = box([0.84, 0.21, 0.68], [pbX, by + 0.105, pbZ], i % 2 === 0 ? materials.package : materials.machineLight);
+    layer.visible = false;
+    palletBLayers.push(layer);
+    group.add(layer);
     group.add(box([0.22, 0.12, 0.036], [pbX - 0.18, by + 0.07, pbZ - 0.34], materials.enamel, false));
   }
 
-  const pcX = 1.98, pcZ = -0.72;
+  const pcX = 1.98;
+  const pcZ = -0.72;
   group.add(box([1.06, 0.09, 0.88], [pcX, 0.045, pcZ], materials.darkSteel));
   group.add(box([0.92, 0.23, 0.74], [pcX, 0.205, pcZ], materials.machineLight));
   group.add(box([0.24, 0.14, 0.036], [pcX - 0.2, 0.16, pcZ - 0.37], materials.enamel, false));
+  const inboundProduct = makeProduct(materials.enamel, [pcX, 0.28, pcZ]);
+  applyProductShape(inboundProduct, PRODUCT_SHAPE_CUBE);
+  inboundProduct.visible = false;
+  group.add(inboundProduct);
+
+  const outboundRollers: THREE.Mesh[] = [];
+  for (let i = -2; i <= 2; i += 1) {
+    const roller = cylinder(0.02, 0.02, 0.34, [5.1 + i * 0.22, 0.098, -0.68], materials.steel, 10);
+    roller.rotation.z = Math.PI / 2;
+    outboundRollers.push(roller);
+    group.add(roller);
+  }
+  group.add(box([1.4, 0.014, 0.42], [5.1, 0.092, -0.68], materials.belt, false));
 
   const craneH = 3.28;
   const craneCols: [number, number][] = [[1.94, 0.3], [4.48, 0.3], [1.94, -1.72], [4.48, -1.72]];
@@ -262,6 +342,9 @@ export function buildPackaging(materials: Materials) {
   packingLight.position.set(2.4, 1.0, -0.68);
   group.add(packingLight);
 
+  const craneHome = new THREE.Vector3(2.0, craneH, -0.71);
+  const cranePick = new THREE.Vector3(4.35, craneH, -1.02);
+
   group.userData.packagingRig = {
     sealHead,
     gantryCrane,
@@ -269,6 +352,15 @@ export function buildPackaging(materials: Materials) {
     amberLamp,
     sealBeam,
     packingLight,
+    palletALayers,
+    palletBLayers,
+    inboundProduct,
+    outboundRollers,
+    labelLights,
+    craneHome,
+    cranePick,
+    sealHomeY,
+    sealDownY,
   } satisfies PackagingRig;
 
   return group;

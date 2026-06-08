@@ -4,7 +4,7 @@ export const SCENE_BACKGROUND = 0x050809;
 export const SCENE_FOG = { color: 0x050a0c, density: 0.011 };
 
 export const RENDERER_SETTINGS = {
-  pixelRatioCap: 2,
+  pixelRatioCap: 1.5,
   toneExposure: 1.38,
 } as const;
 
@@ -25,26 +25,26 @@ export const CAMERA_SETTINGS = {
 } as const;
 
 export const MOBILE_CAMERA = {
-  position: new THREE.Vector3(5.8, 14.5, 11.0),
-  target: new THREE.Vector3(0.5, 0.3, -0.3),
+  position: new THREE.Vector3(6.15, 13.1, 11.45),
+  target: new THREE.Vector3(0.9, 0.28, 0.2),
 } as const;
-
-export const FACTORY_CENTER = new THREE.Vector3(0.625, 0.3, -0.125);
 
 export const CAMERA_PATH = {
-  overview: new THREE.Vector3(6.2, 12.0, 8.2),
-  iso: new THREE.Vector3(5.7, 10.55, 7.2),
-  close: new THREE.Vector3(5.1, 9.35, 6.4),
-  final: new THREE.Vector3(4.75, 8.75, 5.9),
-  lookStart: new THREE.Vector3(0.35, 0.25, -0.05),
-  lookMid: new THREE.Vector3(0.5, 0.3, -0.1),
-  lookEnd: new THREE.Vector3(0.65, 0.32, -0.125),
+  overview: new THREE.Vector3(6.55, 10.8, 8.65),
+  iso: new THREE.Vector3(6.08, 9.45, 7.7),
+  close: new THREE.Vector3(5.5, 8.3, 6.92),
+  final: new THREE.Vector3(5.15, 7.75, 6.45),
+  lookStart: new THREE.Vector3(0.55, 0.25, -0.02),
+  lookMid: new THREE.Vector3(0.85, 0.28, 0.15),
+  lookEnd: new THREE.Vector3(1.05, 0.28, 0.42),
 } as const;
 
+export const POINTER_DRAG_THRESHOLD_SQ = 6 * 6;
+
 export const CONTROL_SETTINGS = {
-  dampingFactor: 0.1,
-  rotateSpeed: 0.52,
-  panSpeed: 0.32,
+  dampingFactor: 0.12,
+  rotateSpeed: 0.58,
+  panSpeed: 0.46,
   minPolarAngle: 0.18,
   maxPolarAngle: 1.38,
 } as const;

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import type { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { lerpVector, smoothstep } from "./math";
+import { smoothstep } from "./math";
 import {
   CAMERA_PATH,
   CAMERA_SETTINGS,
@@ -19,7 +19,7 @@ export function makeSceneCamera() {
 }
 
 export function configureControls(controls: OrbitControls) {
-  controls.enableDamping = true;
+  controls.enableDamping = false;
   controls.dampingFactor = CONTROL_SETTINGS.dampingFactor;
   controls.enableZoom = false;
   controls.enablePan = true;
@@ -27,6 +27,7 @@ export function configureControls(controls: OrbitControls) {
   controls.panSpeed = CONTROL_SETTINGS.panSpeed;
   controls.minPolarAngle = CONTROL_SETTINGS.minPolarAngle;
   controls.maxPolarAngle = CONTROL_SETTINGS.maxPolarAngle;
+  controls.screenSpacePanning = true;
   controls.target.copy(CAMERA_PATH.lookStart);
 }
 
@@ -35,6 +36,15 @@ function getPortraitBlend(viewportWidth: number, viewportHeight: number): number
   const t = Math.min(1, Math.max(0, (0.85 - aspect) / (0.85 - 0.45)));
   return t * t * (3 - 2 * t);
 }
+
+const _camA = new THREE.Vector3();
+const _camB = new THREE.Vector3();
+const _camC = new THREE.Vector3();
+const _camBC = new THREE.Vector3();
+const _baseCamPos = new THREE.Vector3();
+const _targetMidEnd = new THREE.Vector3();
+const _target = new THREE.Vector3();
+const _toCamera = new THREE.Vector3();
 
 export function updateCameraForProgress(
   camera: THREE.PerspectiveCamera,
@@ -66,26 +76,24 @@ export function updateCameraForProgress(
   const inspect = smoothstep(0.25, 0.7, progress);
   const settle = smoothstep(0.7, 1, progress);
 
-  const camA = lerpVector(CAMERA_PATH.overview, CAMERA_PATH.iso, approach);
-  const camB = lerpVector(CAMERA_PATH.iso, CAMERA_PATH.close, inspect);
-  const camC = lerpVector(CAMERA_PATH.close, CAMERA_PATH.final, settle);
-  const baseCamPos = lerpVector(camA, lerpVector(camB, camC, settle), inspect * 0.55);
+  _camA.lerpVectors(CAMERA_PATH.overview, CAMERA_PATH.iso, approach);
+  _camB.lerpVectors(CAMERA_PATH.iso, CAMERA_PATH.close, inspect);
+  _camC.lerpVectors(CAMERA_PATH.close, CAMERA_PATH.final, settle);
+  _camBC.lerpVectors(_camB, _camC, settle);
+  _baseCamPos.lerpVectors(_camA, _camBC, inspect * 0.55);
 
-  const target = lerpVector(
-    CAMERA_PATH.lookStart,
-    lerpVector(CAMERA_PATH.lookMid, CAMERA_PATH.lookEnd, settle),
-    smoothstep(0.24, 1, progress)
-  );
+  _targetMidEnd.lerpVectors(CAMERA_PATH.lookMid, CAMERA_PATH.lookEnd, settle);
+  _target.lerpVectors(CAMERA_PATH.lookStart, _targetMidEnd, smoothstep(0.24, 1, progress));
 
   const portraitBlend = getPortraitBlend(viewportWidth, viewportHeight);
   if (portraitBlend > 0) {
-    const toCamera = new THREE.Vector3().subVectors(baseCamPos, target);
-    toCamera.multiplyScalar(1 + portraitBlend * 0.55);
-    camera.position.copy(new THREE.Vector3().addVectors(target, toCamera));
+    _toCamera.subVectors(_baseCamPos, _target);
+    _toCamera.multiplyScalar(1 + portraitBlend * 0.55);
+    camera.position.copy(_target).add(_toCamera);
   } else {
-    camera.position.copy(baseCamPos);
+    camera.position.copy(_baseCamPos);
   }
 
   camera.up.set(0, 1, 0);
-  controls.target.copy(target);
+  controls.target.copy(_target);
 }

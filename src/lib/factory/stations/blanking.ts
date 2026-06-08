@@ -5,19 +5,19 @@ import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import { applyProductShape, blendProductShape, makeProduct, PRODUCT_SHAPE_CUBOID, PRODUCT_SHAPE_RECTANGLE } from "../products";
-import { pressPhase } from "../stationMotion";
+import { blankingPhase } from "../stationMotion";
 import type { BlankingRig } from "../types";
 import { machineLiveMultiplier } from "../flowOptimization";
-import { stationAnimationTime } from "../flowAnimation";
+import { stationAnimationTime, stationBaseLive } from "../flowAnimation";
 
 export function tickBlankingPress(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.blankingRig as BlankingRig | undefined;
   if (!rig) return;
 
-  const baseLive = smoothstep(0.78, 0.95, progress);
+  const baseLive = stationBaseLive(progress, "blanking");
   const live = machineLiveMultiplier(baseLive, "blanking");
   const animMs = stationAnimationTime(group, elapsedMs, "blanking", baseLive);
-  const cycle = pressPhase(animMs * 0.00042);
+  const cycle = blankingPhase(animMs * 0.00054);
   const stroke = cycle.stroke * live;
   const impact = cycle.impact * live;
 
@@ -32,29 +32,39 @@ export function tickBlankingPress(group: THREE.Group, progress: number, elapsedM
     rod.scale.y = 0.72 + stroke * 0.28 + (index % 2) * 0.02;
   });
 
+  const feedHomeX = rig.stripFeed.userData.homeX as number;
+  const feedTravel = rig.stripFeed.userData.travel as number;
+  rig.stripFeed.position.x = feedHomeX + cycle.feed * feedTravel;
+
   const dieMaterial = rig.dieGlow.material as THREE.MeshStandardMaterial;
-  dieMaterial.opacity = 0.18 + impact * 0.72;
-  dieMaterial.emissiveIntensity = impact * 2.4 * live;
+  dieMaterial.opacity = (0.14 + impact * 0.78) * live;
+  dieMaterial.emissiveIntensity = impact * 2.6 * live;
 
   rig.gateGlows.forEach((gate, index) => {
     const gateMaterial = gate.material as THREE.MeshStandardMaterial;
     const flash = cycle.phase === "down" || cycle.phase === "dwell" ? 0.38 : 0.12;
-    gateMaterial.opacity = (0.14 + flash + impact * 0.28) * live;
-    gateMaterial.emissiveIntensity = (0.4 + impact * 1.6 + index * 0.08) * live;
+    gateMaterial.opacity = (0.12 + flash + impact * 0.3) * live;
+    gateMaterial.emissiveIntensity = (0.35 + impact * 1.7 + index * 0.08) * live;
   });
 
   const stripMaterial = rig.statusStrip.material as THREE.MeshStandardMaterial;
-  stripMaterial.emissiveIntensity = (0.35 + stroke * 1.1 + impact * 1.8) * live;
+  stripMaterial.emissiveIntensity = (0.3 + stroke * 1.05 + impact * 1.9) * live;
 
-  rig.beacon.scale.setScalar(0.88 + impact * 0.22);
+  rig.beacon.scale.setScalar(0.86 + impact * 0.24);
   const beaconMaterial = rig.beacon.material as THREE.MeshStandardMaterial;
-  beaconMaterial.opacity = 0.22 + impact * 0.58;
-  beaconMaterial.emissiveIntensity = (0.5 + impact * 2.2) * live;
+  beaconMaterial.opacity = (0.2 + impact * 0.62) * live;
+  beaconMaterial.emissiveIntensity = (0.45 + impact * 2.4) * live;
+  beaconMaterial.emissive.setHex(cycle.phase === "down" || cycle.phase === "dwell" ? 0xf59e0b : 0x22c55e);
+
+  rig.impactLight.intensity = (0.1 + impact * 2.8) * live;
 
   const blankShape = blendProductShape(PRODUCT_SHAPE_RECTANGLE, PRODUCT_SHAPE_CUBOID, smoothstep(0, 1, impact));
   applyProductShape(rig.dieBlank, blankShape);
-  rig.dieBlank.position.y = 0.222 + blankShape.height / 2;
-  rig.dieBlank.visible = live > 0.08;
+  const blankBaseY = 0.222 + blankShape.height / 2;
+  rig.dieBlank.position.y = blankBaseY + cycle.eject * 0.08;
+  rig.dieBlank.position.z = 0.04 + cycle.eject * 0.06;
+  rig.dieBlank.visible = live > 0.05 && (stroke > 0.08 || cycle.eject > 0.02);
+  rig.dieBlank.scale.setScalar(0.92 + impact * 0.08);
 }
 
 export function buildBlankingPress(materials: Materials) {
@@ -88,6 +98,15 @@ export function buildBlankingPress(materials: Materials) {
   group.add(dieGlow);
   const dieBlank = makeProduct(materials.enamel, [0, 0.222 + PRODUCT_SHAPE_RECTANGLE.height / 2, 0.04]);
   group.add(dieBlank);
+
+  const stripFeed = new THREE.Group();
+  stripFeed.userData.homeX = -0.72;
+  stripFeed.userData.travel = 0.28;
+  stripFeed.position.set(-0.72, 0.208, -0.12);
+  stripFeed.add(box([0.92, 0.006, 0.38], [0.46, 0, 0], materials.steel, false));
+  stripFeed.add(box([0.08, 0.004, 0.34], [0.04, 0.004, 0], materials.machineLight, false));
+  stripFeed.add(box([0.06, 0.003, 0.32], [0.88, 0.003, 0], materials.darkSteel, false));
+  group.add(stripFeed);
 
   const columnPositions: [number, number][] = [
     [-0.46, 0.14],
@@ -184,14 +203,20 @@ export function buildBlankingPress(materials: Materials) {
   beaconMat.emissiveIntensity = 0.5;
   group.add(beacon);
 
+  const impactLight = new THREE.PointLight(0xffa31a, 0, 2.4);
+  impactLight.position.set(0, 0.28, 0.04);
+  group.add(impactLight);
+
   group.userData.blankingRig = {
     ramAssembly,
     hydraulics,
+    stripFeed,
     dieGlow,
     dieBlank,
     gateGlows,
     beacon,
     statusStrip,
+    impactLight,
   } satisfies BlankingRig;
 
   return group;

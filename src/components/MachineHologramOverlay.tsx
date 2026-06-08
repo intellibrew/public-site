@@ -7,10 +7,12 @@ import type { FC, PropsWithChildren } from "react";
 import {
   MACHINE_DEFINITIONS,
   MACHINE_MAP,
+  type MachineMetric,
   type MachineDefinition,
 } from "@/lib/factory/machineRegistry";
 import MachinePreviewViewport from "@/components/MachinePreviewViewport";
 import { playHoloEnterAnimation, splitChars } from "@/lib/animations/holoEnter";
+import type { StoryPhase } from "@/lib/factory/flowOptimization";
 
 const SafeAnimatePresence = AnimatePresence as FC<
   PropsWithChildren<{ mode?: "wait" | "sync" | "popLayout" }>
@@ -21,6 +23,8 @@ type MachineHologramOverlayProps = {
   visible: boolean;
   variant?: "inspect" | "bottleneck";
   showBottleneckAnalysis?: boolean;
+  storyPhase?: StoryPhase;
+  bottleneckStationId?: string | null;
   onClose: () => void;
   onOptimize?: () => void;
 };
@@ -41,7 +45,93 @@ function SplitText({ text }: { text: string }) {
   );
 }
 
-function MetricRow({ metric }: { metric: MachineDefinition["metrics"][number] }) {
+type MetricProfile = "underproduction" | "bottleneck" | "optimizing" | "optimized";
+
+const LOWER_IS_BETTER = [
+  "queue",
+  "temperature",
+  "load",
+  "hit count",
+  "jams",
+  "spatter",
+  "humidity",
+  "defect",
+  "false reject",
+  "rework",
+];
+
+function isLowerBetterMetric(metric: MachineMetric) {
+  const label = metric.label.toLowerCase();
+  return metric.unit === "°C" || LOWER_IS_BETTER.some((term) => label.includes(term));
+}
+
+function clampMetric(metric: MachineMetric, value: number) {
+  return Math.max(0, Math.min(metric.max, value));
+}
+
+function projectedMetricValue(
+  metric: MachineMetric,
+  profile: MetricProfile,
+  isConstraintStation: boolean
+) {
+  const lowerIsBetter = isLowerBetterMetric(metric);
+
+  if (profile === "optimized") {
+    if (lowerIsBetter) {
+      return clampMetric(metric, metric.value * 0.62);
+    }
+    const lift = metric.unit === "%" ? 0.55 : 0.38;
+    return clampMetric(metric, metric.value + (metric.max - metric.value) * lift);
+  }
+
+  if (profile === "bottleneck") {
+    if (lowerIsBetter) {
+      return clampMetric(metric, metric.value * (isConstraintStation ? 1.35 : 1.12));
+    }
+    if (metric.unit === "%") {
+      return clampMetric(metric, metric.value * (isConstraintStation ? 0.92 : 0.97));
+    }
+    return clampMetric(metric, metric.value * (isConstraintStation ? 0.72 : 0.88));
+  }
+
+  if (lowerIsBetter) {
+    return clampMetric(metric, metric.value * 1.12);
+  }
+  if (metric.unit === "%") {
+    return clampMetric(metric, metric.value * 0.98);
+  }
+  return clampMetric(metric, metric.value * 0.82);
+}
+
+function projectMetrics(
+  metrics: MachineMetric[],
+  profile: MetricProfile,
+  isConstraintStation: boolean
+): MachineMetric[] {
+  return metrics.map((metric) => ({
+    ...metric,
+    value: projectedMetricValue(metric, profile, isConstraintStation),
+  }));
+}
+
+function metricProfileForStory(
+  storyPhase: StoryPhase | undefined,
+  isBottleneckView: boolean
+): MetricProfile {
+  if (isBottleneckView) return "bottleneck";
+  if (storyPhase === "optimized") return "optimized";
+  if (storyPhase === "optimizing") return "optimizing";
+  return "underproduction";
+}
+
+function lineOutputForProfile(profile: MetricProfile) {
+  if (profile === "optimized") return 96;
+  if (profile === "optimizing") return 78;
+  if (profile === "bottleneck") return 48;
+  return 62;
+}
+
+function MetricRow({ metric }: { metric: MachineMetric }) {
   const pct = (metric.value / metric.max) * 100;
   const decimals = metric.unit === "%" || metric.unit === "s" ? 1 : 0;
   const displayValue = decimals > 0 ? metric.value.toFixed(decimals) : String(Math.round(metric.value));
@@ -90,9 +180,17 @@ function HoloPane({
   );
 }
 
-function DataChip({ label, value }: { label: string; value: string }) {
+function DataChip({
+  label,
+  value,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
-    <div className="holo-data-chip">
+    <div className={`holo-data-chip ${className}`}>
       <span className="holo-data-chip-label">{label}</span>
       <span className="holo-data-chip-value">{value}</span>
     </div>
@@ -127,11 +225,101 @@ function LineFlow({
   );
 }
 
+function BottleneckPanel({
+  machine,
+  projectedMetrics,
+  lineOutputPct,
+}: {
+  machine: MachineDefinition;
+  projectedMetrics: MachineMetric[];
+  lineOutputPct: number;
+}) {
+  const lostOutputPct = Math.max(0, 100 - lineOutputPct);
+
+  return (
+    <div className="holo-bottleneck-shell">
+      <div className="holo-bottleneck-layout">
+        <HoloPane className="holo-bottleneck-visual">
+          <div className="holo-preview-frame holo-preview-frame--compact shrink-0">
+            <MachinePreviewViewport stationId={machine.id} className="h-full min-h-[112px]" />
+            <div className="holo-preview-glow" aria-hidden />
+          </div>
+          <div className="holo-station-info mt-3 shrink-0">
+            <p className="font-fragment text-[10px] uppercase tracking-[0.22em] text-teal-300/65">
+              {machine.codename}
+            </p>
+            <h3 className="mt-1 font-orbitron text-lg leading-tight text-white md:text-xl">
+              {machine.name}
+            </h3>
+            <p className="mt-1 text-[12px] leading-snug text-slate-400/90">{machine.tagline}</p>
+          </div>
+          <ul className="holo-spec-grid mt-3">
+            {machine.specs.map((spec) => (
+              <li key={spec.label} className="holo-spec-grid-item">
+                <span className="holo-spec-grid-label">{spec.label}</span>
+                <span className="holo-spec-grid-value">{spec.value}</span>
+              </li>
+            ))}
+          </ul>
+        </HoloPane>
+
+        <div className="holo-bottleneck-readout">
+          <div className="holo-impact-hero">
+            <div className="holo-impact-hero-row">
+              <span className="holo-impact-hero-value font-orbitron tabular-nums">{lineOutputPct}%</span>
+              <span className="holo-impact-hero-delta">−{lostOutputPct}% vs design</span>
+            </div>
+            <span className="holo-impact-hero-caption">Current line rate at this constraint</span>
+          </div>
+
+          <div className="holo-diagnosis">
+            <p className="holo-diagnosis-kicker">What&apos;s limiting output</p>
+            <p className="holo-diagnosis-body">{machine.bottleneck}</p>
+          </div>
+
+          <div className="holo-metrics-stack">
+            {projectedMetrics.map((metric) => (
+              <MetricRow key={metric.label} metric={metric} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="holo-bottleneck-band">
+        <DataChip label="Upstream" value={machine.upstream} />
+        <DataChip label="Takt" value={machine.takt.split(" · ")[0] ?? machine.takt} />
+        <DataChip label="Downstream" value={machine.downstream} />
+        <DataChip label="Material" value={machine.material} />
+      </div>
+
+      <HoloPane className="holo-neofab-resolve">
+        <p className="holo-neofab-lead">
+          NeoFab rebalances constraints to restore full production flow, clearing the stall at{" "}
+          {machine.name.toLowerCase()} and re-syncing upstream takt with downstream demand.
+        </p>
+        <div className="holo-neofab-tags">
+          {machine.capabilities.map((cap) => (
+            <span key={cap} className="holo-cap-tag holo-cap-tag--resolve">
+              {cap}
+            </span>
+          ))}
+        </div>
+        <p className="holo-neofab-caption">
+          Optimization targets this node first, then propagates buffer and takt adjustments across{" "}
+          {machine.upstream.toLowerCase()} → {machine.downstream.toLowerCase()}.
+        </p>
+      </HoloPane>
+    </div>
+  );
+}
+
 type HoloTabletProps = {
   machine: MachineDefinition;
   index: number;
   isBottleneckView: boolean;
   showBottleneckAnalysis: boolean;
+  storyPhase?: StoryPhase;
+  isConstraintStation: boolean;
   onClose: (event: React.PointerEvent | React.MouseEvent) => void;
   onOptimize?: () => void;
 };
@@ -141,10 +329,15 @@ function HoloTablet({
   index,
   isBottleneckView,
   showBottleneckAnalysis,
+  storyPhase,
+  isConstraintStation,
   onClose,
   onOptimize,
 }: HoloTabletProps) {
   const tabletRef = useRef<HTMLDivElement>(null);
+  const metricProfile = metricProfileForStory(storyPhase, isBottleneckView);
+  const projectedMetrics = projectMetrics(machine.metrics, metricProfile, isConstraintStation);
+  const lineOutputPct = lineOutputForProfile(metricProfile);
 
   useEffect(() => {
     const tablet = tabletRef.current;
@@ -210,22 +403,31 @@ function HoloTablet({
             </svg>
           </button>
 
-          <div className="flex items-center gap-3 pr-11 md:pr-12">
-            <div className={`holo-lock min-w-0 ${isBottleneckView ? "holo-lock--alert" : ""}`}>
-          <span className="holo-lock-text">
-            <span className="holo-lock-label">
-              <span className="holo-prefix" aria-hidden>
-                {"//"}
-              </span>
-              <SplitText
-                text={isBottleneckView ? "Bottleneck detected" : "Target locked"}
-              />
-            </span>
-            <span className="holo-lock-id">{machine.codename}</span>
-          </span>
-            </div>
+          <div className="flex items-start justify-between gap-3 pr-11 md:pr-12">
+            {isBottleneckView ? (
+              <div className="min-w-0">
+                <p className="font-fragment text-[10px] uppercase tracking-[0.2em] text-red-300/75">
+                  Line constraint
+                </p>
+                <p className="mt-0.5 font-orbitron text-base leading-tight text-white md:text-lg">
+                  {machine.name}
+                </p>
+              </div>
+            ) : (
+              <div className={`holo-lock min-w-0 ${isBottleneckView ? "holo-lock--alert" : ""}`}>
+                <span className="holo-lock-text">
+                  <span className="holo-lock-label">
+                    <span className="holo-prefix" aria-hidden>
+                      {"//"}
+                    </span>
+                    <SplitText text="Target locked" />
+                  </span>
+                  <span className="holo-lock-id">{machine.codename}</span>
+                </span>
+              </div>
+            )}
 
-            <div className="shrink-0">
+            <div className="shrink-0 pt-0.5">
               {isBottleneckView ? (
                 <span className="holo-status-pill holo-status-pill--alert">Constraint</span>
               ) : (
@@ -243,6 +445,21 @@ function HoloTablet({
           }`}
         >
           <div className="flex flex-col gap-2 px-3 pb-6 pt-1 md:gap-3 md:px-5 md:py-4 md:pb-6">
+            {showBottleneckAnalysis && isBottleneckView ? (
+              <>
+                <LineFlow
+                  upstream={machine.upstream}
+                  current={machine.name}
+                  downstream={machine.downstream}
+                />
+                <BottleneckPanel
+                  machine={machine}
+                  projectedMetrics={projectedMetrics}
+                  lineOutputPct={lineOutputPct}
+                />
+              </>
+            ) : (
+            <>
             {showBottleneckAnalysis && (
               <div className="shrink-0">
                 <LineFlow
@@ -257,9 +474,7 @@ function HoloTablet({
               className={`grid gap-3 md:gap-3.5 ${
                 !showBottleneckAnalysis
                   ? "grid-cols-1"
-                  : isBottleneckView
-                    ? "grid-cols-1 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)_minmax(0,0.85fr)]"
-                    : "grid-cols-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)_minmax(0,0.9fr)]"
+                  : "grid-cols-1 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)_minmax(0,0.9fr)]"
               }`}
             >
           <div
@@ -301,24 +516,7 @@ function HoloTablet({
                   </div>
                 </HoloPane>
               </>
-            ) : (
-              <HoloPane className="flex-1">
-                <p className="holo-pane-title">Line impact</p>
-                <div className="mt-3 space-y-3">
-                  <DataChip label="Upstream" value={machine.upstream} />
-                  <DataChip label="Downstream" value={machine.downstream} />
-                  <DataChip
-                    label="Current takt"
-                    value={machine.takt.split(" · ")[0] ?? machine.takt}
-                  />
-                </div>
-                <ul className="mt-4 space-y-2 font-mono text-xs leading-relaxed text-red-300/90 md:text-sm">
-                  <li className="holo-log-line">&gt; queue depth rising upstream</li>
-                  <li className="holo-log-line">&gt; downstream stations starved</li>
-                  <li className="holo-log-line">&gt; full line halt imminent</li>
-                </ul>
-              </HoloPane>
-            )}
+            ) : null}
           </div>
 
           <div className="flex min-w-0 flex-col">
@@ -351,12 +549,7 @@ function HoloTablet({
                 <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-teal-400/55 md:text-[11px]">
                   {machine.tagline}
                 </p>
-                {isBottleneckView && showBottleneckAnalysis ? (
-                  <div className="holo-bottleneck holo-bottleneck--embedded mt-3">
-                    <span className="holo-bottleneck-label">Root cause</span>
-                    <p>{machine.bottleneck}</p>
-                  </div>
-                ) : !isBottleneckView ? (
+                {!isBottleneckView ? (
                   <>
                     <p className="mt-2.5 text-[12px] leading-relaxed text-slate-300/88 md:text-[13px]">
                       {machine.description}
@@ -383,7 +576,7 @@ function HoloTablet({
               </div>
 
               <div className={`mt-2 space-y-2.5 ${showBottleneckAnalysis ? "md:hidden" : ""}`}>
-                {machine.metrics.map((metric) => (
+                {projectedMetrics.map((metric) => (
                   <MetricRow key={metric.label} metric={metric} />
                 ))}
               </div>
@@ -400,7 +593,7 @@ function HoloTablet({
                 <HoloPane>
                   <p className="holo-pane-title">Live telemetry</p>
                   <div className="mt-2 space-y-3.5">
-                    {machine.metrics.map((metric) => (
+                    {projectedMetrics.map((metric) => (
                       <MetricRow key={metric.label} metric={metric} />
                     ))}
                   </div>
@@ -409,7 +602,9 @@ function HoloTablet({
                 <HoloPane>
                   <div className="flex items-center justify-between">
                     <p className="holo-pane-title mb-0">System</p>
-                    <span className="holo-status-pill">Operational</span>
+                    <span className="holo-status-pill">
+                      {metricProfile === "optimized" ? "Optimized" : "Operational"}
+                    </span>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <DataChip
@@ -417,53 +612,58 @@ function HoloTablet({
                       value={machine.codename.split(" / ")[0] ?? machine.codename}
                     />
                     <DataChip label="Stage" value={`${index} of ${MACHINE_DEFINITIONS.length}`} />
+                    <DataChip
+                      label="Line output"
+                      value={`${lineOutputPct}% design`}
+                      className="col-span-2"
+                    />
                   </div>
                   <ul className="mt-3 space-y-2 font-mono text-xs leading-relaxed text-teal-300/85 md:text-sm">
-                    <li className="holo-log-line">&gt; geometry acquired</li>
-                    <li className="holo-log-line">&gt; telemetry synced</li>
-                    <li className="holo-log-line">&gt; render pipeline OK</li>
+                    {metricProfile === "optimized" ? (
+                      <>
+                        <li className="holo-log-line">&gt; constraint cleared</li>
+                        <li className="holo-log-line">&gt; takt balanced upstream</li>
+                        <li className="holo-log-line">&gt; production flow restored</li>
+                      </>
+                    ) : (
+                      <>
+                        <li className="holo-log-line">&gt; geometry acquired</li>
+                        <li className="holo-log-line">&gt; telemetry synced</li>
+                        <li className="holo-log-line">&gt; awaiting bottleneck scan</li>
+                      </>
+                    )}
                   </ul>
                 </HoloPane>
               </>
-            ) : (
-              <HoloPane className="flex-1">
-                <p className="holo-pane-title">Throughput loss</p>
-                <div className="mt-3 space-y-3.5">
-                  {machine.metrics.slice(0, 3).map((metric) => (
-                    <MetricRow key={metric.label} metric={metric} />
-                  ))}
-                </div>
-                <p className="mt-4 text-[11px] leading-relaxed text-amber-100/70">
-                  Estimated line output is at 48% of design rate until this node is cleared.
-                </p>
-              </HoloPane>
-            )}
+            ) : null}
           </div>
             </div>
+            </>
+            )}
           </div>
         </div>
 
       {isBottleneckView && onOptimize ? (
-        <footer className="holo-footer shrink-0 px-3 pb-3 pt-2 md:px-5 md:pb-5">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <p className="max-w-md text-[11px] leading-relaxed text-teal-100/72 md:text-[12px]">
-              NeoFab rebalances constraints to restore full production flow.
+        <footer className="holo-footer holo-footer--compact shrink-0 px-3 pb-3 pt-3 md:px-5 md:pb-5">
+          <div className="flex w-full flex-col items-center gap-2.5 text-center">
+            <p className="holo-footer-lead text-teal-100/72">
+              Run NeoFab optimization to fix the constraint, recover lost throughput, and bring the line back to target rate.
             </p>
             <button
               type="button"
               onClick={onOptimize}
-              className="holo-optimize-cta holo-optimize-cta--footer"
+              className="holo-optimize-cta holo-optimize-cta--footer w-full md:w-auto"
             >
               <span>Optimize factory with NeoFab</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                <path
-                  d="M3 8h10M9 4l4 4-4 4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+              <path
+                d="M3 8h10M9 4l4 4-4 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
             </button>
           </div>
         </footer>
@@ -478,12 +678,15 @@ export default function MachineHologramOverlay({
   visible,
   variant = "inspect",
   showBottleneckAnalysis = true,
+  storyPhase,
+  bottleneckStationId,
   onClose,
   onOptimize,
 }: MachineHologramOverlayProps) {
   const machine = stationId ? MACHINE_MAP.get(stationId) : null;
   const index = machine ? stationIndex(machine.id) : 0;
   const isBottleneckView = variant === "bottleneck";
+  const isConstraintStation = Boolean(machine && bottleneckStationId === machine.id);
 
   const handleClose = useCallback(
     (event: React.PointerEvent | React.MouseEvent) => {
@@ -524,7 +727,7 @@ export default function MachineHologramOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.28, ease: [0.4, 0, 1, 1] } }}
           transition={{ duration: 0.32 }}
-          className="holo-overlay pointer-events-auto fixed inset-0 z-[110] flex items-start justify-center px-2 pb-4 pt-[calc(70px+0.35rem)] sm:px-3 sm:pb-5 sm:pt-[calc(70px+0.5rem)] md:items-center md:px-5 md:pb-5 md:pt-[calc(70px+1rem)]"
+          className="holo-overlay pointer-events-auto fixed inset-0 z-[110] flex items-start justify-center md:items-center"
           onWheel={stopOverlayScrollPropagation}
           onTouchMove={stopOverlayScrollPropagation}
         >
@@ -541,6 +744,8 @@ export default function MachineHologramOverlay({
             index={index}
             isBottleneckView={isBottleneckView}
             showBottleneckAnalysis={showBottleneckAnalysis}
+            storyPhase={storyPhase}
+            isConstraintStation={isConstraintStation}
             onClose={handleClose}
             onOptimize={showBottleneckAnalysis ? onOptimize : undefined}
           />

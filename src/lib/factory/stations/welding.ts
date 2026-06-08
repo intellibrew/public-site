@@ -1,33 +1,32 @@
 import * as THREE from "three";
-import { clamp, lerp, smoothstep } from "../math";
-import { box, cylinder, sphere, torus } from "../mesh";
+import { clamp, lerp } from "../math";
+import { box, cylinder, sphere } from "../mesh";
 import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import type { WeldingRig } from "../types";
 import { machineLiveMultiplier } from "../flowOptimization";
-import { stationAnimationTime } from "../flowAnimation";
+import { stationAnimationTime, stationBaseLive } from "../flowAnimation";
+import { weldingPhase } from "../stationMotion";
 
 export function tickWelding(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.weldingRig as WeldingRig | undefined;
   if (!rig) return;
 
-  const baseLive = smoothstep(0.78, 0.95, progress);
+  const baseLive = stationBaseLive(progress, "welding");
   const live = machineLiveMultiplier(baseLive, "welding");
   const animMs = stationAnimationTime(group, elapsedMs, "welding", baseLive);
-  const phase = animMs * 0.0021;
-  const weldPeriod = 4200;
-  const weldPhase = (animMs % weldPeriod) / weldPeriod;
+  const cycle = weldingPhase(animMs * 0.00058);
+
   const seamStart = -0.06;
   const seamEnd = 0.3;
-  const travel = smoothstep(0.06, 0.74, weldPhase) * (1 - smoothstep(0.78, 0.94, weldPhase));
-  const seamX = lerp(seamStart, seamEnd, travel);
-  const arcActive = live * travel;
+  const seamX = lerp(seamStart, seamEnd, cycle.travel);
+  const arcActive = live * cycle.arc;
 
   const flickerRaw =
-    Math.sin(phase * 31) * 0.42 +
-    Math.sin(phase * 53 + 0.7) * 0.28 +
-    Math.sin(phase * 79 + 1.4) * 0.18 +
+    Math.sin(animMs * 0.031) * 0.42 +
+    Math.sin(animMs * 0.053 + 0.7) * 0.28 +
+    Math.sin(animMs * 0.079 + 1.4) * 0.18 +
     Math.sin(animMs * 0.017 + 0.3) * 0.12;
   const flicker = clamp((flickerRaw + 1) * 0.5);
   const arcPulse = arcActive * (0.55 + flicker * 0.45);
@@ -78,8 +77,6 @@ export function tickWelding(group: THREE.Group, progress: number, elapsedMs: num
 
   rig.sparkLight.intensity = (0.65 + flicker * 3.4) * arcPulse;
   rig.sparkLight.position.y = 0.39 + flicker * 0.02 * arcActive;
-
-  rig.chillerFan.rotation.z = animMs * 0.0038 * (live > 0.02 ? 1 : 0);
 
   const beaconMat = rig.statusBeacon.material as THREE.MeshStandardMaterial;
   const weldingHue = arcActive > 0.08;
@@ -140,7 +137,6 @@ export function buildWelding(materials: Materials) {
   group.add(box([1.28, 0.64, 0.08], [0.08, 0.5, -0.34], materials.machine));
   group.add(box([0.92, 0.09, 0.22], [0.08, 0.18, 0.24], materials.machineDark));
 
-  group.add(torus(0.16, 0.022, Math.PI, [0.08, 0.88, 0.08], materials.darkSteel, 8, 16));
   group.add(box([0.34, 0.05, 0.14], [0.08, 0.9, -0.08], materials.machine));
   group.add(box([0.62, 0.04, 0.06], [0.08, 0.86, -0.22], materials.darkSteel));
 
@@ -166,9 +162,11 @@ export function buildWelding(materials: Materials) {
   for (let row = 0; row < 4; row += 1) {
     group.add(box([0.32, 0.012, 0.018], [-0.92, 0.28 + row * 0.1, 0.49], materials.darkSteel));
   }
-  const chillerFan = cylinder(0.13, 0.13, 0.028, [-0.92, 0.78, 0.18], materials.steel, 18);
-  chillerFan.rotation.x = Math.PI / 2;
-  group.add(chillerFan);
+  group.add(cylinder(0.13, 0.13, 0.028, [-0.92, 0.78, 0.18], materials.darkSteel, 18));
+  for (let i = 0; i < 4; i += 1) {
+    const angle = (i / 4) * Math.PI;
+    group.add(box([0.1, 0.012, 0.018], [-0.92 + Math.cos(angle) * 0.04, 0.78, 0.18 + Math.sin(angle) * 0.04], materials.steel));
+  }
   group.add(cylinder(0.028, 0.028, 0.72, [-0.62, 0.62, 0.18], materials.steel, 10));
   group.add(box([0.14, 0.08, 0.12], [-0.72, 0.16, 0.18], materials.orange));
 
@@ -260,7 +258,6 @@ export function buildWelding(materials: Materials) {
 
   group.add(torchCarriage);
 
-  group.add(torus(0.18, 0.024, Math.PI * 1.05, [-0.48, 0.92, 0.12], materials.darkSteel, 10, 18));
   group.add(box([0.42, 0.028, 0.028], [-0.68, 0.58, 0.18], materials.darkSteel));
 
   [-0.58, 0.74].forEach((x) => {
@@ -291,7 +288,6 @@ export function buildWelding(materials: Materials) {
     sparkFlecks,
     seamGlow,
     sparkLight,
-    chillerFan,
     statusBeacon,
     windowGlows,
     smokeWisps,

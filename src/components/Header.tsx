@@ -30,14 +30,14 @@ export default function Header({ onBookDemo, minimal = false, overlay = false, t
 
   return (
     <header
-      className={`${overlay ? "fixed" : "sticky"} top-0 z-[80] isolate w-full transition-all duration-500 ${
+      className={`site-header ${overlay ? "fixed" : "sticky"} top-0 z-[80] isolate w-full transition-all duration-500 ${
         transparent
           ? "border-b border-transparent bg-transparent backdrop-blur-0"
           : "border-b border-teal-500/10 bg-[rgba(2,12,14,0.8)] shadow-[0_8px_32px_rgba(0,0,0,0.24)] backdrop-blur-xl"
       }`}
     >
       <div className="mx-auto max-w-7xl px-4 md:px-6 text-[0.95rem]">
-        <div className="flex h-[70px] items-center justify-between">
+        <div className="site-header-inner flex items-center justify-between">
           <Link
             href="/"
             aria-label="NeoFab home"
@@ -101,12 +101,12 @@ export default function Header({ onBookDemo, minimal = false, overlay = false, t
         createPortal(
           <>
             <div
-              className="fixed top-[70px] left-0 right-0 bottom-0 z-[9998] bg-black/60 backdrop-blur-sm md:hidden"
+              className="site-mobile-drawer-backdrop fixed left-0 right-0 bottom-0 z-[9998] bg-black/60 backdrop-blur-sm md:hidden"
               aria-hidden
               onClick={closeMobile}
             />
             <div
-              className="fixed top-[70px] right-0 bottom-0 z-[9999] w-full max-w-[280px] bg-[#060c0e] border-l border-teal-500/10 shadow-2xl md:hidden flex flex-col overflow-y-auto"
+              className="site-mobile-drawer fixed right-0 bottom-0 z-[9999] w-full max-w-[280px] bg-[#060c0e] border-l border-teal-500/10 shadow-2xl md:hidden flex flex-col overflow-y-auto"
               role="dialog"
               aria-label="Mobile menu"
             >

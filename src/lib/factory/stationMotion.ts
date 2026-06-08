@@ -1,6 +1,80 @@
 import { lerp, smoothstep } from "./math";
 import type { RobotJointPose } from "./types";
 
+export function packagingPhase(phase01: number) {
+  const t = phase01 - Math.floor(phase01);
+  if (t < 0.08) {
+    return { seal: 0, crane: 0, stack: 0, label: 0, inbound: t / 0.08 };
+  }
+  if (t < 0.3) {
+    const p = (t - 0.08) / 0.22;
+    const eased = p * p * (3 - 2 * p);
+    return { seal: eased, crane: 0, stack: 0, label: 0, inbound: 1 };
+  }
+  if (t < 0.4) {
+    const p = (t - 0.3) / 0.1;
+    return { seal: 1, crane: 0, stack: 0, label: 0, inbound: 1 - p };
+  }
+  if (t < 0.66) {
+    const p = (t - 0.4) / 0.26;
+    const eased = p * p * (3 - 2 * p);
+    return { seal: 1 - eased * 0.4, crane: eased, stack: smoothstep(0.5, 1, eased), label: 0, inbound: 0 };
+  }
+  if (t < 0.8) {
+    const p = (t - 0.66) / 0.14;
+    return { seal: 0.6 - p * 0.6, crane: 1 - p, stack: 1, label: p, inbound: 0 };
+  }
+  const p = (t - 0.8) / 0.2;
+  return { seal: 0, crane: 0, stack: 1 - p * 0.35, label: 1 - p, inbound: 0 };
+}
+
+export function weldingPhase(phase01: number) {
+  const t = phase01 - Math.floor(phase01);
+  if (t < 0.08) {
+    const p = t / 0.08;
+    return { travel: 0, arc: 0, dwell: 0, approach: p };
+  }
+  if (t < 0.74) {
+    const p = (t - 0.08) / 0.66;
+    const eased = smoothstep(0, 1, p);
+    return { travel: eased, arc: 1, dwell: 0, approach: 1 };
+  }
+  if (t < 0.84) {
+    const p = (t - 0.74) / 0.1;
+    return { travel: 1, arc: 1 - p, dwell: p, approach: 1 };
+  }
+  if (t < 0.94) {
+    const p = (t - 0.84) / 0.1;
+    const eased = smoothstep(0, 1, p);
+    return { travel: 1 - eased, arc: 0, dwell: 1 - p, approach: 1 - p };
+  }
+  return { travel: 0, arc: 0, dwell: 0, approach: 0 };
+}
+
+export function paintBoothPhase(phase01: number) {
+  const t = phase01 - Math.floor(phase01);
+  if (t < 0.12) {
+    const p = t / 0.12;
+    return { spray: 0, uv: 0, exhaust: 0.15, inbound: p };
+  }
+  if (t < 0.48) {
+    const p = (t - 0.12) / 0.36;
+    const burst = Math.sin(p * Math.PI);
+    return { spray: burst, uv: 0, exhaust: 0.25 + p * 0.35, inbound: 1 };
+  }
+  if (t < 0.64) {
+    const p = (t - 0.48) / 0.16;
+    const eased = smoothstep(0, 1, p);
+    return { spray: (1 - eased) * 0.22, uv: eased, exhaust: 0.6, inbound: 1 - eased * 0.4 };
+  }
+  if (t < 0.86) {
+    const p = (t - 0.64) / 0.22;
+    return { spray: 0, uv: 1 - p, exhaust: 0.55 + p * 0.35, inbound: 0.6 - p * 0.6 };
+  }
+  const p = (t - 0.86) / 0.14;
+  return { spray: 0, uv: 0, exhaust: 0.9 - p * 0.55, inbound: 0 };
+}
+
 export function intakePhase(phase01: number) {
   const t = phase01 - Math.floor(phase01);
   if (t < 0.12) return { travel: 0, handoff: 0, lift: 0 };
@@ -38,6 +112,33 @@ export function pressPhase(phase01: number) {
   return { stroke: 0, impact: 0, phase: "idle" as const };
 }
 
+export function blankingPhase(phase01: number) {
+  const t = phase01 - Math.floor(phase01);
+  const press = pressPhase(phase01);
+  let feed = 0;
+  if (t < 0.1) {
+    feed = smoothstep(0.02, 0.1, t);
+  } else if (t >= 0.58) {
+    feed = smoothstep(0.58, 0.96, t);
+  }
+  const eject = press.phase === "up" ? smoothstep(0.42, 0.58, (t - 0.42) / 0.2) : 0;
+  return { ...press, feed, eject };
+}
+
+export function stampingPhase(phase01: number) {
+  const t = phase01 - Math.floor(phase01);
+  const press = pressPhase(phase01);
+  let pitch = 0;
+  if (t < 0.08) {
+    pitch = t / 0.08;
+  } else if (t >= 0.56) {
+    pitch = smoothstep(0.56, 0.94, t);
+  }
+  const stationIndex = Math.floor(phase01 * 6) % 6;
+  const stationGlow = press.phase === "dwell" || press.impact > 0.4 ? 1 : press.stroke * 0.55;
+  return { ...press, pitch, stationIndex, stationGlow, knockout: press.phase === "up" ? smoothstep(0.44, 0.58, (t - 0.42) / 0.2) : 0 };
+}
+
 export function blendArmPose(from: RobotJointPose, to: RobotJointPose, t: number): RobotJointPose {
   return {
     yaw: lerp(from.yaw, to.yaw, t),
@@ -64,7 +165,6 @@ export function pickPlacePhase(phase01: number): RobotJointPose {
   return samplePickPlaceTimeline(t, poses);
 }
 
-/** Sub-assembly: same pick/place endpoints, sweep arcs left → right with line flow. */
 export function subAssemblyPickPlacePhase(phase01: number): RobotJointPose {
   const t = phase01 - Math.floor(phase01);
   const poses = {

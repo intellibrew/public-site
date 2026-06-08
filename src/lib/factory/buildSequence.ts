@@ -24,6 +24,7 @@ import {
   tickWelding,
 } from "./stations";
 import { CLICKABLE_STATION_IDS } from "./machineRegistry";
+import { POWER_SUBSTATION_ID } from "./powerSubstation";
 import type { RevealStep } from "./types";
 
 export type FactoryBuild = {
@@ -96,6 +97,11 @@ export function makeBuildSequence(materials: Materials): FactoryBuild {
   const qcStation = conveyor.group.userData.qcStationGroup as THREE.Group | undefined;
   if (qcStation && CLICKABLE_STATION_IDS.includes("qualityCheck")) {
     stationGroups.set("qualityCheck", qcStation);
+  }
+
+  const substationGroup = shell.group.userData.powerSubstationGroup as THREE.Group | undefined;
+  if (substationGroup) {
+    stationGroups.set(POWER_SUBSTATION_ID, substationGroup);
   }
 
   const flowVisuals = buildFlowVisuals();

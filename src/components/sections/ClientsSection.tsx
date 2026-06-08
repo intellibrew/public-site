@@ -29,8 +29,11 @@ const clients: { name: string; logo: string; noInvert?: boolean }[] = [
 ];
 
 export function ClientsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
   const x = useMotionValue(0);
   const isDragging = useRef(false);
+  const isVisible = useRef(true);
+  const isPageVisible = useRef(true);
   const baseOffset = useRef(0);
   const lastClientX = useRef(0);
 
@@ -39,7 +42,7 @@ export function ClientsSection() {
     let lastTime = performance.now();
     const speed = CYCLE_WIDTH / 50;
     const loop = (now: number) => {
-      if (!isDragging.current) {
+      if (isVisible.current && isPageVisible.current && !isDragging.current) {
         const dt = (now - lastTime) / 1000;
         lastTime = now;
         let next = baseOffset.current - speed * dt;
@@ -56,6 +59,30 @@ export function ClientsSection() {
   }, [x]);
 
   useEffect(() => runAnimation(), [runAnimation]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible.current = entry.isIntersecting;
+      },
+      { rootMargin: "160px" }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      isPageVisible.current = document.visibilityState === "visible";
+    };
+    onVisibilityChange();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
@@ -93,7 +120,7 @@ export function ClientsSection() {
   }, []);
 
   return (
-    <section id="clients" className="relative bg-[#060608] py-12 sm:py-16 md:py-20 overflow-hidden">
+    <section ref={sectionRef} id="clients" className="relative bg-[#060608] py-12 sm:py-16 md:py-20 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)" }} />
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 mb-6 md:mb-10">
         <motion.p 

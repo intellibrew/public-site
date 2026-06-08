@@ -169,65 +169,120 @@ function FlowDiagramMobile() {
 }
 
 function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number; duration: number }) {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [opacity, setOpacity] = useState(0);
+  const [dot, setDot] = useState({ x: 0, y: 0, opacity: 0 });
 
   useEffect(() => {
     const path = document.getElementById(pathId) as SVGPathElement | null;
     if (!path) return;
 
     const pathLength = path.getTotalLength();
-    let animationId: number;
+    let animationId = 0;
     let startTime: number | null = null;
+    let lastDrawTime = 0;
+    let lastDot = { x: 0, y: 0, opacity: 0 };
+    let isNearViewport = !path.closest("section");
     const totalCycle = (delay + duration) * 1000;
+    const minFrameMs = 1000 / 30;
+
+    const section = path.closest("section");
+    const stop = () => {
+      if (!animationId) return;
+      cancelAnimationFrame(animationId);
+      animationId = 0;
+    };
+    const start = () => {
+      if (animationId || !isNearViewport || document.visibilityState !== "visible") return;
+      animationId = requestAnimationFrame(animate);
+    };
+    const observer = section
+      ? new IntersectionObserver(
+          ([entry]) => {
+            isNearViewport = entry.isIntersecting;
+            if (isNearViewport) {
+              start();
+            } else {
+              stop();
+            }
+          },
+          { rootMargin: "160px" }
+        )
+      : null;
+    if (section && observer) observer.observe(section);
 
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
+      animationId = 0;
+      if (!isNearViewport || document.visibilityState !== "visible") return;
+      if (timestamp - lastDrawTime < minFrameMs) {
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
+      lastDrawTime = timestamp;
+
       const elapsed = (timestamp - startTime) % totalCycle;
-      
+      let nextDot = { ...lastDot, opacity: 0 };
+
       if (elapsed < delay * 1000) {
-        setOpacity(0);
+        nextDot = { ...lastDot, opacity: 0 };
       } else {
         const progress = (elapsed - delay * 1000) / (duration * 1000);
         if (progress <= 1) {
           const point = path.getPointAtLength(progress * pathLength);
-          setPosition({ x: point.x, y: point.y });
-          
+          let opacity = 1;
           if (progress < 0.15) {
-            setOpacity(progress / 0.15);
+            opacity = progress / 0.15;
           } else if (progress > 0.85) {
-            setOpacity((1 - progress) / 0.15);
-          } else {
-            setOpacity(1);
+            opacity = (1 - progress) / 0.15;
           }
-        } else {
-          setOpacity(0);
+          nextDot = { x: point.x, y: point.y, opacity };
         }
+      }
+
+      if (
+        Math.abs(nextDot.x - lastDot.x) > 0.25 ||
+        Math.abs(nextDot.y - lastDot.y) > 0.25 ||
+        Math.abs(nextDot.opacity - lastDot.opacity) > 0.02
+      ) {
+        lastDot = nextDot;
+        setDot(nextDot);
       }
 
       animationId = requestAnimationFrame(animate);
     };
 
-    animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        start();
+      } else {
+        stop();
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    start();
+    return () => {
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      stop();
+    };
   }, [pathId, delay, duration]);
 
   return (
     <g>
       <circle
-        cx={position.x}
-        cy={position.y}
+        cx={dot.x}
+        cy={dot.y}
         r="12"
         fill="rgba(20,184,166,0.4)"
-        style={{ opacity: opacity * 0.7 }}
+        style={{ opacity: dot.opacity * 0.7 }}
       />
       <circle
-        cx={position.x}
-        cy={position.y}
+        cx={dot.x}
+        cy={dot.y}
         r="5"
         fill="rgba(153,246,228,1)"
         style={{
-          opacity,
+          opacity: dot.opacity,
           filter: "drop-shadow(0 0 6px rgba(94,234,212,1))",
         }}
       />

@@ -23,7 +23,7 @@ export default function FactoryStoryActions({
 
   return (
     <div className="factory-story-actions pointer-events-none flex justify-center">
-      <SafeAnimatePresence mode="wait">
+      <SafeAnimatePresence mode="sync">
         {showIdentify ? (
           <motion.div
             key="identify"

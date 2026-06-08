@@ -42,14 +42,13 @@ const STATIONS: Record<string, StationEntry> = {
   packaging: { build: buildPackaging, tick: tickPackaging },
 };
 
-/** Frozen animation time so moving parts stay in a neutral pose while spinning. */
 const PREVIEW_TIME_MS: Record<string, number> = {
   intake: 5200,
+  subAssembly: 4200,
   finalAssembly: 4100,
   packaging: 4800,
 };
 
-/** Per-station camera distance multiplier for large / spread-out geometry. */
 const PREVIEW_FRAMING: Record<string, number> = {
   intake: 1.55,
   finalAssembly: 1.65,
@@ -119,6 +118,7 @@ export function mountStationPreview(
   const group = entry.build(materials);
   group.scale.setScalar(1);
   group.visible = true;
+  group.userData.isPreview = true;
 
   const previewTime = PREVIEW_TIME_MS[stationId] ?? 0;
   entry.tick(group, 1, previewTime);
@@ -171,15 +171,19 @@ export function mountStationPreview(
   document.addEventListener("visibilitychange", onVisibilityChange);
 
   const startMs = performance.now();
+  let lastRenderMs = 0;
+  const minFrameMs = 1000 / 30;
 
-  const render = () => {
+  const render = (now: number) => {
     frameId = requestAnimationFrame(render);
     if (!isPageVisible) return;
+    if (now - lastRenderMs < minFrameMs) return;
+    lastRenderMs = now;
 
-    spin.rotation.y = (performance.now() - startMs) * 0.00018;
+    spin.rotation.y = (now - startMs) * 0.00018;
     renderer.render(scene, camera);
   };
-  render();
+  frameId = requestAnimationFrame(render);
 
   return {
     dispose: () => {

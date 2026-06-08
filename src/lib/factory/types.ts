@@ -11,6 +11,7 @@ export type ConveyorMover = {
   path: ConveyorPath;
   speed: number;
   offset: number;
+  lastPathT?: number;
 };
 export type ConveyorBeltSegment = {
   beltMaterial: THREE.MeshStandardMaterial;
@@ -24,11 +25,17 @@ export type BeltRig = {
 };
 export type QcRig = {
   rejectPusher: THREE.Group;
+  scannerHead: THREE.Group;
   scanBeam: THREE.Mesh;
+  scanLines: THREE.Mesh[];
+  passStrip: THREE.Mesh;
+  hmiScreen: THREE.Mesh;
   greenLamp: THREE.Mesh;
+  amberLamp: THREE.Mesh;
   redLamp: THREE.Mesh;
-  branchPulse?: THREE.Mesh;
+  scanLight: THREE.PointLight;
   rejectLight: THREE.PointLight;
+  branchPulse?: THREE.Mesh;
 };
 export type ProductShape = { width: number; height: number; depth: number };
 export type IntakeRig = {
@@ -37,25 +44,36 @@ export type IntakeRig = {
   liftTable: THREE.Group;
   scanBeam: THREE.Mesh;
   intakePulse: THREE.Mesh;
+  feederRollers: THREE.Mesh[];
+  coilStack: THREE.Mesh;
   start: THREE.Vector3;
   end: THREE.Vector3;
 };
 export type BlankingRig = {
   ramAssembly: THREE.Group;
   hydraulics: THREE.Mesh[];
+  stripFeed: THREE.Group;
   dieGlow: THREE.Mesh;
   dieBlank: THREE.Mesh;
   gateGlows: THREE.Mesh[];
   beacon: THREE.Mesh;
   statusStrip: THREE.Mesh;
+  impactLight: THREE.PointLight;
 };
 export type StampingRig = {
   ramAssembly: THREE.Group;
+  hydraulics: THREE.Mesh[];
+  feedStrip: THREE.Group;
+  stationMarkers: THREE.Mesh[];
+  knockOut: THREE.Group;
   dieGlow: THREE.Mesh;
   stampedPart: THREE.Mesh;
   sideGlow: THREE.Mesh;
   guardGlow: THREE.Mesh;
   feedPulse: THREE.Mesh;
+  beacon: THREE.Mesh;
+  statusStrip: THREE.Mesh;
+  impactLight: THREE.PointLight;
 };
 export type RobotJointPose = {
   yaw: number;
@@ -75,6 +93,8 @@ export type SubAssemblyRig = {
   transferPart: THREE.Mesh;
   sourcePulse: THREE.Mesh;
   targetPulse: THREE.Mesh;
+  sourceStagingPart: THREE.Mesh;
+  targetStackParts: THREE.Mesh[];
 };
 export type WeldingRig = {
   torchCarriage: THREE.Group;
@@ -85,13 +105,15 @@ export type WeldingRig = {
   sparkFlecks: THREE.Mesh[];
   seamGlow: THREE.Mesh;
   sparkLight: THREE.PointLight;
-  chillerFan: THREE.Mesh;
   statusBeacon: THREE.Mesh;
   windowGlows: THREE.Mesh[];
   smokeWisps: THREE.Mesh[];
 };
 export type PaintBoothRig = {
   sprayNozzles: THREE.Mesh[];
+  sideSprayCones: THREE.Mesh[];
+  exhaustRings: THREE.Mesh[];
+  indicator: THREE.Mesh;
   sprayLight: THREE.PointLight;
   uvBar: THREE.Mesh;
   beacon: THREE.Mesh;
@@ -116,6 +138,15 @@ export type PackagingRig = {
   amberLamp: THREE.Mesh;
   sealBeam: THREE.Mesh;
   packingLight: THREE.PointLight;
+  palletALayers: THREE.Mesh[];
+  palletBLayers: THREE.Mesh[];
+  inboundProduct: THREE.Mesh;
+  outboundRollers: THREE.Mesh[];
+  labelLights: THREE.Mesh[];
+  craneHome: THREE.Vector3;
+  cranePick: THREE.Vector3;
+  sealHomeY: number;
+  sealDownY: number;
 };
 export type LayoutPoint = { x: number; y: number };
 

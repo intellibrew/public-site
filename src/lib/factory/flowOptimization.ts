@@ -125,6 +125,13 @@ export function machineLiveMultiplier(baseLive: number, stationId?: string) {
   if (baseLive <= 0) return 0;
 
   if (flow.phase === "bottleneck" && stationId) {
+    const freeze = easeOutCubic(flow.bottleneckIntensity);
+    if (stationId === "intake") {
+      return baseLive * lerp(1, 0.45, freeze);
+    }
+    if (stationId === "packaging") {
+      return baseLive * lerp(1, 0.2, freeze);
+    }
     return bottleneckStationLive(baseLive, stationId, flow);
   }
 
@@ -267,82 +274,6 @@ export function flowCaption(
     default:
       return null;
   }
-}
-
-export const CONVEYOR_DESIGN_THROUGHPUT_HR = 148;
-
-export type ConveyorPanelMetrics = {
-  activeUnits: number;
-  lineSpeedPct: number;
-  productionPerHour: number;
-  cycleTimeSec: number;
-  wipLoadPct: number;
-  rejectRatePct: number;
-  lineStatus: string;
-  lineStatusTone: "normal" | "warn" | "alert" | "success";
-};
-
-export function computeConveyorPanelMetrics(flow: FlowState): ConveyorPanelMetrics {
-  const activeUnits = Math.round(flow.activeMoverCount);
-  const lineSpeedPct = Math.round(flow.conveyorLive * 100);
-  const wipLoadPct = Math.round((flow.activeMoverCount / OPTIMIZED_MOVER_COUNT) * 100);
-  const productionPerHour = Math.round(
-    CONVEYOR_DESIGN_THROUGHPUT_HR *
-      flow.conveyorLive *
-      (flow.activeMoverCount / OPTIMIZED_MOVER_COUNT)
-  );
-  const cycleTimeSec =
-    productionPerHour > 0 ? Math.round((3600 / productionPerHour) * 10) / 10 : 0;
-
-  if (flow.phase === "bottleneck" || flow.bottleneckIntensity > 0.45) {
-    return {
-      activeUnits,
-      lineSpeedPct,
-      productionPerHour,
-      cycleTimeSec,
-      wipLoadPct,
-      rejectRatePct: 10,
-      lineStatus: "Constraint detected",
-      lineStatusTone: "alert",
-    };
-  }
-
-  if (flow.phase === "optimizing") {
-    return {
-      activeUnits,
-      lineSpeedPct,
-      productionPerHour,
-      cycleTimeSec,
-      wipLoadPct,
-      rejectRatePct: 10,
-      lineStatus: "Rebalancing",
-      lineStatusTone: "normal",
-    };
-  }
-
-  if (flow.phase === "optimized") {
-    return {
-      activeUnits,
-      lineSpeedPct,
-      productionPerHour,
-      cycleTimeSec,
-      wipLoadPct,
-      rejectRatePct: 10,
-      lineStatus: "At design rate",
-      lineStatusTone: "success",
-    };
-  }
-
-  return {
-    activeUnits,
-    lineSpeedPct,
-    productionPerHour,
-    cycleTimeSec,
-    wipLoadPct,
-    rejectRatePct: 10,
-    lineStatus: "Below capacity",
-    lineStatusTone: "warn",
-  };
 }
 
 export function initialStorySnapshot(

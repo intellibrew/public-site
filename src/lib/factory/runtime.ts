@@ -20,6 +20,7 @@ import {
   updateFocusRing,
 } from "./sceneFocus";
 import { computeFlowState, dormantFlowState, type StorySnapshot } from "./flowOptimization";
+import { prepareBottleneckFxForStation } from "./flowVisuals";
 import { updateShellWallFade } from "./shellWalls";
 
 export type FactorySceneHandle = {
@@ -32,6 +33,7 @@ export type FactorySceneHandle = {
 export type FactorySceneOptions = {
   getProgress: () => number;
   getStoryActive?: () => boolean;
+  getScenePaused?: () => boolean;
   getStorySnapshot: () => StorySnapshot;
   onFocusChange?: (stationId: string | null, phase: "idle" | "entering" | "active" | "exiting") => void;
   onStationHover?: (stationId: string | null) => void;
@@ -45,6 +47,7 @@ export function mountFactoryScene(
   const {
     getProgress,
     getStoryActive,
+    getScenePaused,
     getStorySnapshot,
     onFocusChange,
     onStationHover,
@@ -83,6 +86,8 @@ export function mountFactoryScene(
 
   let focusState: FocusState | null = null;
   let lastFrameMs = performance.now();
+  let lastRevealProgress = Number.NaN;
+  let lastCameraProgress = Number.NaN;
 
   const notifyFocus = () => {
     onFocusChange?.(
@@ -101,7 +106,9 @@ export function mountFactoryScene(
       notifyFocus();
     }
     input.resetCameraOverride();
-    updateCameraForProgress(camera, controls, clamp(getProgress()));
+    const progress = clamp(getProgress());
+    updateCameraForProgress(camera, controls, progress);
+    lastCameraProgress = progress;
     controls.update();
   };
 
@@ -135,20 +142,24 @@ export function mountFactoryScene(
       notifyFocus();
     },
     isFocusActive: () => focusState !== null,
+    isDragging: () => input.isDragging(),
   });
 
   const setSize = () => {
     fitRendererToMount(mount, camera, renderer);
+    lastCameraProgress = Number.NaN;
   };
   const resizeObserver = new ResizeObserver(setSize);
   resizeObserver.observe(mount);
   setSize();
 
   updateCameraForProgress(camera, controls, 0);
+  lastCameraProgress = 0;
   updateLighting(lights, 0, performance.now(), renderer);
 
   let frameId = 0;
   let isPageVisible = document.visibilityState === "visible";
+  let prewarmedBottleneckStationId: string | null = null;
   const onVisibilityChange = () => {
     isPageVisible = document.visibilityState === "visible";
     if (isPageVisible) lastFrameMs = performance.now();
@@ -156,13 +167,21 @@ export function mountFactoryScene(
   document.addEventListener("visibilitychange", onVisibilityChange);
 
   let smoothedP = clamp(getProgress());
+  let frozenSimTimeMs: number | null = null;
 
   const render = () => {
     frameId = window.requestAnimationFrame(render);
     if (!isPageVisible) return;
 
     const now = performance.now();
-    const deltaSec = Math.min(0.05, (now - lastFrameMs) / 1000);
+    const isPaused = getScenePaused?.() ?? false;
+    if (isPaused) {
+      if (frozenSimTimeMs === null) frozenSimTimeMs = now;
+    } else {
+      frozenSimTimeMs = null;
+    }
+    const simNow = frozenSimTimeMs ?? now;
+    const deltaSec = isPaused ? 0 : Math.min(0.05, (now - lastFrameMs) / 1000);
     lastFrameMs = now;
 
     const rawP = clamp(getProgress());
@@ -171,21 +190,35 @@ export function mountFactoryScene(
     if (rawP >= 0.999) smoothedP = 1;
     const p = smoothedP;
 
-    build.steps.forEach((step) => revealPart(step, p));
+    if (
+      Number.isNaN(lastRevealProgress) ||
+      Math.abs(p - lastRevealProgress) > 0.0005 ||
+      (p === 1 && lastRevealProgress !== 1)
+    ) {
+      build.steps.forEach((step) => revealPart(step, p));
+      lastRevealProgress = p;
+    }
 
-    updateLighting(lights, p, now, renderer);
+    updateLighting(lights, p, simNow, renderer);
     const storyActive = getStoryActive?.() ?? false;
+    const storySnapshot = getStorySnapshot();
     build.flowVisuals.root.visible = storyActive;
+    if (!isPaused && storyActive && prewarmedBottleneckStationId !== storySnapshot.bottleneckStationId) {
+      const station = build.stationGroups.get(storySnapshot.bottleneckStationId);
+      if (station) {
+        prepareBottleneckFxForStation(station);
+      }
+      prewarmedBottleneckStationId = storySnapshot.bottleneckStationId;
+    }
     const flowState = storyActive
-      ? computeFlowState(getStorySnapshot(), now)
-      : dormantFlowState(getStorySnapshot());
-    build.updateMachines(p, now, flowState);
+      ? computeFlowState(storySnapshot, simNow)
+      : dormantFlowState(storySnapshot);
+    if (!isPaused) {
+      build.updateMachines(p, simNow, flowState);
+    }
 
     factoryRoot.rotation.y = 0;
     factoryRoot.scale.setScalar(1);
-    // "Rising from abyss" effect: factory lifts from -1.2 units below its
-    // authored position at p = 0 up to y = 0 at p = 1. Because p is smoothed,
-    // the rise is a fluid upward glide rather than a series of visible jumps.
     factoryRoot.position.set(0, (1 - p) * -1.2, 0);
 
     updateShellWallFade(build.shell.group, camera, {
@@ -193,7 +226,9 @@ export function mountFactoryScene(
     });
 
     const hasOverride = input.hasCameraOverride();
-    input.tickZoom();
+    if (!isPaused) {
+      input.tickZoom();
+    }
 
     if (focusState) {
       const prevPhase = focusState.phase;
@@ -206,15 +241,22 @@ export function mountFactoryScene(
       } else if (prevPhase !== focusState?.phase && focusState?.phase === "active") {
         notifyFocus();
       }
-      updateFocusRing(focusRing, focusIntensity(focusState), now);
+      updateFocusRing(focusRing, focusIntensity(focusState), simNow);
     } else {
       focusRing.visible = false;
       if (!hasOverride) {
-        updateCameraForProgress(camera, controls, p);
+        if (
+          Number.isNaN(lastCameraProgress) ||
+          Math.abs(p - lastCameraProgress) > 0.0005 ||
+          (p === 1 && lastCameraProgress !== 1)
+        ) {
+          updateCameraForProgress(camera, controls, p);
+          lastCameraProgress = p;
+        }
       }
     }
 
-    controls.update();
+    controls.update(deltaSec);
     renderer.render(scene, camera);
   };
   render();

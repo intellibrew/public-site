@@ -16,6 +16,7 @@ type BeamsProps = {
   noiseIntensity?: number;
   scale?: number;
   rotation?: number;
+  active?: boolean;
 };
 
 type ExtendedMaterialConfig = {
@@ -228,7 +229,7 @@ const MergedPlanes = forwardRef<THREE.Mesh, MergedPlanesProps>(
     const mesh = useRef<THREE.Mesh>(null);
     useImperativeHandle(ref, () => mesh.current as THREE.Mesh);
     const geometry = useMemo(
-      () => createStackedPlanesBufferGeometry(count, width, height, 0, 100),
+      () => createStackedPlanesBufferGeometry(count, width, height, 0, 64),
       [count, width, height]
     );
 
@@ -267,6 +268,7 @@ export default function Beams({
   noiseIntensity = 1.75,
   scale = 0.2,
   rotation = 0,
+  active = true,
 }: BeamsProps) {
   const beamMaterial = useMemo(
     () =>
@@ -325,7 +327,11 @@ export default function Beams({
   );
 
   return (
-    <Canvas dpr={[1, 2]} frameloop="always" className="h-full w-full">
+    <Canvas
+      dpr={[1, 1.25]}
+      frameloop={active ? "always" : "never"}
+      className="h-full w-full"
+    >
       <group rotation={[0, 0, degToRad(rotation)]}>
         <MergedPlanes
           material={beamMaterial}

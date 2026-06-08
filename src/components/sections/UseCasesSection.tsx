@@ -124,12 +124,12 @@ export function UseCasesSection() {
         }}
       />
 
-      <div ref={ref} className="relative z-10 max-w-6xl mx-auto px-6">
+      <div ref={ref} className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-20"
+          className="mb-12 text-center sm:mb-16 md:mb-20"
         >
           <motion.div
             className="flex justify-center mb-6"
@@ -140,7 +140,7 @@ export function UseCasesSection() {
             <span className="shiny-badge">Use Cases</span>
           </motion.div>
           <h2
-            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight font-orbitron mb-4"
+            className="mb-4 text-[clamp(1.75rem,5vw,3rem)] font-bold font-orbitron tracking-tight md:text-4xl lg:text-5xl"
             data-testid="text-use-cases-heading"
           >
             Where NeoFab
@@ -149,7 +149,7 @@ export function UseCasesSection() {
           </h2>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           {cases.map((item, i) => (
             <UseCaseCard key={item.title} item={item} index={i} />
           ))}

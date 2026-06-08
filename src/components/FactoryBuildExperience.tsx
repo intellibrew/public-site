@@ -9,11 +9,12 @@ import FactoryThreeScene, {
 import FactoryFlowStoryCard from "@/components/FactoryFlowStoryCard";
 import FactoryStoryActions from "@/components/FactoryStoryActions";
 import MachineHologramOverlay from "@/components/MachineHologramOverlay";
+import SubstationOverlay from "@/components/SubstationOverlay";
 import { MACHINE_MAP } from "@/lib/factory/machineRegistry";
+import { POWER_SUBSTATION_ID } from "@/lib/factory/powerSubstation";
 import {
   advanceStorySnapshot,
   computeFlowState,
-  computeConveyorPanelMetrics,
   flowCaption,
   initialStorySnapshot,
   OPTIMIZING_DURATION_MS,
@@ -31,6 +32,11 @@ type FactoryBuildExperienceProps = {
   getStoryEnabled: () => boolean;
   storyEnabled?: boolean;
   simplified?: boolean;
+  scenePaused?: boolean;
+  getScenePaused?: () => boolean;
+  showReturnToHero?: boolean;
+  onReturnToHero?: () => void;
+  dismissOverlaysRef?: React.MutableRefObject<(() => void) | null>;
 };
 
 export default function FactoryBuildExperience({
@@ -38,6 +44,11 @@ export default function FactoryBuildExperience({
   getStoryEnabled,
   storyEnabled = false,
   simplified = false,
+  scenePaused = false,
+  getScenePaused,
+  showReturnToHero = false,
+  onReturnToHero,
+  dismissOverlaysRef,
 }: FactoryBuildExperienceProps) {
   const bottleneckStationId = useMemo(() => pickRandomBottleneckStationId(), []);
   const constraintName = MACHINE_MAP.get(bottleneckStationId)?.name ?? bottleneckStationId;
@@ -56,7 +67,9 @@ export default function FactoryBuildExperience({
   const storyRef = useRef<StorySnapshot>(
     initialStorySnapshot(performance.now(), bottleneckStationId)
   );
+  const pauseStartedAtRef = useRef<number | null>(null);
   const isFocusActive = focusPhase !== "idle";
+  const isSubstationFocus = focusedStation === POWER_SUBSTATION_ID;
   const storyAnalysisEnabled = storyEnabled;
 
   const isBottleneckAlert =
@@ -74,6 +87,20 @@ export default function FactoryBuildExperience({
     focusRequestRef.current?.(null);
   }, []);
 
+  const dismissOverlays = useCallback(() => {
+    focusRequestRef.current?.(null, { immediate: true });
+    setFocusedStation(null);
+    setFocusPhase("idle");
+  }, []);
+
+  useEffect(() => {
+    if (!dismissOverlaysRef) return;
+    dismissOverlaysRef.current = dismissOverlays;
+    return () => {
+      dismissOverlaysRef.current = null;
+    };
+  }, [dismissOverlays, dismissOverlaysRef]);
+
   const handleStationHover = useCallback((stationId: string | null) => {
     setHoveredStation(stationId);
   }, []);
@@ -88,7 +115,7 @@ export default function FactoryBuildExperience({
 
   const handleIdentifyBottlenecks = useCallback(() => {
     if (storyRef.current.phase !== "underproduction") return;
-    storyRef.current = advanceStorySnapshot(storyRef.current, "bottleneck");
+    storyRef.current = advanceStorySnapshot(storyRef.current, "bottleneck", performance.now() - 180);
     setStoryPhase("bottleneck");
   }, []);
 
@@ -100,46 +127,41 @@ export default function FactoryBuildExperience({
   }, [storyAnalysisEnabled, bottleneckStationId]);
 
   useEffect(() => {
-    if (!storyAnalysisEnabled) return;
+    if (!scenePaused) {
+      if (pauseStartedAtRef.current !== null) {
+        const pausedFor = performance.now() - pauseStartedAtRef.current;
+        storyRef.current = {
+          ...storyRef.current,
+          phaseStartedAt: storyRef.current.phaseStartedAt + pausedFor,
+        };
+        pauseStartedAtRef.current = null;
+      }
+      return;
+    }
+
+    if (pauseStartedAtRef.current === null) {
+      pauseStartedAtRef.current = performance.now();
+    }
+  }, [scenePaused]);
+
+  useEffect(() => {
+    if (!storyAnalysisEnabled || scenePaused) return;
     if (storyPhase !== "optimizing") return;
+    const elapsed = performance.now() - storyRef.current.phaseStartedAt;
+    const remaining = Math.max(0, OPTIMIZING_DURATION_MS - elapsed);
     const optimizedTimer = window.setTimeout(() => {
       storyRef.current = advanceStorySnapshot(storyRef.current, "optimized");
       setStoryPhase("optimized");
-    }, OPTIMIZING_DURATION_MS);
+    }, remaining);
     return () => window.clearTimeout(optimizedTimer);
-  }, [storyAnalysisEnabled, storyPhase]);
+  }, [storyAnalysisEnabled, storyPhase, scenePaused]);
 
   useEffect(() => {
     if (!storyAnalysisEnabled) return;
 
-    let frameId = 0;
-    let lastPhase = storyRef.current.phase;
-    let lastCaptionKey = "";
-
-    const tick = () => {
-      const now = performance.now();
-      const flow = computeFlowState(storyRef.current, now);
-      const phase = storyRef.current.phase;
-
-      if (phase !== lastPhase) {
-        lastPhase = phase;
-        setStoryPhase(phase);
-      }
-
-      const caption = flowCaption(flow, storyRef.current);
-      const captionKey = caption ? `${caption.label}|${caption.detail}` : "";
-      if (captionKey !== lastCaptionKey) {
-        lastCaptionKey = captionKey;
-        setFlowCaptionText(caption);
-      }
-
-      computeConveyorPanelMetrics(flow);
-
-      frameId = window.requestAnimationFrame(tick);
-    };
-    frameId = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frameId);
-  }, [storyAnalysisEnabled]);
+    const flow = computeFlowState(storyRef.current, performance.now());
+    setFlowCaptionText(flowCaption(flow, storyRef.current));
+  }, [storyAnalysisEnabled, storyPhase]);
 
   const hintText = (() => {
     if (isFocusActive) return null;
@@ -150,10 +172,12 @@ export default function FactoryBuildExperience({
     }
     if (storyPhase === "optimizing") return "Optimising factory flow…";
     if (storyPhase === "optimized") {
+      if (hoveredStation === POWER_SUBSTATION_ID) return "Inspect · Main Distribution";
       return hoveredStation
         ? `Inspect · ${MACHINE_MAP.get(hoveredStation)?.name ?? hoveredStation}`
         : "Full production flow - click any machine to inspect";
     }
+    if (hoveredStation === POWER_SUBSTATION_ID) return "Inspect · Main Distribution";
     return "Press Identify bottlenecks to scan the line for constraints";
   })();
 
@@ -164,10 +188,31 @@ export default function FactoryBuildExperience({
       <div aria-hidden className="factory-scene-backdrop pointer-events-none absolute inset-0 z-0" />
       <div aria-hidden className="factory-ambient-light factory-ambient-light--teal pointer-events-none absolute inset-0 z-[1]" />
 
+      {showReturnToHero && onReturnToHero && !isFocusActive && (
+        <button
+          type="button"
+          onClick={onReturnToHero}
+          className="factory-return-hero pointer-events-auto z-[36]"
+          aria-label="Return to hero"
+        >
+          <svg className="factory-return-hero-icon" viewBox="0 0 12 8" aria-hidden>
+            <path
+              d="M1.5 6.5L6 2l4.5 4.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
+
       <div className="factory-stage pointer-events-auto relative z-10 h-full w-full overflow-hidden">
         <FactoryThreeScene
           getBuildProgress={getBuildProgress}
           getStoryActive={getStoryEnabled}
+          getScenePaused={getScenePaused}
           storyRef={storyRef}
           onFocusChange={handleFocusChange}
           onStationHover={handleStationHover}
@@ -175,11 +220,19 @@ export default function FactoryBuildExperience({
           simplified={simplified}
         />
 
+        <SubstationOverlay
+          visible={isFocusActive && isSubstationFocus}
+          storyPhase={storyPhase}
+          onClose={handleCloseFocus}
+        />
+
         <MachineHologramOverlay
           stationId={focusedStation}
-          visible={isFocusActive}
+          visible={isFocusActive && !isSubstationFocus}
           variant={isBottleneckAlert ? "bottleneck" : "inspect"}
           showBottleneckAnalysis
+          storyPhase={storyPhase}
+          bottleneckStationId={bottleneckStationId}
           onClose={handleCloseFocus}
           onOptimize={
             storyAnalysisEnabled && storyPhase === "bottleneck"
@@ -188,12 +241,14 @@ export default function FactoryBuildExperience({
           }
         />
 
-        <SafeAnimatePresence mode="wait">
+        <SafeAnimatePresence mode="sync">
           {storyAnalysisEnabled && !isFocusActive && flowCaptionText && storyPhase !== "optimizing" && (
             <motion.div
               key={`${storyPhase}-${flowCaptionText.detail}`}
-              initial={{ opacity: 1 }}
-              exit={{ opacity: 0, x: -10, transition: { duration: 0.28, ease: [0.4, 0, 1, 1] } }}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
               className="ffs-presence-wrap"
             >
               <FactoryFlowStoryCard
@@ -205,21 +260,21 @@ export default function FactoryBuildExperience({
           )}
         </SafeAnimatePresence>
 
-        <div className="factory-story-stack pointer-events-none absolute inset-x-0 bottom-4 z-[25] flex flex-col items-center gap-2 px-4">
+        <div className="factory-story-stack pointer-events-none absolute inset-x-0 z-[25] flex flex-col items-center">
           <FactoryStoryActions
             storyPhase={storyPhase}
             visible={storyAnalysisEnabled && !isFocusActive}
             onIdentifyBottlenecks={handleIdentifyBottlenecks}
           />
 
-          <SafeAnimatePresence mode="wait">
+          <SafeAnimatePresence mode="sync">
             {storyAnalysisEnabled && !isFocusActive && hintText && (
               <motion.div
                 key={hintText}
                 initial={{ opacity: 0, y: 10, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                transition={{ delay: 0.25, duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
                 className={`factory-machine-hint ${storyPhase === "bottleneck" ? "factory-machine-hint--alert" : ""}`}
               >
                 <span className="factory-machine-hint-dot" />

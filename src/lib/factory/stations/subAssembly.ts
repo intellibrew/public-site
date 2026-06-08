@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { smoothstep } from "../math";
 import { box, cylinder, sphere, torus, beltTurnQuarter, prepareBeltMaterial } from "../mesh";
 import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
@@ -8,16 +7,49 @@ import { applyProductShape, makeProduct, PRODUCT_SHAPE_CUBE } from "../products"
 import { subAssemblyPickPlacePhase } from "../stationMotion";
 import type { SubAssemblyRig } from "../types";
 import { machineLiveMultiplier } from "../flowOptimization";
-import { stationAnimationTime } from "../flowAnimation";
+import { stationAnimationTime, stationBaseLive } from "../flowAnimation";
+import {
+  advanceSubAssemblyFlow,
+  subAssemblyPreviewSnapshot,
+} from "../subAssemblyFlow";
+
+function applyTargetStack(
+  parts: THREE.Mesh[],
+  visibleStack: number,
+  live: number
+) {
+  const fullLayers = Math.floor(visibleStack);
+  const partial = visibleStack - fullLayers;
+
+  parts.forEach((part, index) => {
+    if (index < fullLayers) {
+      part.visible = live > 0.05;
+      part.scale.setScalar(1);
+      return;
+    }
+    if (index === fullLayers && partial > 0.02) {
+      part.visible = live > 0.05;
+      part.scale.setScalar(0.35 + partial * 0.65);
+      return;
+    }
+    part.visible = false;
+    part.scale.setScalar(0.35);
+  });
+}
 
 export function tickSubAssembly(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.subAssemblyRig as SubAssemblyRig | undefined;
   if (!rig) return;
 
-  const baseLive = smoothstep(0.78, 0.95, progress);
+  const baseLive = stationBaseLive(progress, "subAssembly");
   const live = machineLiveMultiplier(baseLive, "subAssembly");
   const animMs = stationAnimationTime(group, elapsedMs, "subAssembly", baseLive);
-  const pose = subAssemblyPickPlacePhase(animMs * 0.0002);
+
+  const flow = group.userData.isPreview
+    ? subAssemblyPreviewSnapshot()
+    : advanceSubAssemblyFlow(elapsedMs, live);
+
+  const pose = subAssemblyPickPlacePhase(flow.cycleProgress);
 
   rig.baseYaw.rotation.y = pose.yaw * live;
   rig.shoulder.rotation.z = pose.shoulder * live;
@@ -30,14 +62,22 @@ export function tickSubAssembly(group: THREE.Group, progress: number, elapsedMs:
   rig.transferPart.visible = pose.carry > 0.5 && live > 0.08;
   rig.transferPart.scale.setScalar(0.88 + pose.carry * 0.18 * live);
 
-  const sourceActive = 1 - smoothstep(0.18, 0.42, pose.carry);
-  const targetActive = smoothstep(0.55, 0.82, pose.carry);
+  rig.sourceStagingPart.visible =
+    flow.sourceReady && pose.carry < 0.5 && live > 0.05;
+  rig.sourceStagingPart.scale.setScalar(0.9 + Math.sin(animMs * 0.004) * 0.04 * live);
+
+  applyTargetStack(rig.targetStackParts, flow.targetStack, live);
+
+  const sourceActive =
+    flow.sourceReady || (flow.phase === "picking" && flow.cycleProgress < 0.3);
+  const targetActive =
+    flow.phase === "picking" && flow.cycleProgress > 0.42 && flow.cycleProgress < 0.82;
   const sourceMat = rig.sourcePulse.material as THREE.MeshStandardMaterial;
   const targetMat = rig.targetPulse.material as THREE.MeshStandardMaterial;
-  sourceMat.opacity = (0.12 + sourceActive * 0.38) * live;
-  sourceMat.emissiveIntensity = sourceActive * 1.1 * live;
-  targetMat.opacity = (0.1 + targetActive * 0.42) * live;
-  targetMat.emissiveIntensity = targetActive * 1.2 * live;
+  sourceMat.opacity = (0.12 + (sourceActive ? 0.38 : 0)) * live;
+  sourceMat.emissiveIntensity = (sourceActive ? 1.1 : 0.15) * live;
+  targetMat.opacity = (0.1 + (targetActive ? 0.42 : 0.08)) * live;
+  targetMat.emissiveIntensity = (targetActive ? 1.2 : 0.2) * live;
 }
 
 export function buildSubAssembly(materials: Materials) {
@@ -91,6 +131,26 @@ export function buildSubAssembly(materials: Materials) {
   sourcePulseMat.opacity = 0.24;
   targetPulseMat.opacity = 0.18;
   group.add(sourcePulse, targetPulse);
+
+  const sourceStagingPart = makeProduct(materials.machineLight, [0, beltY + 0.08, armLen + 0.02]);
+  applyProductShape(sourceStagingPart, PRODUCT_SHAPE_CUBE);
+  sourceStagingPart.visible = false;
+  group.add(sourceStagingPart);
+
+  const targetStackParts: THREE.Mesh[] = [];
+  const targetX = -armLen - 0.06;
+  const targetZ = 0;
+  for (let i = 0; i < 4; i += 1) {
+    const stackPart = makeProduct(
+      i % 2 === 0 ? materials.enamel : materials.machineLight,
+      [targetX, beltY + 0.08 + i * 0.09, targetZ]
+    );
+    applyProductShape(stackPart, PRODUCT_SHAPE_CUBE);
+    stackPart.visible = false;
+    stackPart.scale.setScalar(0.82);
+    targetStackParts.push(stackPart);
+    group.add(stackPart);
+  }
 
   const armMount = new THREE.Group();
   armMount.position.set(0, 0.45, 0);
@@ -164,6 +224,8 @@ export function buildSubAssembly(materials: Materials) {
     transferPart,
     sourcePulse,
     targetPulse,
+    sourceStagingPart,
+    targetStackParts,
   } satisfies SubAssemblyRig;
 
   return group;

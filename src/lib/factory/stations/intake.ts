@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { lerpVector, smoothstep } from "../math";
+import { lerpVector } from "../math";
 import { box, cylinder } from "../mesh";
 import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
@@ -8,20 +8,20 @@ import { applyProductShape, makeProduct, PRODUCT_SHAPE_RECTANGLE } from "../prod
 import { intakePhase } from "../stationMotion";
 import type { IntakeRig } from "../types";
 import { machineLiveMultiplier } from "../flowOptimization";
-import { stationAnimationTime } from "../flowAnimation";
+import { stationAnimationTime, stationBaseLive } from "../flowAnimation";
 
 export function tickIntake(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.intakeRig as IntakeRig | undefined;
   if (!rig) return;
 
-  const baseLive = smoothstep(0.78, 0.95, progress);
+  const baseLive = stationBaseLive(progress, "intake");
   const live = machineLiveMultiplier(baseLive, "intake");
   const animMs = stationAnimationTime(group, elapsedMs, "intake", baseLive);
   const cycle = intakePhase(animMs * 0.00038);
   const travel = cycle.travel * live;
   const pos = lerpVector(rig.start, rig.end, travel);
   rig.carrier.position.set(pos.x, 0.128 + cycle.lift * 0.04 * live, pos.z);
-  rig.carrierLoad.visible = travel > 0.04;
+  rig.carrierLoad.visible = travel > 0.04 && live > 0.05;
   applyProductShape(rig.carrierLoad, PRODUCT_SHAPE_RECTANGLE);
   rig.carrierLoad.position.y = 0.146 + PRODUCT_SHAPE_RECTANGLE.height / 2;
 
@@ -37,6 +37,16 @@ export function tickIntake(group: THREE.Group, progress: number, elapsedMs: numb
   const scanMat = rig.scanBeam.material as THREE.MeshStandardMaterial;
   scanMat.opacity = (0.08 + cycle.handoff * 0.42) * live;
   scanMat.emissiveIntensity = (0.2 + cycle.handoff * 2.8) * live;
+
+  const feederSpin = animMs * 0.0042 * live;
+  rig.feederRollers.forEach((roller, index) => {
+    roller.rotation.x = feederSpin * (index % 2 === 0 ? 1 : -1);
+  });
+
+  const coilMat = rig.coilStack.material as THREE.MeshStandardMaterial;
+  const coilPulse = 0.5 + Math.sin(animMs * 0.0036) * 0.5;
+  rig.coilStack.scale.setScalar(0.96 + coilPulse * 0.05 * live);
+  coilMat.emissiveIntensity = (0.08 + coilPulse * 0.18 + cycle.handoff * 0.35) * live;
 }
 
 export function buildIntake(materials: Materials) {
@@ -46,6 +56,8 @@ export function buildIntake(materials: Materials) {
   const padCenter = layoutPoint(inputStation.pad);
   const padW = inputStation.pad.width;
   const padD = inputStation.pad.depth;
+  const mergeX = firstConveyorPoint.x + 0.18;
+  const handoffZ = firstConveyorPoint.z;
 
   group.add(box([padW, 0.038, padD], [padCenter.x, 0.026, padCenter.z], materials.machineDark, false));
   group.add(box([padW * 0.92, 0.014, padD * 0.88], [padCenter.x, 0.058, padCenter.z], materials.zone, false));
@@ -76,7 +88,7 @@ export function buildIntake(materials: Materials) {
       group.add(cylinder(stack.depth * 0.1, stack.depth * 0.1, stack.width * 0.76, [center.x, 0.14, center.z], materials.darkSteel, 12));
       group.add(box([stack.width * 0.78, 0.014, 0.028], [center.x, 0.14, center.z + stack.depth * 0.22], materials.steel));
       group.add(box([stack.width * 0.78, 0.014, 0.028], [center.x, 0.14, center.z - stack.depth * 0.22], materials.steel));
-      return;
+      return coil;
     }
 
     const columns = Math.max(1, stack.columns);
@@ -92,11 +104,14 @@ export function buildIntake(materials: Materials) {
         group.add(box([boxWidth * 0.92, 0.008, 0.018], [center.x + offsetX, 0.104 + layer * 0.104, center.z + stack.depth * 0.3], materials.steel));
       }
     }
+    return null;
   };
 
-  inputStation.stacks.forEach((stack, index) => addInputStack(stack, index === 0 ? "coil" : "crate"));
+  const coilStack =
+    inputStation.stacks.map((stack, index) => addInputStack(stack, index === 0 ? "coil" : "crate"))[0] ??
+    cylinder(0.2, 0.2, 0.5, [padCenter.x, 0.14, padCenter.z], materials.machineLight, 16);
 
-  const dockCenter = new THREE.Vector3(firstConveyorPoint.x - 0.42, 0, firstConveyorPoint.z + 0.02);
+  const dockCenter = new THREE.Vector3(firstConveyorPoint.x - 0.42, 0, handoffZ);
   group.add(box([1.12, 0.08, 0.72], [dockCenter.x, 0.052, dockCenter.z], materials.machineDark));
   group.add(box([0.96, 0.016, 0.58], [dockCenter.x, 0.1, dockCenter.z], materials.zone));
 
@@ -131,26 +146,27 @@ export function buildIntake(materials: Materials) {
 
   const feederMidX = (padCenter.x + dockCenter.x) / 2 + 0.12;
   const feederLen = Math.abs(dockCenter.x - padCenter.x) + 0.52;
-  group.add(box([feederLen, 0.014, 0.22], [feederMidX, 0.092, firstConveyorPoint.z], materials.belt, false));
+  group.add(box([feederLen, 0.014, 0.22], [feederMidX, 0.092, handoffZ], materials.belt, false));
+  const feederRollers: THREE.Mesh[] = [];
   for (let i = -4; i <= 4; i += 1) {
-    const roller = cylinder(0.018, 0.018, 0.2, [feederMidX + i * (feederLen / 9), 0.098, firstConveyorPoint.z], materials.steel, 8);
+    const roller = cylinder(0.018, 0.018, 0.2, [feederMidX + i * (feederLen / 9), 0.098, handoffZ], materials.steel, 8);
     roller.rotation.z = Math.PI / 2;
+    feederRollers.push(roller);
     group.add(roller);
   }
 
-  const mergeX = firstConveyorPoint.x + 0.18;
   [-0.18, 0.18].forEach((z) => {
-    group.add(box([0.05, 0.62, 0.05], [mergeX, 0.34, firstConveyorPoint.z + z], materials.machineDark));
+    group.add(box([0.05, 0.62, 0.05], [mergeX, 0.34, handoffZ + z], materials.machineDark));
   });
-  group.add(box([0.08, 0.05, 0.42], [mergeX, 0.66, firstConveyorPoint.z], materials.darkSteel));
-  const scanBeam = box([0.04, 0.04, 0.36], [mergeX, 0.34, firstConveyorPoint.z], materials.safetyGlass);
+  group.add(box([0.08, 0.05, 0.42], [mergeX, 0.66, handoffZ], materials.darkSteel));
+  const scanBeam = box([0.04, 0.04, 0.36], [mergeX, 0.34, handoffZ], materials.safetyGlass);
   const scanMat = scanBeam.material as THREE.MeshStandardMaterial;
   scanMat.transparent = true;
   scanMat.opacity = 0.1;
   scanMat.emissiveIntensity = 0.25;
   group.add(scanBeam);
 
-  const intakePulse = cylinder(0.11, 0.11, 0.012, [mergeX, 0.112, firstConveyorPoint.z], materials.safetyGlass, 20);
+  const intakePulse = cylinder(0.11, 0.11, 0.012, [mergeX, 0.112, handoffZ], materials.safetyGlass, 20);
   const pulseMat = intakePulse.material as THREE.MeshStandardMaterial;
   pulseMat.opacity = 0.18;
   pulseMat.emissiveIntensity = 0.4;
@@ -187,8 +203,10 @@ export function buildIntake(materials: Materials) {
     liftTable,
     scanBeam,
     intakePulse,
-    start: new THREE.Vector3(padCenter.x + 0.42, 0, firstConveyorPoint.z),
-    end: new THREE.Vector3(dockCenter.x - 0.08, 0, firstConveyorPoint.z),
+    feederRollers,
+    coilStack,
+    start: new THREE.Vector3(padCenter.x + 0.42, 0, handoffZ),
+    end: new THREE.Vector3(mergeX - 0.06, 0, handoffZ),
   } satisfies IntakeRig;
 
   return group;

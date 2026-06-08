@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import type { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { CANVAS_EVENTS_TO_STOP, CTRL_WHEEL_ZOOM } from "./sceneConfig";
+import { CANVAS_EVENTS_TO_STOP, CTRL_WHEEL_ZOOM, POINTER_DRAG_THRESHOLD_SQ } from "./sceneConfig";
 
 type SceneInputOptions = {
   camera: THREE.PerspectiveCamera;
@@ -12,15 +12,40 @@ type SceneInputOptions = {
 
 export function bindSceneInput({ camera, controls, element, onResetView, getIsInteractive }: SceneInputOptions) {
   let cameraOverride = false;
+  let isDragging = false;
+  let activePointer: { x: number; y: number; id: number } | null = null;
   let targetZoomDistance: number | null = null;
   let lastTapTime = 0;
+  const zoomOffset = new THREE.Vector3();
   const stopPropagation = (event: Event) => event.stopPropagation();
+
+  const onPointerDown = (event: PointerEvent) => {
+    activePointer = { x: event.clientX, y: event.clientY, id: event.pointerId };
+    isDragging = false;
+  };
+
+  const onPointerMove = (event: PointerEvent) => {
+    if (!activePointer || event.pointerId !== activePointer.id || isDragging) return;
+    const dx = event.clientX - activePointer.x;
+    const dy = event.clientY - activePointer.y;
+    if (dx * dx + dy * dy >= POINTER_DRAG_THRESHOLD_SQ) {
+      isDragging = true;
+    }
+  };
+
+  const onPointerUp = (event: PointerEvent) => {
+    if (!activePointer || event.pointerId !== activePointer.id) return;
+    activePointer = null;
+    isDragging = false;
+  };
 
   const onControlStart = () => {
     cameraOverride = true;
+    controls.enableDamping = false;
     element.style.cursor = "grabbing";
   };
   const onControlEnd = () => {
+    controls.enableDamping = false;
     element.style.cursor = "grab";
   };
   const onWheel = (event: WheelEvent) => {
@@ -29,8 +54,8 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
     event.stopPropagation();
 
     cameraOverride = true;
-    const offset = camera.position.clone().sub(controls.target);
-    const currentDistance = targetZoomDistance ?? offset.length();
+    zoomOffset.copy(camera.position).sub(controls.target);
+    const currentDistance = targetZoomDistance ?? zoomOffset.length();
     targetZoomDistance = THREE.MathUtils.clamp(
       currentDistance * (1 + event.deltaY * CTRL_WHEEL_ZOOM.speed),
       CTRL_WHEEL_ZOOM.minDistance,
@@ -41,8 +66,8 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
   const tickZoom = () => {
     if (targetZoomDistance === null) return;
 
-    const offset = camera.position.clone().sub(controls.target);
-    const currentDistance = offset.length();
+    zoomOffset.copy(camera.position).sub(controls.target);
+    const currentDistance = zoomOffset.length();
     const nextDistance = THREE.MathUtils.lerp(
       currentDistance,
       targetZoomDistance,
@@ -50,13 +75,13 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
     );
 
     if (Math.abs(nextDistance - targetZoomDistance) < 0.004) {
-      offset.setLength(targetZoomDistance);
+      zoomOffset.setLength(targetZoomDistance);
       targetZoomDistance = null;
     } else {
-      offset.setLength(nextDistance);
+      zoomOffset.setLength(nextDistance);
     }
 
-    camera.position.copy(controls.target).add(offset);
+    camera.position.copy(controls.target).add(zoomOffset);
   };
 
   const onDoubleClick = (event: MouseEvent) => {
@@ -79,6 +104,10 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
   controls.addEventListener("start", onControlStart);
   controls.addEventListener("end", onControlEnd);
   element.style.cursor = "grab";
+  element.addEventListener("pointerdown", onPointerDown);
+  element.addEventListener("pointermove", onPointerMove);
+  element.addEventListener("pointerup", onPointerUp);
+  element.addEventListener("pointercancel", onPointerUp);
   CANVAS_EVENTS_TO_STOP.forEach((eventName) => {
     element.addEventListener(eventName, stopPropagation);
   });
@@ -88,14 +117,22 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
 
   return {
     hasCameraOverride: () => cameraOverride,
+    isDragging: () => isDragging,
     resetCameraOverride: () => {
       cameraOverride = false;
+      isDragging = false;
+      activePointer = null;
+      controls.enableDamping = false;
       targetZoomDistance = null;
     },
     tickZoom,
     dispose: () => {
       controls.removeEventListener("start", onControlStart);
       controls.removeEventListener("end", onControlEnd);
+      element.removeEventListener("pointerdown", onPointerDown);
+      element.removeEventListener("pointermove", onPointerMove);
+      element.removeEventListener("pointerup", onPointerUp);
+      element.removeEventListener("pointercancel", onPointerUp);
       CANVAS_EVENTS_TO_STOP.forEach((eventName) => {
         element.removeEventListener(eventName, stopPropagation);
       });

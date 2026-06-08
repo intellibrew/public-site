@@ -1,41 +1,64 @@
 import * as THREE from "three";
-import { smoothstep } from "../math";
 import { box, cylinder } from "../mesh";
 import { prepGroup } from "../reveal";
 import { LAYOUT, layoutPoint } from "../layout";
 import type { Materials } from "../materials";
 import type { PaintBoothRig } from "../types";
 import { machineLiveMultiplier } from "../flowOptimization";
-import { stationAnimationTime } from "../flowAnimation";
+import { stationAnimationTime, stationBaseLive } from "../flowAnimation";
+import { paintBoothPhase } from "../stationMotion";
 
 export function tickPaintBooth(group: THREE.Group, progress: number, elapsedMs: number) {
   const rig = group.userData.paintRig as PaintBoothRig | undefined;
   if (!rig) return;
 
-  const baseLive = smoothstep(0.78, 0.95, progress);
+  const baseLive = stationBaseLive(progress, "paint");
   const live = machineLiveMultiplier(baseLive, "paint");
   const animMs = stationAnimationTime(group, elapsedMs, "paint", baseLive);
-  const phase = animMs * 0.00088;
-  const sprayPulse = (Math.sin(phase * 2.6) * 0.5 + 0.5) * live;
-  const flicker = (Math.sin(phase * 21) * 0.28 + Math.sin(phase * 37 + 1.1) * 0.18 + 0.54);
+  const cycle = paintBoothPhase(animMs * 0.00062);
+  const flicker =
+    Math.sin(animMs * 0.021) * 0.28 + Math.sin(animMs * 0.037 + 1.1) * 0.18 + 0.54;
 
   rig.sprayNozzles.forEach((cone, index) => {
     const coneMat = cone.material as THREE.MeshStandardMaterial;
-    const wave = Math.sin(phase * 4.2 + index * 0.45) * 0.5 + 0.5;
-    coneMat.opacity = (0.06 + wave * 0.28 + sprayPulse * 0.14) * live;
-    coneMat.emissiveIntensity = (0.18 + wave * 0.9 + sprayPulse * 0.4) * live;
-    cone.scale.y = 0.55 + wave * 0.7 * live;
+    const wave = Math.sin(animMs * 0.0042 + index * 0.45) * 0.5 + 0.5;
+    const spray = cycle.spray * (0.55 + wave * 0.45);
+    coneMat.opacity = (0.04 + spray * 0.34 + flicker * 0.06) * live;
+    coneMat.emissiveIntensity = (0.12 + spray * 1.15 + flicker * 0.18) * live;
+    cone.scale.y = 0.45 + spray * 0.85 * live;
   });
 
-  rig.sprayLight.intensity = (0.22 + sprayPulse * 1.65 + flicker * 0.45) * live;
+  rig.sideSprayCones.forEach((cone, index) => {
+    const coneMat = cone.material as THREE.MeshStandardMaterial;
+    const wave = Math.sin(animMs * 0.0036 + index * 1.2) * 0.5 + 0.5;
+    const spray = cycle.spray * (0.4 + wave * 0.6);
+    coneMat.opacity = (0.05 + spray * 0.28) * live;
+    coneMat.emissiveIntensity = (0.15 + spray * 0.95) * live;
+    cone.scale.x = 0.5 + spray * 0.9 * live;
+  });
+
+  rig.exhaustRings.forEach((ring) => {
+    const ringMat = ring.material as THREE.MeshStandardMaterial;
+    ringMat.opacity = (0.22 + cycle.exhaust * 0.48) * live;
+    ringMat.emissiveIntensity = (0.35 + cycle.exhaust * 1.1) * live;
+  });
+
+  rig.sprayLight.intensity = (0.18 + cycle.spray * 1.85 + cycle.uv * 0.35 + flicker * 0.35) * live;
 
   const uvMat = rig.uvBar.material as THREE.MeshStandardMaterial;
-  uvMat.emissiveIntensity = (1.4 + Math.sin(phase * 3.8) * 0.5) * live;
+  uvMat.emissiveIntensity = (0.35 + cycle.uv * 1.65 + cycle.spray * 0.25) * live;
+  uvMat.opacity = 0.55 + cycle.uv * 0.45 * live;
+
+  const indMat = rig.indicator.material as THREE.MeshStandardMaterial;
+  indMat.emissiveIntensity = (0.45 + cycle.spray * 1.2 + cycle.uv * 0.8) * live;
+  indMat.opacity = (0.55 + cycle.inbound * 0.35) * live;
 
   const beaconMat = rig.beacon.material as THREE.MeshStandardMaterial;
-  beaconMat.opacity = (0.24 + sprayPulse * 0.52) * live;
-  beaconMat.emissiveIntensity = (0.28 + sprayPulse * 1.4) * live;
-  rig.beacon.scale.setScalar(0.88 + sprayPulse * 0.22);
+  const curing = cycle.uv > 0.2;
+  beaconMat.emissive.setHex(curing ? 0x38bdf8 : 0x22c55e);
+  beaconMat.opacity = (0.22 + (cycle.spray * 0.42 + cycle.uv * 0.38)) * live;
+  beaconMat.emissiveIntensity = (0.28 + cycle.spray * 1.1 + cycle.uv * 1.35) * live;
+  rig.beacon.scale.setScalar(0.86 + (cycle.spray + cycle.uv) * 0.16 * live);
 }
 
 export function buildPaintBooth(materials: Materials) {
@@ -107,8 +130,11 @@ export function buildPaintBooth(materials: Materials) {
   uvBarMat.color.setHex(0x86efac);
   uvBarMat.emissive.setHex(0x4ade80);
   uvBarMat.emissiveIntensity = 1.8;
+  uvBarMat.transparent = true;
+  uvBarMat.opacity = 0.55;
   group.add(uvBar);
 
+  const sideSprayCones: THREE.Mesh[] = [];
   [-0.76, 0.76].forEach((sx) => {
     const armDir = sx < 0 ? 1 : -1;
     const sideArm = cylinder(0.022, 0.022, 0.56, [sx + armDir * 0.28, 0.82, cz], materials.steel, 8);
@@ -117,15 +143,26 @@ export function buildPaintBooth(materials: Materials) {
     const sideNozzle = cylinder(0.032, 0.012, 0.08, [sx, 0.82, cz], materials.machineLight, 8);
     sideNozzle.rotation.z = sx < 0 ? -Math.PI / 2 : Math.PI / 2;
     group.add(sideNozzle);
+    const sideCone = cylinder(0.008, 0.09, 0.22, [sx + armDir * 0.12, 0.82, cz], materials.paintGreen, 8);
+    sideCone.rotation.z = sx < 0 ? -Math.PI / 2 : Math.PI / 2;
+    const sideConeMat = sideCone.material as THREE.MeshStandardMaterial;
+    sideConeMat.transparent = true;
+    sideConeMat.opacity = 0.14;
+    sideConeMat.emissiveIntensity = 0.45;
+    sideSprayCones.push(sideCone);
+    group.add(sideCone);
   });
 
+  const exhaustRings: THREE.Mesh[] = [];
   [-0.3, 0.3].forEach((sx) => {
     group.add(cylinder(0.082, 0.098, 0.48, [sx, colH + 0.44, cz], materials.machineDark, 12));
     const fanCap = cylinder(0.13, 0.13, 0.038, [sx, colH + 0.7, cz], materials.steel, 14);
     group.add(fanCap);
     const exhaustRing = cylinder(0.096, 0.096, 0.008, [sx, colH + 0.69, cz], materials.paintGreen, 14);
     const exMat = exhaustRing.material as THREE.MeshStandardMaterial;
+    exMat.transparent = true;
     exMat.opacity = 0.55;
+    exhaustRings.push(exhaustRing);
     group.add(exhaustRing);
   });
 
@@ -155,6 +192,9 @@ export function buildPaintBooth(materials: Materials) {
 
   group.userData.paintRig = {
     sprayNozzles,
+    sideSprayCones,
+    exhaustRings,
+    indicator,
     sprayLight,
     uvBar,
     beacon,

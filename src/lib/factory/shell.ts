@@ -4,6 +4,7 @@ import { prepGroup } from "./reveal";
 import type { Materials } from "./materials";
 import { FLOOR_GRID_CELL } from "./materials";
 import { tagShellWallMesh } from "./shellWalls";
+import { buildPowerSubstation } from "./powerSubstation";
 
 function addFloorGrid(
   group: THREE.Group,
@@ -119,7 +120,6 @@ export function buildShell(materials: Materials) {
     )
   );
 
-  // Modular inset panel language so the L-shell reads as intentional architecture.
   for (const y of [0.62, 1.26]) {
     for (let x = -5.6; x <= 5.6; x += 2.36) {
       group.add(
@@ -221,6 +221,10 @@ export function buildShell(materials: Materials) {
       )
     );
   }
+
+  const substation = buildPowerSubstation(materials, backZ);
+  group.add(substation);
+  group.userData.powerSubstationGroup = substation;
 
   group.userData.overheadLights = [] as THREE.PointLight[];
   group.userData.overheadLenses = [] as THREE.MeshStandardMaterial[];
