@@ -1399,9 +1399,12 @@ h3 {
 }
 
 .holo-overlay .holo-tablet--compact {
+  display: flex;
+  flex-direction: column;
   width: min(100%, 520px);
-  height: auto;
+  height: min(var(--holo-tablet-max-h), 640px);
   max-height: min(var(--holo-tablet-max-h), 640px);
+  min-height: 0;
 }
 
 .holo-backdrop {
@@ -1529,7 +1532,8 @@ h3 {
 }
 
 .holo-tablet-scroll--bottleneck,
-.holo-tablet-scroll--inspect {
+.holo-tablet-scroll--inspect,
+.holo-tablet-scroll--substation {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1539,12 +1543,30 @@ h3 {
   -webkit-overflow-scrolling: touch;
 }
 
+.holo-tablet-scroll--inspect::-webkit-scrollbar,
+.holo-tablet-scroll--substation::-webkit-scrollbar {
+  width: 5px;
+}
+
+.holo-tablet-scroll--inspect::-webkit-scrollbar-thumb,
+.holo-tablet-scroll--substation::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(45, 212, 191, 0.35);
+}
+
+.holo-tablet-scroll--inspect::-webkit-scrollbar-track,
+.holo-tablet-scroll--substation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 @media (min-width: 768px) {
   .holo-tablet-body--responsive {
     overflow: hidden;
   }
 
-  .holo-tablet-scroll:not(.holo-tablet-scroll--bottleneck) {
+  .holo-tablet-scroll:not(.holo-tablet-scroll--bottleneck):not(.holo-tablet-scroll--inspect):not(
+      .holo-tablet-scroll--substation
+    ) {
     overflow: hidden;
   }
 
@@ -1567,33 +1589,27 @@ h3 {
   }
 
   .holo-tablet-scroll--bottleneck::-webkit-scrollbar-track,
-  .holo-tablet-scroll--inspect::-webkit-scrollbar-track {
+  .holo-tablet-scroll--inspect::-webkit-scrollbar-track,
+  .holo-tablet-scroll--substation::-webkit-scrollbar-track {
     background: transparent;
   }
 
   .holo-tablet-scroll--bottleneck::-webkit-scrollbar-button,
-  .holo-tablet-scroll--inspect::-webkit-scrollbar-button {
+  .holo-tablet-scroll--inspect::-webkit-scrollbar-button,
+  .holo-tablet-scroll--substation::-webkit-scrollbar-button {
     display: none;
     width: 0;
     height: 0;
   }
 
-  .holo-tablet-scroll--inspect {
+  .holo-tablet-scroll--inspect,
+  .holo-tablet-scroll--substation {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: rgba(45, 212, 191, 0.35) transparent;
-  }
-
-  .holo-tablet-scroll--inspect::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  .holo-tablet-scroll--inspect::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: rgba(45, 212, 191, 0.35);
   }
 }
 
@@ -3109,8 +3125,11 @@ h3 {
   }
 
   .holo-overlay .holo-tablet--compact {
-    height: auto;
+    display: flex;
+    flex-direction: column;
+    height: var(--holo-tablet-max-h);
     max-height: var(--holo-tablet-max-h);
+    min-height: 0;
   }
 
   .holo-tablet-body--responsive {

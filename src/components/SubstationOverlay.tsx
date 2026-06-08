@@ -127,7 +127,7 @@ export default function SubstationOverlay({
                 <div className="holo-accent-bar" />
               </div>
 
-              <div className="holo-tablet-body flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-5 pt-4 md:px-5 md:pt-5">
+              <div className="holo-tablet-body holo-tablet-body--responsive flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-5 pt-4 md:px-5 md:pt-5">
                 <header className="relative shrink-0">
                   <button
                     type="button"
@@ -159,7 +159,7 @@ export default function SubstationOverlay({
                   </div>
                 </header>
 
-                <div className="holo-tablet-scroll holo-tablet-scroll--inspect mt-4 min-h-0 flex-1 space-y-3 pr-1">
+                <div className="holo-tablet-scroll holo-tablet-scroll--inspect holo-tablet-scroll--substation mt-4 min-h-0 flex-1 space-y-3 pr-1">
                   <div className="holo-glass-pane p-4">
                     <p className="font-orbitron text-lg text-teal-50">{info.name}</p>
                     <p className="mt-1 text-xs uppercase tracking-[0.14em] text-teal-300/55">
