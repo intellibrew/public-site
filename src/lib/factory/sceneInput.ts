@@ -10,14 +10,29 @@ type SceneInputOptions = {
   getIsInteractive?: () => boolean;
 };
 
+const DOUBLE_TAP_WINDOW_MS = 320;
+const RESET_DEBOUNCE_MS = 48;
+
 export function bindSceneInput({ camera, controls, element, onResetView, getIsInteractive }: SceneInputOptions) {
   let cameraOverride = false;
   let isDragging = false;
   let activePointer: { x: number; y: number; id: number } | null = null;
   let targetZoomDistance: number | null = null;
-  let lastTapTime = 0;
+  let lastTapAt = 0;
+  let lastResetAt = 0;
   const zoomOffset = new THREE.Vector3();
   const stopPropagation = (event: Event) => event.stopPropagation();
+
+  const canReset = () => (getIsInteractive?.() ?? true) && Boolean(onResetView);
+
+  const invokeReset = () => {
+    if (!canReset()) return;
+    const now = performance.now();
+    if (now - lastResetAt < RESET_DEBOUNCE_MS) return;
+    lastResetAt = now;
+    lastTapAt = 0;
+    onResetView?.();
+  };
 
   const onPointerDown = (event: PointerEvent) => {
     activePointer = { x: event.clientX, y: event.clientY, id: event.pointerId };
@@ -35,8 +50,18 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
 
   const onPointerUp = (event: PointerEvent) => {
     if (!activePointer || event.pointerId !== activePointer.id) return;
+    const wasDragging = isDragging;
     activePointer = null;
     isDragging = false;
+
+    if (wasDragging || event.pointerType !== "touch" || !onResetView) return;
+
+    const now = performance.now();
+    if (now - lastTapAt < DOUBLE_TAP_WINDOW_MS) {
+      invokeReset();
+      return;
+    }
+    lastTapAt = now;
   };
 
   const onControlStart = () => {
@@ -85,20 +110,9 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
   };
 
   const onDoubleClick = (event: MouseEvent) => {
+    if (!onResetView || !canReset()) return;
     event.preventDefault();
-    onResetView?.();
-  };
-
-  const onTouchEnd = (event: TouchEvent) => {
-    if (event.touches.length > 0) return;
-    const now = performance.now();
-    if (now - lastTapTime < 320) {
-      event.preventDefault();
-      onResetView?.();
-      lastTapTime = 0;
-      return;
-    }
-    lastTapTime = now;
+    invokeReset();
   };
 
   controls.addEventListener("start", onControlStart);
@@ -113,7 +127,6 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
   });
   element.addEventListener("wheel", onWheel, { passive: false });
   element.addEventListener("dblclick", onDoubleClick);
-  element.addEventListener("touchend", onTouchEnd, { passive: false });
 
   return {
     hasCameraOverride: () => cameraOverride,
@@ -138,7 +151,6 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
       });
       element.removeEventListener("wheel", onWheel);
       element.removeEventListener("dblclick", onDoubleClick);
-      element.removeEventListener("touchend", onTouchEnd);
     },
   };
 }

@@ -18,6 +18,8 @@ export default function FactoryLanding() {
   const buildCompleteRef = useRef(false);
   const storyEnabledRef = useRef(false);
   const animationStartedRef = useRef(false);
+  const heroResumeLockRef = useRef(false);
+  const heroScrollBridgeRef = useRef<HTMLDivElement>(null);
   const heroShownRef = useRef(true);
   const heroOverlayRef = useRef<HTMLDivElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
@@ -93,7 +95,8 @@ export default function FactoryLanding() {
     setHeroHidden(false);
     setFactoryInteractive(false);
     setHeroResting(true);
-    window.scrollTo({ top: 0, behavior: "instant" });
+    heroResumeLockRef.current = false;
+    window.scrollTo({ top: 0, behavior: "auto" });
     applyHeroFrame(0);
     runHeroFade(0, 1, HERO_RETURN_FADE_MS);
   }, [applyHeroFrame, runHeroFade]);
@@ -113,6 +116,24 @@ export default function FactoryLanding() {
 
   const getScenePaused = useCallback(() => factoryPausedRef.current, []);
   const showHeroBeams = !heroHidden && (!animationActive || heroResting);
+  const heroScrollGateOpen =
+    (!animationActive && !hasEnteredFactory) || (heroResting && buildComplete);
+
+  const tryAdvanceFromHeroScroll = useCallback(() => {
+    if (window.scrollY < SCROLL_TRIGGER_PX) return;
+
+    if (heroResting && buildCompleteRef.current && !heroResumeLockRef.current) {
+      heroResumeLockRef.current = true;
+      resumeFactory();
+      return;
+    }
+
+    if (!animationStartedRef.current) {
+      animationStartedRef.current = true;
+      setHasEnteredFactory(true);
+      setAnimationActive(true);
+    }
+  }, [heroResting, resumeFactory]);
 
   useEffect(() => {
     const check = () => {
@@ -124,33 +145,47 @@ export default function FactoryLanding() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => {
-      if (animationStartedRef.current) return;
-      if (window.scrollY < SCROLL_TRIGGER_PX) return;
+    if (!heroScrollGateOpen) return;
 
-      animationStartedRef.current = true;
-      setHasEnteredFactory(true);
-      window.removeEventListener("scroll", onScroll);
-      setAnimationActive(true);
-    };
+    const onScroll = () => tryAdvanceFromHeroScroll();
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    tryAdvanceFromHeroScroll();
+
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [heroScrollGateOpen, tryAdvanceFromHeroScroll]);
 
   useEffect(() => {
-    if (!heroResting) return;
+    const bridge = heroScrollBridgeRef.current;
+    if (!bridge || !heroScrollGateOpen) return;
 
-    let resumed = false;
-    const onScroll = () => {
-      if (resumed || window.scrollY < SCROLL_TRIGGER_PX) return;
-      resumed = true;
-      resumeFactory();
+    const onWheel = (event: WheelEvent) => {
+      window.scrollBy({ top: event.deltaY, left: 0, behavior: "auto" });
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [heroResting, resumeFactory]);
+    let touchStartY = 0;
+    const onTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY;
+      if (y == null) return;
+      const delta = touchStartY - y;
+      if (Math.abs(delta) < 0.5) return;
+      touchStartY = y;
+      window.scrollBy({ top: delta, left: 0, behavior: "auto" });
+    };
+
+    bridge.addEventListener("wheel", onWheel, { passive: true });
+    bridge.addEventListener("touchstart", onTouchStart, { passive: true });
+    bridge.addEventListener("touchmove", onTouchMove, { passive: true });
+
+    return () => {
+      bridge.removeEventListener("wheel", onWheel);
+      bridge.removeEventListener("touchstart", onTouchStart);
+      bridge.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [heroScrollGateOpen]);
 
   useEffect(() => {
     if (!animationActive) return;
@@ -221,11 +256,20 @@ export default function FactoryLanding() {
           simplified={isCompact}
           scenePaused={scenePaused}
           getScenePaused={getScenePaused}
+          sceneInteractive={factoryInteractive}
           showReturnToHero={buildComplete && factoryInteractive}
           onReturnToHero={revealHero}
           dismissOverlaysRef={dismissOverlaysRef}
         />
       </div>
+
+      {heroScrollGateOpen && (
+        <div
+          ref={heroScrollBridgeRef}
+          className="factory-hero-scroll-bridge fixed inset-0 z-[15]"
+          aria-hidden
+        />
+      )}
 
       <div
         ref={heroOverlayRef}
@@ -245,13 +289,13 @@ export default function FactoryLanding() {
         >
           <Beams
             active={showHeroBeams}
-            beamWidth={3}
-            beamHeight={30}
-            beamNumber={20}
+            beamWidth={isCompact ? 2.5 : 3}
+            beamHeight={isCompact ? 26 : 30}
+            beamNumber={isCompact ? 16 : 20}
             lightColor="#22c59d"
             speed={2}
-            noiseIntensity={1.75}
-            scale={0.2}
+            noiseIntensity={isCompact ? 0.75 : 1.75}
+            scale={isCompact ? 0.18 : 0.2}
             rotation={30}
           />
         </div>
@@ -259,7 +303,7 @@ export default function FactoryLanding() {
 
         <div
           ref={heroContentRef}
-          className="factory-hero-content relative z-10 flex min-h-0 flex-1 flex-col justify-center"
+          className="factory-hero-content relative z-10 min-h-0 flex-1"
           style={{
             transform: heroHidden ? "translateY(-12px) scale(0.985)" : "translateY(0px) scale(1)",
           }}
@@ -277,12 +321,12 @@ export default function FactoryLanding() {
           </div>
 
           {!animationActive && (
-            <p className="factory-scroll-hint absolute inset-x-0 text-center font-fragment text-[10px] uppercase tracking-[0.24em] text-teal-400/55 sm:text-[11px] sm:tracking-[0.28em]">
+            <p className="factory-scroll-hint font-fragment text-[10px] uppercase tracking-[0.24em] text-teal-400/55 sm:text-[11px] sm:tracking-[0.28em]">
               Scroll to enter
             </p>
           )}
           {heroResting && (
-            <p className="factory-scroll-hint absolute inset-x-0 text-center font-fragment text-[10px] uppercase tracking-[0.24em] text-teal-400/55 sm:text-[11px] sm:tracking-[0.28em]">
+            <p className="factory-scroll-hint font-fragment text-[10px] uppercase tracking-[0.24em] text-teal-400/55 sm:text-[11px] sm:tracking-[0.28em]">
               Scroll to return
             </p>
           )}

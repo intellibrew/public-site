@@ -11,3 +11,7 @@ export const LAYOUT = {
 export function isCompactViewport(width = typeof window !== "undefined" ? window.innerWidth : 1024) {
   return width <= LAYOUT.tabletMax;
 }
+
+export function isPhoneViewport(width = typeof window !== "undefined" ? window.innerWidth : 1024) {
+  return width <= LAYOUT.phoneMax;
+}

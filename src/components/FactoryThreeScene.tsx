@@ -17,6 +17,7 @@ type FactoryThreeSceneProps = {
     ((id: string | null, options?: { immediate?: boolean }) => void) | null
   >;
   simplified?: boolean;
+  sceneInteractive?: boolean;
 };
 
 export default function FactoryThreeScene({
@@ -28,9 +29,17 @@ export default function FactoryThreeScene({
   onStationHover,
   focusRequestRef,
   simplified = false,
+  sceneInteractive = false,
 }: FactoryThreeSceneProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneHandleRef = useRef<FactorySceneHandle | null>(null);
+
+  useEffect(() => {
+    const canvas = mountRef.current?.querySelector("canvas");
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    canvas.style.pointerEvents = sceneInteractive ? "auto" : "none";
+    canvas.style.touchAction = sceneInteractive ? "none" : "pan-y";
+  }, [sceneInteractive]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -73,7 +82,7 @@ export default function FactoryThreeScene({
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div
         ref={mountRef}
-        className="pointer-events-auto absolute inset-0"
+        className={`absolute inset-0 ${sceneInteractive ? "pointer-events-auto" : "pointer-events-none"}`}
         aria-label="Interactive 3D factory build"
       />
     </div>

@@ -112,13 +112,14 @@ export function mountFactoryScene(
     controls.update();
   };
 
-  const getIsInteractive = () => getProgress() >= 0.999;
+  const getIsInteractive = () =>
+    getProgress() >= 0.999 && !(getScenePaused?.() ?? false);
 
   const input = bindSceneInput({
     camera,
     controls,
     element: renderer.domElement,
-    onResetView: simplified ? undefined : resetFactoryView,
+    onResetView: resetFactoryView,
     getIsInteractive,
   });
 

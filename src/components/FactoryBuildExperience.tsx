@@ -22,6 +22,7 @@ import {
   type StoryPhase,
   type StorySnapshot,
 } from "@/lib/factory/flowOptimization";
+import { isPhoneViewport } from "@/lib/layoutBreakpoints";
 
 const SafeAnimatePresence = AnimatePresence as FC<
   PropsWithChildren<{ mode?: "wait" | "sync" | "popLayout" }>
@@ -34,6 +35,7 @@ type FactoryBuildExperienceProps = {
   simplified?: boolean;
   scenePaused?: boolean;
   getScenePaused?: () => boolean;
+  sceneInteractive?: boolean;
   showReturnToHero?: boolean;
   onReturnToHero?: () => void;
   dismissOverlaysRef?: React.MutableRefObject<(() => void) | null>;
@@ -46,6 +48,7 @@ export default function FactoryBuildExperience({
   simplified = false,
   scenePaused = false,
   getScenePaused,
+  sceneInteractive = false,
   showReturnToHero = false,
   onReturnToHero,
   dismissOverlaysRef,
@@ -60,6 +63,7 @@ export default function FactoryBuildExperience({
   const [flowCaptionText, setFlowCaptionText] = useState<{ label: string; detail: string } | null>(
     null
   );
+  const [isPhone, setIsPhone] = useState(false);
 
   const focusRequestRef = useRef<
     ((id: string | null, options?: { immediate?: boolean }) => void) | null
@@ -127,6 +131,13 @@ export default function FactoryBuildExperience({
   }, [storyAnalysisEnabled, bottleneckStationId]);
 
   useEffect(() => {
+    const check = () => setIsPhone(isPhoneViewport());
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  useEffect(() => {
     if (!scenePaused) {
       if (pauseStartedAtRef.current !== null) {
         const pausedFor = performance.now() - pauseStartedAtRef.current;
@@ -168,17 +179,21 @@ export default function FactoryBuildExperience({
     if (storyPhase === "bottleneck") {
       return hoveredStation === bottleneckStationId
         ? "Open bottleneck report"
-        : `Click the stalled ${constraintName} station`;
+        : isPhone
+          ? `Click stalled ${constraintName}`
+          : `Click the stalled ${constraintName} station`;
     }
     if (storyPhase === "optimizing") return "Optimising factory flow…";
     if (storyPhase === "optimized") {
       if (hoveredStation === POWER_SUBSTATION_ID) return "Inspect · Main Distribution";
       return hoveredStation
         ? `Inspect · ${MACHINE_MAP.get(hoveredStation)?.name ?? hoveredStation}`
-        : "Full production flow - click any machine to inspect";
+        : isPhone
+          ? "Click any machine to inspect"
+          : "Full production flow - click any machine to inspect";
     }
     if (hoveredStation === POWER_SUBSTATION_ID) return "Inspect · Main Distribution";
-    return "Press Identify bottlenecks to scan the line for constraints";
+    return null;
   })();
 
   return (
@@ -208,7 +223,11 @@ export default function FactoryBuildExperience({
         </button>
       )}
 
-      <div className="factory-stage pointer-events-auto relative z-10 h-full w-full overflow-hidden">
+      <div
+        className={`factory-stage relative z-10 h-full w-full overflow-hidden ${
+          sceneInteractive ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+      >
         <FactoryThreeScene
           getBuildProgress={getBuildProgress}
           getStoryActive={getStoryEnabled}
@@ -218,6 +237,7 @@ export default function FactoryBuildExperience({
           onStationHover={handleStationHover}
           focusRequestRef={focusRequestRef}
           simplified={simplified}
+          sceneInteractive={sceneInteractive}
         />
 
         <SubstationOverlay
@@ -275,10 +295,14 @@ export default function FactoryBuildExperience({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
                 transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-                className={`factory-machine-hint ${storyPhase === "bottleneck" ? "factory-machine-hint--alert" : ""}`}
+                className="factory-machine-hint-wrap"
               >
-                <span className="factory-machine-hint-dot" />
-                {hintText}
+                <p
+                  className={`factory-machine-hint ${storyPhase === "bottleneck" ? "factory-machine-hint--alert" : ""}`}
+                >
+                  <span className="factory-machine-hint-dot" aria-hidden />
+                  <span className="factory-machine-hint-text">{hintText}</span>
+                </p>
               </motion.div>
             )}
           </SafeAnimatePresence>

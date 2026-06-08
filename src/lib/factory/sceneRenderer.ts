@@ -21,6 +21,9 @@ export function makeSceneRenderer(mount: HTMLDivElement) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = RENDERER_SETTINGS.toneExposure;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.domElement.style.display = "block";
+  renderer.domElement.style.width = "100%";
+  renderer.domElement.style.height = "100%";
   renderer.domElement.style.touchAction = "none";
   renderer.domElement.style.pointerEvents = "auto";
   mount.appendChild(renderer.domElement);
@@ -36,8 +39,6 @@ export function fitRendererToMount(
   const { clientWidth, clientHeight } = mount;
   const aspect = clientWidth / Math.max(1, clientHeight);
 
-  // FOV is widened smoothly for portrait/narrow viewports so the factory
-  // fills the vertical extent without any scene rotation tricks.
   const portraitBlend = Math.min(
     1,
     Math.max(0, (0.85 - aspect) / (0.85 - 0.45))

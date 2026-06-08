@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import type { FC, PropsWithChildren } from "react";
-import { playHoloEnterAnimation, splitChars } from "@/lib/animations/holoEnter";
 import {
   POWER_SUBSTATION_INFO,
   type SubstationMetric,
@@ -20,18 +18,6 @@ type SubstationOverlayProps = {
   storyPhase?: StoryPhase;
   onClose: () => void;
 };
-
-function SplitText({ text }: { text: string }) {
-  return (
-    <>
-      {splitChars(text).map(({ key, char, className }) => (
-        <span key={key} className={className}>
-          {char}
-        </span>
-      ))}
-    </>
-  );
-}
 
 function projectSubstationMetrics(
   metrics: SubstationMetric[],
@@ -94,27 +80,8 @@ export default function SubstationOverlay({
   storyPhase,
   onClose,
 }: SubstationOverlayProps) {
-  const tabletRef = useRef<HTMLDivElement>(null);
   const info = POWER_SUBSTATION_INFO;
   const metrics = projectSubstationMetrics(info.metrics, storyPhase);
-
-  useEffect(() => {
-    const tablet = tabletRef.current;
-    if (!tablet || !visible) return;
-
-    const isCompact = window.matchMedia("(max-width: 1024px)").matches;
-    if (isCompact) return;
-
-    let ctx: ReturnType<typeof playHoloEnterAnimation> | undefined;
-    const frameId = requestAnimationFrame(() => {
-      ctx = playHoloEnterAnimation(tablet);
-    });
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      ctx?.revert();
-    };
-  }, [visible]);
 
   if (typeof document === "undefined") return null;
 
@@ -123,11 +90,11 @@ export default function SubstationOverlay({
       {visible && (
         <motion.div
           key="substation-overlay"
-          className="holo-overlay pointer-events-auto fixed inset-0 z-[40] flex items-start justify-center md:items-center"
-          initial={{ opacity: 0 }}
+          className="holo-overlay holo-overlay--instant pointer-events-auto fixed inset-0 z-[40] flex items-start justify-center md:items-center"
+          initial={false}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.22 }}
+          exit={{ opacity: 0, transition: { duration: 0.12 } }}
+          transition={{ duration: 0 }}
         >
           <button
             type="button"
@@ -140,7 +107,6 @@ export default function SubstationOverlay({
           <div className="holo-grid pointer-events-none absolute inset-0" aria-hidden />
 
           <div
-              ref={tabletRef}
               className="holo-tablet holo-tablet--compact relative z-[3] flex w-full flex-col"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={(event) => event.stopPropagation()}
@@ -158,8 +124,6 @@ export default function SubstationOverlay({
                     fill="none"
                   />
                 </svg>
-                <div className="holo-scan" />
-                <div className="holo-flash" />
                 <div className="holo-accent-bar" />
               </div>
 
@@ -188,7 +152,7 @@ export default function SubstationOverlay({
                         <span className="holo-prefix" aria-hidden>
                           {"//"}
                         </span>
-                        <SplitText text="Distribution panel" />
+                        Distribution panel
                       </span>
                       <span className="holo-lock-id">{info.codename}</span>
                     </span>
@@ -196,7 +160,7 @@ export default function SubstationOverlay({
                 </header>
 
                 <div className="holo-tablet-scroll holo-tablet-scroll--inspect mt-4 min-h-0 flex-1 space-y-3 pr-1">
-                  <div className="holo-glass-pane holo-enter-pane p-4">
+                  <div className="holo-glass-pane p-4">
                     <p className="font-orbitron text-lg text-teal-50">{info.name}</p>
                     <p className="mt-1 text-xs uppercase tracking-[0.14em] text-teal-300/55">
                       {info.tagline}
@@ -204,7 +168,7 @@ export default function SubstationOverlay({
                     <p className="mt-3 text-sm leading-relaxed text-teal-100/75">{info.description}</p>
                   </div>
 
-                  <div className="holo-glass-pane holo-enter-pane p-4">
+                  <div className="holo-glass-pane p-4">
                     <p className="holo-pane-title">Electrical properties</p>
                     <ul className="mt-2 space-y-2">
                       {info.specs.map((spec) => (
@@ -216,7 +180,7 @@ export default function SubstationOverlay({
                     </ul>
                   </div>
 
-                  <div className="holo-glass-pane holo-enter-pane p-4">
+                  <div className="holo-glass-pane p-4">
                     <p className="holo-pane-title">Live telemetry</p>
                     <div className="mt-3 space-y-3">
                       {metrics.map((metric) => (

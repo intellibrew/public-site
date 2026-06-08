@@ -1,10 +1,13 @@
 import * as THREE from "three";
+import { LAYOUT } from "../layoutBreakpoints";
 
 export const SCENE_BACKGROUND = 0x050809;
 export const SCENE_FOG = { color: 0x050a0c, density: 0.011 };
 
 export const RENDERER_SETTINGS = {
   pixelRatioCap: 1.5,
+  phonePixelRatioCap: 2.5,
+  compactPixelRatioCap: 2,
   toneExposure: 1.38,
 } as const;
 
@@ -12,9 +15,15 @@ export const COMPACT_FACTORY_BREAKPOINT = 1024;
 
 export function getEffectivePixelRatio(): number {
   if (typeof window === "undefined") return 1;
-  const isCompact = window.innerWidth <= COMPACT_FACTORY_BREAKPOINT;
-  const cap = isCompact ? 1 : RENDERER_SETTINGS.pixelRatioCap;
-  return Math.min(window.devicePixelRatio, cap);
+  const dpr = window.devicePixelRatio || 1;
+  const width = window.innerWidth;
+  if (width <= LAYOUT.phoneMax) {
+    return Math.min(dpr, RENDERER_SETTINGS.phonePixelRatioCap);
+  }
+  if (width <= COMPACT_FACTORY_BREAKPOINT) {
+    return Math.min(dpr, RENDERER_SETTINGS.compactPixelRatioCap);
+  }
+  return Math.min(dpr, RENDERER_SETTINGS.pixelRatioCap);
 }
 
 export const CAMERA_SETTINGS = {

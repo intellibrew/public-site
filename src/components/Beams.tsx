@@ -1,11 +1,12 @@
 "use client";
 
 /* eslint-disable react/no-unknown-property */
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
+import { getEffectivePixelRatio } from "@/lib/factory/sceneConfig";
 
 type BeamsProps = {
   beamWidth?: number;
@@ -259,6 +260,19 @@ const DirLight = ({ position, color }: { position: [number, number, number]; col
   return <directionalLight ref={dir} color={color} intensity={1} position={position} />;
 };
 
+function useBeamDpr() {
+  const [dpr, setDpr] = useState(1);
+
+  useEffect(() => {
+    const update = () => setDpr(getEffectivePixelRatio());
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return dpr;
+}
+
 export default function Beams({
   beamWidth = 2,
   beamHeight = 15,
@@ -270,6 +284,7 @@ export default function Beams({
   rotation = 0,
   active = true,
 }: BeamsProps) {
+  const dpr = useBeamDpr();
   const beamMaterial = useMemo(
     () =>
       extendMaterial(THREE.MeshStandardMaterial, {
@@ -328,9 +343,10 @@ export default function Beams({
 
   return (
     <Canvas
-      dpr={[1, 1.25]}
+      dpr={dpr}
       frameloop={active ? "always" : "never"}
       className="h-full w-full"
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
       <group rotation={[0, 0, degToRad(rotation)]}>
         <MergedPlanes

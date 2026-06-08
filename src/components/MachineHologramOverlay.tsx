@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import type { FC, PropsWithChildren } from "react";
@@ -11,7 +11,6 @@ import {
   type MachineDefinition,
 } from "@/lib/factory/machineRegistry";
 import MachinePreviewViewport from "@/components/MachinePreviewViewport";
-import { playHoloEnterAnimation, splitChars } from "@/lib/animations/holoEnter";
 import type { StoryPhase } from "@/lib/factory/flowOptimization";
 
 const SafeAnimatePresence = AnimatePresence as FC<
@@ -31,18 +30,6 @@ type MachineHologramOverlayProps = {
 
 function stationIndex(id: string) {
   return MACHINE_DEFINITIONS.findIndex((m) => m.id === id) + 1;
-}
-
-function SplitText({ text }: { text: string }) {
-  return (
-    <>
-      {splitChars(text).map(({ key, char, className }) => (
-        <span key={key} className={className}>
-          {char}
-        </span>
-      ))}
-    </>
-  );
 }
 
 type MetricProfile = "underproduction" | "bottleneck" | "optimizing" | "optimized";
@@ -174,7 +161,7 @@ function HoloPane({
   className?: string;
 }) {
   return (
-    <div className={`holo-glass-pane holo-enter-pane ${className}`}>
+    <div className={`holo-glass-pane ${className}`}>
       {children}
     </div>
   );
@@ -334,32 +321,12 @@ function HoloTablet({
   onClose,
   onOptimize,
 }: HoloTabletProps) {
-  const tabletRef = useRef<HTMLDivElement>(null);
   const metricProfile = metricProfileForStory(storyPhase, isBottleneckView);
   const projectedMetrics = projectMetrics(machine.metrics, metricProfile, isConstraintStation);
   const lineOutputPct = lineOutputForProfile(metricProfile);
 
-  useEffect(() => {
-    const tablet = tabletRef.current;
-    if (!tablet) return;
-
-    const isCompact = window.matchMedia("(max-width: 1024px)").matches;
-    if (isCompact) return;
-
-    let ctx: ReturnType<typeof playHoloEnterAnimation> | undefined;
-    const frameId = requestAnimationFrame(() => {
-      ctx = playHoloEnterAnimation(tablet, { alert: isBottleneckView });
-    });
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      ctx?.revert();
-    };
-  }, [machine.id, isBottleneckView]);
-
   return (
     <div
-      ref={tabletRef}
       className={`holo-tablet flex flex-col ${isBottleneckView ? "holo-tablet--bottleneck" : ""}`}
       onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => event.stopPropagation()}
@@ -377,8 +344,6 @@ function HoloTablet({
             fill="none"
           />
         </svg>
-        <div className="holo-scan" />
-        <div className="holo-flash" />
         <div className="holo-accent-bar" />
         <div className="holo-tablet-edge holo-tablet-edge--top" />
         <div className="holo-tablet-edge holo-tablet-edge--bottom" />
@@ -420,7 +385,7 @@ function HoloTablet({
                     <span className="holo-prefix" aria-hidden>
                       {"//"}
                     </span>
-                    <SplitText text="Target locked" />
+                    Target locked
                   </span>
                   <span className="holo-lock-id">{machine.codename}</span>
                 </span>
@@ -544,7 +509,7 @@ function HoloTablet({
                   {machine.codename}
                 </p>
                 <h3 className="holo-machine-name mt-1 font-orbitron text-lg leading-tight text-white md:text-[1.35rem]">
-                  <SplitText text={machine.name} />
+                  {machine.name}
                 </h3>
                 <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-teal-400/55 md:text-[11px]">
                   {machine.tagline}
@@ -723,11 +688,11 @@ export default function MachineHologramOverlay({
       {visible && machine && (
         <motion.div
           key={machine.id}
-          initial={{ opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.28, ease: [0.4, 0, 1, 1] } }}
-          transition={{ duration: 0.32 }}
-          className="holo-overlay pointer-events-auto fixed inset-0 z-[110] flex items-start justify-center md:items-center"
+          exit={{ opacity: 0, transition: { duration: 0.12, ease: [0.4, 0, 1, 1] } }}
+          transition={{ duration: 0 }}
+          className="holo-overlay holo-overlay--instant pointer-events-auto fixed inset-0 z-[110] flex items-start justify-center md:items-center"
           onWheel={stopOverlayScrollPropagation}
           onTouchMove={stopOverlayScrollPropagation}
         >
