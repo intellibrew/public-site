@@ -198,7 +198,7 @@ export default function FactoryBuildExperience({
 
   return (
     <div
-      className={`relative h-full min-h-[100svh] w-full overflow-hidden bg-[#050708] ${isFocusActive ? "factory-focus-active" : ""}`}
+      className={`relative h-full min-h-[100svh] w-full overflow-hidden bg-transparent ${isFocusActive ? "factory-focus-active" : ""}`}
     >
       <div aria-hidden className="factory-scene-backdrop pointer-events-none absolute inset-0 z-0" />
       <div aria-hidden className="factory-ambient-light factory-ambient-light--teal pointer-events-none absolute inset-0 z-[1]" />
@@ -207,7 +207,7 @@ export default function FactoryBuildExperience({
         <button
           type="button"
           onClick={onReturnToHero}
-          className="factory-return-hero pointer-events-auto z-[36]"
+          className="factory-return-hero factory-website-flow-ui pointer-events-auto z-[36]"
           aria-label="Return to hero"
         >
           <svg className="factory-return-hero-icon" viewBox="0 0 12 8" aria-hidden>
@@ -223,12 +223,13 @@ export default function FactoryBuildExperience({
         </button>
       )}
 
-      <div
-        className={`factory-stage relative z-10 h-full w-full overflow-hidden ${
-          sceneInteractive ? "pointer-events-auto" : "pointer-events-none"
-        }`}
-      >
-        <FactoryThreeScene
+      <div className="factory-stage pointer-events-none relative z-10 h-full w-full overflow-hidden">
+        <div
+          className={`factory-model-layer ${
+            sceneInteractive ? "factory-model-layer--interactive" : ""
+          }`}
+        >
+          <FactoryThreeScene
           getBuildProgress={getBuildProgress}
           getStoryActive={getStoryEnabled}
           getScenePaused={getScenePaused}
@@ -239,6 +240,7 @@ export default function FactoryBuildExperience({
           simplified={simplified}
           sceneInteractive={sceneInteractive}
         />
+        </div>
 
         <SubstationOverlay
           visible={isFocusActive && isSubstationFocus}
@@ -269,7 +271,7 @@ export default function FactoryBuildExperience({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -8, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
               transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-              className="ffs-presence-wrap"
+              className="ffs-presence-wrap factory-website-flow-ui pointer-events-auto"
             >
               <FactoryFlowStoryCard
                 phase={storyPhase}
@@ -280,7 +282,7 @@ export default function FactoryBuildExperience({
           )}
         </SafeAnimatePresence>
 
-        <div className="factory-story-stack pointer-events-none absolute inset-x-0 z-[25] flex flex-col items-center">
+        <div className="factory-story-stack factory-website-flow-ui pointer-events-none absolute inset-x-0 z-[25] flex flex-col items-center">
           <FactoryStoryActions
             storyPhase={storyPhase}
             visible={storyAnalysisEnabled && !isFocusActive}

@@ -8,20 +8,53 @@ type SceneInputOptions = {
   element: HTMLCanvasElement;
   onResetView?: () => void;
   getIsInteractive?: () => boolean;
+  enablePinchZoom?: boolean;
 };
+
+type ActivePointer = { x: number; y: number; id: number };
 
 const DOUBLE_TAP_WINDOW_MS = 320;
 const RESET_DEBOUNCE_MS = 48;
 
-export function bindSceneInput({ camera, controls, element, onResetView, getIsInteractive }: SceneInputOptions) {
+export function bindSceneInput({
+  camera,
+  controls,
+  element,
+  onResetView,
+  getIsInteractive,
+  enablePinchZoom = false,
+}: SceneInputOptions) {
   let cameraOverride = false;
   let isDragging = false;
-  let activePointer: { x: number; y: number; id: number } | null = null;
+  let activePointer: ActivePointer | null = null;
   let targetZoomDistance: number | null = null;
   let lastTapAt = 0;
   let lastResetAt = 0;
+  let lastPinchDistance: number | null = null;
+  const activePointers = new Map<number, ActivePointer>();
   const zoomOffset = new THREE.Vector3();
   const stopPropagation = (event: Event) => event.stopPropagation();
+
+  const getPinchDistance = () => {
+    const pointers = [...activePointers.values()];
+    if (pointers.length < 2) return 0;
+    const dx = pointers[1].x - pointers[0].x;
+    const dy = pointers[1].y - pointers[0].y;
+    return Math.hypot(dx, dy);
+  };
+
+  const applyPinchZoom = (scale: number) => {
+    if (!(getIsInteractive?.() ?? true) || scale <= 0) return;
+
+    cameraOverride = true;
+    zoomOffset.copy(camera.position).sub(controls.target);
+    const currentDistance = targetZoomDistance ?? zoomOffset.length();
+    targetZoomDistance = THREE.MathUtils.clamp(
+      currentDistance / scale,
+      CTRL_WHEEL_ZOOM.minDistance,
+      CTRL_WHEEL_ZOOM.maxDistance
+    );
+  };
 
   const canReset = () => (getIsInteractive?.() ?? true) && Boolean(onResetView);
 
@@ -35,11 +68,40 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
   };
 
   const onPointerDown = (event: PointerEvent) => {
-    activePointer = { x: event.clientX, y: event.clientY, id: event.pointerId };
-    isDragging = false;
+    const pointer = { x: event.clientX, y: event.clientY, id: event.pointerId };
+    activePointers.set(event.pointerId, pointer);
+
+    if (activePointers.size === 1) {
+      activePointer = pointer;
+      isDragging = false;
+    }
+
+    if (enablePinchZoom && activePointers.size === 2) {
+      lastPinchDistance = getPinchDistance();
+      isDragging = true;
+      lastTapAt = 0;
+    }
   };
 
   const onPointerMove = (event: PointerEvent) => {
+    if (activePointers.has(event.pointerId)) {
+      activePointers.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY,
+        id: event.pointerId,
+      });
+    }
+
+    if (enablePinchZoom && activePointers.size >= 2) {
+      const pinchDistance = getPinchDistance();
+      if (lastPinchDistance !== null && lastPinchDistance > 0 && pinchDistance > 0) {
+        applyPinchZoom(pinchDistance / lastPinchDistance);
+      }
+      lastPinchDistance = pinchDistance;
+      isDragging = true;
+      return;
+    }
+
     if (!activePointer || event.pointerId !== activePointer.id || isDragging) return;
     const dx = event.clientX - activePointer.x;
     const dy = event.clientY - activePointer.y;
@@ -49,12 +111,25 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
   };
 
   const onPointerUp = (event: PointerEvent) => {
-    if (!activePointer || event.pointerId !== activePointer.id) return;
-    const wasDragging = isDragging;
-    activePointer = null;
-    isDragging = false;
+    activePointers.delete(event.pointerId);
 
-    if (wasDragging || event.pointerType !== "touch" || !onResetView) return;
+    if (enablePinchZoom && activePointers.size < 2) {
+      lastPinchDistance = null;
+    }
+
+    if (!activePointer || event.pointerId !== activePointer.id) {
+      if (activePointers.size === 1) {
+        activePointer = [...activePointers.values()][0] ?? null;
+        isDragging = false;
+      }
+      return;
+    }
+
+    const wasDragging = isDragging;
+    activePointer = activePointers.size === 1 ? [...activePointers.values()][0] ?? null : null;
+    isDragging = activePointers.size >= 2;
+
+    if (wasDragging || event.pointerType !== "touch" || !onResetView || activePointers.size > 0) return;
 
     const now = performance.now();
     if (now - lastTapAt < DOUBLE_TAP_WINDOW_MS) {
@@ -73,21 +148,6 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
     controls.enableDamping = false;
     element.style.cursor = "grab";
   };
-  const onWheel = (event: WheelEvent) => {
-    if (!(getIsInteractive?.() ?? true)) return;
-    event.preventDefault();
-    event.stopPropagation();
-
-    cameraOverride = true;
-    zoomOffset.copy(camera.position).sub(controls.target);
-    const currentDistance = targetZoomDistance ?? zoomOffset.length();
-    targetZoomDistance = THREE.MathUtils.clamp(
-      currentDistance * (1 + event.deltaY * CTRL_WHEEL_ZOOM.speed),
-      CTRL_WHEEL_ZOOM.minDistance,
-      CTRL_WHEEL_ZOOM.maxDistance
-    );
-  };
-
   const tickZoom = () => {
     if (targetZoomDistance === null) return;
 
@@ -125,7 +185,6 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
   CANVAS_EVENTS_TO_STOP.forEach((eventName) => {
     element.addEventListener(eventName, stopPropagation);
   });
-  element.addEventListener("wheel", onWheel, { passive: false });
   element.addEventListener("dblclick", onDoubleClick);
 
   return {
@@ -135,6 +194,8 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
       cameraOverride = false;
       isDragging = false;
       activePointer = null;
+      activePointers.clear();
+      lastPinchDistance = null;
       controls.enableDamping = false;
       targetZoomDistance = null;
     },
@@ -149,7 +210,6 @@ export function bindSceneInput({ camera, controls, element, onResetView, getIsIn
       CANVAS_EVENTS_TO_STOP.forEach((eventName) => {
         element.removeEventListener(eventName, stopPropagation);
       });
-      element.removeEventListener("wheel", onWheel);
       element.removeEventListener("dblclick", onDoubleClick);
     },
   };

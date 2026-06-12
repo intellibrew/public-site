@@ -10,8 +10,7 @@ type Payload = {
   phone?: string;
 };
 
-const API_BASE =
-  process.env.NEOFAB_API_BASE_URL ?? "https://app.neofab.ai/api";
+const API_BASE = process.env.NEOFAB_API_BASE_URL ?? "https://app.neofab.ai/api";
 const API_KEY = process.env.NEOFAB_API_KEY ?? "";
 
 function join(base: string, path: string) {
@@ -19,7 +18,6 @@ function join(base: string, path: string) {
   return `${b}${path}`;
 }
 
-/** Optional: handle CORS preflight if you ever hit this route cross-origin */
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
@@ -37,10 +35,7 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "Invalid JSON" },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
   }
 
   const name = body?.name?.trim();
@@ -50,18 +45,10 @@ export async function POST(req: Request) {
   const phone = body?.phone?.trim() || undefined;
 
   if (!name || !email || !feedback) {
-    return NextResponse.json(
-      { ok: false, error: "Missing required fields" },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, error: "Missing required fields" }, { status: 400 });
   }
 
-  // Build upstream body to match FastAPI /user_feedback: name, email, feedback, company?, phone?
-  const upstreamBody: Record<string, unknown> = {
-    name,
-    email,
-    feedback,
-  };
+  const upstreamBody: Record<string, unknown> = { name, email, feedback };
   if (company) upstreamBody.company = company;
   if (phone) upstreamBody.phone = phone;
 
@@ -71,15 +58,10 @@ export async function POST(req: Request) {
   };
   if (API_KEY) headers["x-api-key"] = API_KEY;
 
-  // Timeout guard
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15000);
 
-  // Try with trailing slash first (some backends require it), then fallback
-  const urls = [
-    join(API_BASE, "/user_feedback/"),
-    join(API_BASE, "/user_feedback"),
-  ];
+  const urls = [join(API_BASE, "/user_feedback/"), join(API_BASE, "/user_feedback")];
 
   try {
     let lastStatus = 0;
@@ -99,9 +81,8 @@ export async function POST(req: Request) {
       lastStatus = res.status;
       lastText = text;
 
-      // Success -> return immediately
       if (res.ok) {
-        let data = null;
+        let data: unknown = text;
         try {
           data = JSON.parse(text);
         } catch {
@@ -113,18 +94,17 @@ export async function POST(req: Request) {
           { headers: { "Access-Control-Allow-Origin": "*" } }
         );
       }
-
-      // If first URL failed, try the next one in the loop
     }
 
     clearTimeout(timer);
-    // Both attempts failed
-    let parsed = null;
+
+    let parsed: unknown = null;
     try {
       parsed = lastText ? JSON.parse(lastText) : null;
     } catch {
-      /* keep raw */
+      parsed = lastText;
     }
+
     return NextResponse.json(
       {
         ok: false,
@@ -134,7 +114,7 @@ export async function POST(req: Request) {
       },
       { status: lastStatus || 502 }
     );
-  } catch (e:unknown) {
+  } catch (e: unknown) {
     const err = e as Error;
     clearTimeout(timer);
     const aborted = err.name === "AbortError";

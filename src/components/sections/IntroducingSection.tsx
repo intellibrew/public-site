@@ -19,64 +19,82 @@ const outputs = [
   { label: "Simulation", tooltip: "Throughput and scenarios" },
 ];
 
-export function IntroducingSection() {
-  return (
-    <section id="solution" className="relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden">
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
-        }}
-      />
+type IntroducingSectionProps = {
+  embedded?: boolean;
+};
 
-      <div className="mx-auto max-w-6xl px-6 relative z-10">
-        <motion.div 
+export function IntroducingSection({ embedded = false }: IntroducingSectionProps) {
+  return (
+    <section
+      id="solution"
+      className={
+        embedded
+          ? "factory-scroll-panel factory-scroll-panel--solution relative h-full overflow-hidden"
+          : "relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden"
+      }
+    >
+      {!embedded && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
+          }}
+        />
+      )}
+
+      <div
+        className={`mx-auto max-w-6xl px-6 relative z-10 ${
+          embedded
+            ? "flex h-full max-h-full flex-col justify-center overflow-y-auto py-[calc(var(--site-header-total)+0.75rem)] [scrollbar-width:thin]"
+            : ""
+        }`}
+        {...(embedded ? { "data-lenis-prevent": true } : {})}
+      >
+        <motion.div
           className="flex justify-center mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          initial={embedded ? false : { opacity: 0, y: 20 }}
+          whileInView={embedded ? undefined : { opacity: 1, y: 0 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5 }}
         >
-          <span className="shiny-badge">
-            Solution
-          </span>
+          <span className="shiny-badge">Solution</span>
         </motion.div>
 
-        <motion.h2 
+        <motion.h2
           className="text-center text-heading mb-4 font-fragment"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          initial={embedded ? false : { opacity: 0, y: 20 }}
+          whileInView={embedded ? undefined : { opacity: 1, y: 0 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5, delay: 0.1 }}
         >
-          Intelligence for{" "}
-          <span className="text-primary">Factories</span>
+          Intelligence for <span className="text-primary">Factories</span>
         </motion.h2>
 
-        <motion.p 
-          className="text-center text-body mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+        <motion.p
+          className={`text-center text-body ${embedded ? "mb-8" : "mb-16"}`}
+          initial={embedded ? false : { opacity: 0, y: 20 }}
+          whileInView={embedded ? undefined : { opacity: 1, y: 0 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5, delay: 0.2 }}
         >
           One platform. Complete automation. From inputs to a full production line model.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          initial={embedded ? false : { opacity: 0 }}
+          whileInView={embedded ? undefined : { opacity: 1 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.8, delay: 0.3 }}
           className="hidden md:block"
         >
           <FlowDiagram />
         </motion.div>
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          initial={embedded ? false : { opacity: 0 }}
+          whileInView={embedded ? undefined : { opacity: 1 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5, delay: 0.2 }}
           className="md:hidden"
         >
           <FlowDiagramMobile />

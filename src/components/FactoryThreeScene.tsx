@@ -79,7 +79,7 @@ export default function FactoryThreeScene({
   ]);
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="factory-model-mount relative h-full w-full overflow-hidden">
       <div
         ref={mountRef}
         className={`absolute inset-0 ${sceneInteractive ? "pointer-events-auto" : "pointer-events-none"}`}

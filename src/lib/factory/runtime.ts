@@ -66,6 +66,7 @@ export function mountFactoryScene(
   if (simplified) {
     controls.enablePan = false;
     controls.enableZoom = false;
+    controls.enableRotate = false;
   }
 
   const materials = makeMaterials();
@@ -121,6 +122,7 @@ export function mountFactoryScene(
     element: renderer.domElement,
     onResetView: resetFactoryView,
     getIsInteractive,
+    enablePinchZoom: simplified,
   });
 
   if (simplified) {
