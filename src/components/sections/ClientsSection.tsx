@@ -12,7 +12,7 @@ const clients: { name: string; logo: string; noInvert?: boolean }[] = [
   { name: "BCG", logo: "/logo/BCG-logo.png", noInvert: true },
   { name: "Beta", logo: "/logo/Beta-Logo.png", noInvert: true },
   // { name: "Can-Tek", logo: "/logo/Cantek-logo.png", noInvert: true },
-  { name: "Cummins", logo: "/logo/Cummins-logo.png", noInvert: true },
+  // { name: "Cummins", logo: "/logo/Cummins-logo.png", noInvert: true },
   { name: "Deloitte", logo: "/logo/Deloitte-logo.png", noInvert: true },
   { name: "Ford", logo: "/logo/Ford-logo.png", noInvert: true },
   // { name: "Indore", logo: "/logo/Indore-logo.png", noInvert: true },
