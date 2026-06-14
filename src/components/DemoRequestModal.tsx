@@ -72,9 +72,13 @@ export default function DemoRequestModal({ open, onClose }: DemoRequestModalProp
         formRef.current?.reset();
         onClose();
       }, SUCCESS_CLOSE_MS);
-    } catch {
+    } catch (e) {
       setStatus("error");
-      setErrorMessage("Something went wrong. Please try again or email Hello@neofab.ai.");
+      setErrorMessage(
+        e instanceof Error
+          ? e.message
+          : "Something went wrong. Please try again or email hello@neofab.ai."
+      );
     }
   };
 

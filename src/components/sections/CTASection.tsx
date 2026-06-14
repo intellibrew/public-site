@@ -12,7 +12,7 @@ const smoothSpring = {
 const getRandomDuration = (base: number, variance: number) => 
   base + (Math.random() - 0.5) * variance;
 
-export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
+export function CTASection() {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -123,28 +123,6 @@ export function CTASection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
             Get a sample output pack and see what NeoFab generates from your inputs.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 25, scale: 0.95 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ ...smoothSpring, delay: 0.3 }}
-            className="relative z-10"
-          >
-            {onBookDemo ? (
-              <button
-                type="button"
-                onClick={onBookDemo}
-                className="btn-cta-large btn-pulse inline-flex"
-                aria-label="Book a demo"
-              >
-                <span>Book a demo</span>
-              </button>
-            ) : (
-              <span className="btn-cta-large btn-pulse cursor-default inline-flex" aria-hidden>
-                <span>Book a demo</span>
-              </span>
-            )}
-          </motion.div>
         </motion.div>
       </div>
     </section>

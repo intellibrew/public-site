@@ -1,24 +1,18 @@
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_FEEDBACK_URL?.trim() || "/api/feedback";
+export class FeedbackSubmitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FeedbackSubmitError";
+  }
+}
 
 export const submitFeedback = async (
-  name: string,
-  email: string,
-  feedback: string,
-  company?: string,
-  phone?: string
+  _name: string,
+  _email: string,
+  _feedback: string,
+  _company?: string,
+  _phone?: string
 ) => {
-  const res = await axios.post(
-    API_URL,
-    { name, email, feedback, company, phone },
-    {
-      headers: { "Content-Type": "application/json" },
-      timeout: 15_000,
-    }
+  throw new FeedbackSubmitError(
+    "Demo request form is currently disabled. Please email hello@neofab.ai."
   );
-
-  if (res?.data?.ok) return res.data.data ?? true;
-
-  throw new Error("Feedback submit failed");
 };

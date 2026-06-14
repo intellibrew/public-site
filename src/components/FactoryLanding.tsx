@@ -6,13 +6,14 @@ import Header from "@/components/Header";
 import FactoryBuildExperience from "@/components/FactoryBuildExperience";
 import Beams from "@/components/Beams";
 import FactoryContactSection from "@/components/FactoryContactSection";
-import { ProblemSection } from "@/components/sections/ProblemSection";
-import { IntroducingSection } from "@/components/sections/IntroducingSection";
+import { FactoryHeroTitle } from "@/components/FactoryHeroTitle";
+import { StitchedStorySection } from "@/components/sections/StitchedStorySection";
+import { CustomersClientsSection } from "@/components/sections/CustomersClientsSection";
 import { useJourneySnap } from "@/hooks/useJourneySnap";
 import { useLenis } from "@/hooks/useLenis";
 import { isCompactViewport } from "@/lib/layoutBreakpoints";
 import {
-  isInFactoryBand,
+  isFactoryPhase,
   JOURNEY,
   JOURNEY_HEIGHT_VH,
   resolveJourneyPhase,
@@ -22,14 +23,7 @@ import {
 } from "@/lib/factory/scrollJourney";
 
 const BUILD_DURATION = 5500;
-
-const SCROLL_HINTS: Record<JourneyPhase, string> = {
-  hero: "Scroll to explore",
-  problem: "Scroll to continue",
-  solution: "Scroll to continue",
-  factory: "Scroll to explore the factory",
-  contact: "",
-};
+const HERO_SCROLL_HINT = "Scroll to explore";
 
 export default function FactoryLanding() {
   const journeyRef = useRef<HTMLDivElement>(null);
@@ -44,7 +38,6 @@ export default function FactoryLanding() {
   const hasUserScrolledRef = useRef(false);
 
   const [factoryMounted, setFactoryMounted] = useState(false);
-  const [factoryVisible, setFactoryVisible] = useState(false);
   const [factoryInteractive, setFactoryInteractive] = useState(false);
   const [scenePaused, setScenePaused] = useState(true);
   const [storyEnabled, setStoryEnabled] = useState(false);
@@ -69,47 +62,60 @@ export default function FactoryLanding() {
   const heroY = useTransform(
     scrollYProgress,
     [0, JOURNEY.hero.fadeOut[0], JOURNEY.hero.fadeOut[1]],
-    [0, 0, -20]
+    [0, 0, -16]
   );
+  const heroZIndex = useTransform(scrollYProgress, [0, 0.06, JOURNEY.hero.fadeOut[1]], [20, 20, 8]);
   const heroVisibility = useTransform(heroOpacity, (value) =>
     value < 0.04 ? "hidden" : "visible"
   );
 
-  const problemOpacity = useTransform(
+  const storyOpacity = useTransform(
     scrollYProgress,
-    [JOURNEY.problem.fadeIn[0], JOURNEY.problem.fadeIn[1], JOURNEY.problem.fadeOut[0], JOURNEY.problem.fadeOut[1]],
+    [JOURNEY.problem.fadeIn[0], JOURNEY.problem.fadeIn[1], JOURNEY.solution.fadeOut[0], JOURNEY.solution.fadeOut[1]],
     [0, 1, 1, 0]
   );
-  const problemY = useTransform(
+  const storyY = useTransform(
     scrollYProgress,
-    [JOURNEY.problem.fadeIn[0], JOURNEY.problem.fadeIn[1], JOURNEY.problem.fadeOut[0], JOURNEY.problem.fadeOut[1]],
-    [28, 0, 0, -18]
+    [JOURNEY.problem.fadeIn[0], JOURNEY.problem.fadeIn[1], JOURNEY.solution.fadeOut[0], JOURNEY.solution.fadeOut[1]],
+    [20, 0, 0, -16]
   );
-  const problemVisibility = useTransform(problemOpacity, (value) =>
-    value < 0.04 ? "hidden" : "visible"
-  );
-
-  const solutionOpacity = useTransform(
-    scrollYProgress,
-    [JOURNEY.solution.fadeIn[0], JOURNEY.solution.fadeIn[1], JOURNEY.solution.fadeOut[0], JOURNEY.solution.fadeOut[1]],
-    [0, 1, 1, 0]
-  );
-  const solutionY = useTransform(
-    scrollYProgress,
-    [JOURNEY.solution.fadeIn[0], JOURNEY.solution.fadeIn[1], JOURNEY.solution.fadeOut[0], JOURNEY.solution.fadeOut[1]],
-    [28, 0, 0, -18]
-  );
-  const solutionVisibility = useTransform(solutionOpacity, (value) =>
-    value < 0.04 ? "hidden" : "visible"
+  const storyVisibility = useTransform(storyOpacity, (value) =>
+    value < 0.02 ? "hidden" : "visible"
   );
 
   const factoryOpacity = useTransform(
     scrollYProgress,
-    [JOURNEY.factory.fadeIn[0], JOURNEY.factory.fadeIn[1], JOURNEY.factory.fadeOut[0], JOURNEY.factory.fadeOut[1]],
+    [
+      JOURNEY.factory.fadeIn[0],
+      JOURNEY.factory.fadeIn[1],
+      JOURNEY.problem.fadeIn[0],
+      JOURNEY.problem.fadeIn[0] + 0.001,
+    ],
     [0, 1, 1, 0]
   );
-  const factoryVisibility = useTransform(factoryOpacity, (value) =>
-    value < 0.04 ? "hidden" : "visible"
+
+  const customersOpacity = useTransform(
+    scrollYProgress,
+    [
+      JOURNEY.customers.fadeIn[0],
+      JOURNEY.customers.fadeIn[1],
+      JOURNEY.customers.fadeOut[0],
+      JOURNEY.customers.fadeOut[1],
+    ],
+    [0, 1, 1, 0]
+  );
+  const customersY = useTransform(
+    scrollYProgress,
+    [
+      JOURNEY.customers.fadeIn[0],
+      JOURNEY.customers.fadeIn[1],
+      JOURNEY.customers.fadeOut[0],
+      JOURNEY.customers.fadeOut[1],
+    ],
+    [20, 0, 0, -16]
+  );
+  const customersVisibility = useTransform(customersOpacity, (value) =>
+    value < 0.02 ? "hidden" : "visible"
   );
 
   const contactOpacity = useTransform(
@@ -177,19 +183,20 @@ export default function FactoryLanding() {
       setJourneyPhase(phase);
     }
 
-    const inFactory = isInFactoryBand(progress);
+    const inFactory = isFactoryPhase(progress);
     const canMountFactory = shouldMountFactory(progress, hasUserScrolledRef.current);
 
     if (canMountFactory) {
       setFactoryMounted(true);
     }
 
-    setFactoryVisible((prev) => (prev === canMountFactory ? prev : canMountFactory));
-
     const nextPaused = !inFactory;
     if (factoryPausedRef.current !== nextPaused) {
       factoryPausedRef.current = nextPaused;
       setScenePaused(nextPaused);
+      if (nextPaused) {
+        dismissOverlaysRef.current?.();
+      }
     }
 
     const nextInteractive = inFactory && buildCompleteRef.current;
@@ -218,18 +225,33 @@ export default function FactoryLanding() {
     if (!animationActive) return;
 
     let frameId = 0;
-    const startTime = performance.now();
+    let lastFrameAt = performance.now();
+
+    const onVisibilityChange = () => {
+      lastFrameAt = performance.now();
+    };
 
     const tick = (now: number) => {
-      const elapsed = now - startTime;
-      buildProgressRef.current = Math.min(1, elapsed / BUILD_DURATION);
+      const delta = Math.min(100, Math.max(0, now - lastFrameAt));
+      lastFrameAt = now;
+
+      const shouldAdvanceBuild =
+        document.visibilityState === "visible" && !factoryPausedRef.current;
+
+      if (shouldAdvanceBuild) {
+        buildProgressRef.current = Math.min(
+          1,
+          buildProgressRef.current + delta / BUILD_DURATION
+        );
+      }
+
 
       if (buildProgressRef.current >= 1) {
         buildProgressRef.current = 1;
         buildCompleteRef.current = true;
         storyEnabledRef.current = true;
         setStoryEnabled(true);
-        const interactive = isInFactoryBand(scrollYProgress.get());
+        const interactive = isFactoryPhase(scrollYProgress.get());
         factoryInteractiveRef.current = interactive;
         setFactoryInteractive(interactive);
         return;
@@ -238,12 +260,16 @@ export default function FactoryLanding() {
       frameId = requestAnimationFrame(tick);
     };
 
+    document.addEventListener("visibilitychange", onVisibilityChange);
     frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      cancelAnimationFrame(frameId);
+    };
   }, [animationActive, scrollYProgress]);
 
   const showHeroBeams = journeyPhase === "hero";
-  const showScrollHint = journeyPhase !== "contact" && SCROLL_HINTS[journeyPhase].length > 0;
+  const showScrollHint = journeyPhase === "hero";
 
   return (
     <main
@@ -258,17 +284,22 @@ export default function FactoryLanding() {
         className="factory-scroll-journey"
         style={{ ["--factory-journey-vh" as string]: String(JOURNEY_HEIGHT_VH) }}
       >
-        <div className="factory-experience-stage" aria-label="NeoFab scroll experience">
+        <div
+          className="factory-experience-stage"
+          aria-label="NeoFab scroll experience"
+        >
           <div aria-hidden className="factory-page-atmosphere absolute inset-0" />
 
           <motion.div
-            className="factory-scroll-layer factory-scroll-layer--factory"
-            style={{ opacity: factoryOpacity, visibility: factoryVisibility }}
+            className={`factory-scroll-layer factory-scroll-layer--factory ${
+              journeyPhase === "factory" ? "factory-scroll-layer--native-scroll" : ""
+            }`}
+            data-lenis-prevent={journeyPhase === "factory" ? "" : undefined}
+            style={{ opacity: factoryOpacity }}
           >
             {factoryMounted && (
               <div
                 className={`absolute inset-0 ${factoryInteractive ? "pointer-events-auto" : "pointer-events-none"}`}
-                style={{ visibility: factoryVisible ? "visible" : "hidden" }}
               >
                 <FactoryBuildExperience
                   getBuildProgress={getBuildProgress}
@@ -278,7 +309,7 @@ export default function FactoryLanding() {
                   scenePaused={scenePaused}
                   getScenePaused={getScenePaused}
                   sceneInteractive={factoryInteractive}
-                  showReturnToHero={storyEnabled && factoryInteractive}
+                  showReturnToHero={false}
                   onReturnToHero={scrollToTop}
                   dismissOverlaysRef={dismissOverlaysRef}
                 />
@@ -287,22 +318,24 @@ export default function FactoryLanding() {
           </motion.div>
 
           <motion.div
-            className="factory-scroll-layer factory-scroll-layer--problem"
-            style={{ opacity: problemOpacity, y: problemY, visibility: problemVisibility }}
+            className="factory-scroll-layer factory-scroll-layer--story"
+            style={{ opacity: storyOpacity, y: storyY, visibility: storyVisibility }}
           >
-            <ProblemSection embedded />
+            <StitchedStorySection scrollProgress={scrollYProgress} />
           </motion.div>
 
           <motion.div
-            className="factory-scroll-layer factory-scroll-layer--solution"
-            style={{ opacity: solutionOpacity, y: solutionY, visibility: solutionVisibility }}
+            className={`factory-scroll-layer factory-scroll-layer--customers ${
+              journeyPhase === "customers" ? "factory-scroll-layer--interactive" : ""
+            }`}
+            style={{ opacity: customersOpacity, y: customersY, visibility: customersVisibility }}
           >
-            <IntroducingSection embedded />
+            <CustomersClientsSection embedded />
           </motion.div>
 
           <motion.div
             className="factory-scroll-layer factory-scroll-layer--hero factory-hero-overlay"
-            style={{ opacity: heroOpacity, y: heroY, visibility: heroVisibility }}
+            style={{ opacity: heroOpacity, y: heroY, visibility: heroVisibility, zIndex: heroZIndex }}
           >
             {showHeroBeams && (
               <div aria-hidden className="hero-beams-layer absolute inset-0 z-0 opacity-70">
@@ -326,15 +359,12 @@ export default function FactoryLanding() {
 
             <div className="factory-hero-content relative z-10 min-h-0 flex-1">
               <div className="factory-hero-inner">
-                <p className="factory-hero-kicker mb-3 font-fragment uppercase text-teal-300/70 sm:mb-4">
-                  NeoFab · AI factory planning
-                </p>
-                <h1 className="factory-hero-title font-orbitron leading-[1.02] tracking-tight">
-                  <span className="block text-white">Plan your factory</span>
-                  <span className="factory-hero-title-accent mt-1 block text-teal-300">
-                    in hours, not weeks
-                  </span>
-                </h1>
+                {journeyPhase === "hero" && (
+                  <p className="factory-hero-kicker mb-3 font-fragment uppercase text-teal-300/70 sm:mb-4">
+                    NeoFab · AI factory planning
+                  </p>
+                )}
+                <FactoryHeroTitle scrollProgress={scrollYProgress} scrollReady={scrollReady} />
               </div>
             </div>
           </motion.div>
@@ -345,12 +375,12 @@ export default function FactoryLanding() {
             }`}
             style={{ opacity: contactOpacity, y: contactY, visibility: contactVisibility }}
           >
-            <FactoryContactSection embedded />
+            <FactoryContactSection embedded scrollProgress={scrollYProgress} />
           </motion.div>
 
           {showScrollHint && (
             <p className="factory-scroll-hint font-fragment text-[10px] uppercase tracking-[0.24em] text-teal-400/55 sm:text-[11px] sm:tracking-[0.28em]">
-              {SCROLL_HINTS[journeyPhase]}
+              {HERO_SCROLL_HINT}
             </p>
           )}
         </div>

@@ -124,13 +124,6 @@ export default function FactoryBuildExperience({
   }, []);
 
   useEffect(() => {
-    if (!storyAnalysisEnabled) return;
-    storyRef.current = initialStorySnapshot(performance.now(), bottleneckStationId);
-    setStoryPhase("underproduction");
-    setFlowCaptionText(null);
-  }, [storyAnalysisEnabled, bottleneckStationId]);
-
-  useEffect(() => {
     const check = () => setIsPhone(isPhoneViewport());
     check();
     window.addEventListener("resize", check);
@@ -171,6 +164,7 @@ export default function FactoryBuildExperience({
     if (!storyAnalysisEnabled) return;
 
     const flow = computeFlowState(storyRef.current, performance.now());
+    setStoryPhase(storyRef.current.phase);
     setFlowCaptionText(flowCaption(flow, storyRef.current));
   }, [storyAnalysisEnabled, storyPhase]);
 

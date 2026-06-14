@@ -20,7 +20,7 @@ import {
   updateFocusRing,
 } from "./sceneFocus";
 import { computeFlowState, dormantFlowState, type StorySnapshot } from "./flowOptimization";
-import { prepareBottleneckFxForStation } from "./flowVisuals";
+import { prewarmFlowVisuals } from "./flowVisuals";
 import { updateShellWallFade } from "./shellWalls";
 
 export type FactorySceneHandle = {
@@ -66,11 +66,12 @@ export function mountFactoryScene(
   if (simplified) {
     controls.enablePan = false;
     controls.enableZoom = false;
-    controls.enableRotate = false;
+    controls.enableRotate = true;
   }
 
   const materials = makeMaterials();
   const build = makeBuildSequence(materials);
+  prewarmFlowVisuals(build.stationGroups, getStorySnapshot().bottleneckStationId);
   const factoryRoot = new THREE.Group();
   scene.add(factoryRoot);
   const initialProgress = clamp(getProgress());
@@ -162,7 +163,6 @@ export function mountFactoryScene(
 
   let frameId = 0;
   let isPageVisible = document.visibilityState === "visible";
-  let prewarmedBottleneckStationId: string | null = null;
   const onVisibilityChange = () => {
     isPageVisible = document.visibilityState === "visible";
     if (isPageVisible) lastFrameMs = performance.now();
@@ -171,6 +171,8 @@ export function mountFactoryScene(
 
   let smoothedP = clamp(getProgress());
   let frozenSimTimeMs: number | null = null;
+  let lastPausedRenderMs = 0;
+  const PAUSED_RENDER_INTERVAL_MS = 250;
 
   const render = () => {
     frameId = window.requestAnimationFrame(render);
@@ -180,8 +182,14 @@ export function mountFactoryScene(
     const isPaused = getScenePaused?.() ?? false;
     if (isPaused) {
       if (frozenSimTimeMs === null) frozenSimTimeMs = now;
+      if (!focusState && now - lastPausedRenderMs < PAUSED_RENDER_INTERVAL_MS) {
+        return;
+      }
     } else {
       frozenSimTimeMs = null;
+    }
+    if (isPaused) {
+      lastPausedRenderMs = now;
     }
     const simNow = frozenSimTimeMs ?? now;
     const deltaSec = isPaused ? 0 : Math.min(0.05, (now - lastFrameMs) / 1000);
@@ -206,13 +214,6 @@ export function mountFactoryScene(
     const storyActive = getStoryActive?.() ?? false;
     const storySnapshot = getStorySnapshot();
     build.flowVisuals.root.visible = storyActive;
-    if (!isPaused && storyActive && prewarmedBottleneckStationId !== storySnapshot.bottleneckStationId) {
-      const station = build.stationGroups.get(storySnapshot.bottleneckStationId);
-      if (station) {
-        prepareBottleneckFxForStation(station);
-      }
-      prewarmedBottleneckStationId = storySnapshot.bottleneckStationId;
-    }
     const flowState = storyActive
       ? computeFlowState(storySnapshot, simNow)
       : dormantFlowState(storySnapshot);

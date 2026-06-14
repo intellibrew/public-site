@@ -13,6 +13,106 @@ import {
   packagingPreviewSnapshot,
 } from "../packagingFlow";
 
+type Vec3 = [number, number, number];
+type XzPoint = { x: number; z: number };
+
+type PalletStackConfig = {
+  name: string;
+  center: XzPoint;
+  deckSize: Vec3;
+  slatSize: Vec3;
+  slatZOffsets: number[];
+  layerCount: number;
+  layerSize: Vec3;
+  layerPitch: number;
+  layerBaseY: number;
+  labelSize: Vec3;
+  labelOffsetFromLayerCenter: Vec3;
+  layerMaterials: [THREE.Material, THREE.Material];
+};
+
+const midpoint = (a: number, b: number) => (a + b) / 2;
+
+const positionFromXz = (
+  center: XzPoint,
+  y: number,
+  offsetX = 0,
+  offsetZ = 0
+): Vec3 => [center.x + offsetX, y, center.z + offsetZ];
+
+const offsetPosition = (position: Vec3, offset: Vec3): Vec3 => [
+  position[0] + offset[0],
+  position[1] + offset[1],
+  position[2] + offset[2],
+];
+
+function addNamedBox(
+  group: THREE.Group,
+  name: string,
+  size: Vec3,
+  position: Vec3,
+  material: THREE.Material,
+  castShadow = true
+) {
+  const mesh = box(size, position, material, castShadow);
+  mesh.name = name;
+  group.add(mesh);
+  return mesh;
+}
+
+function addPalletStack(
+  group: THREE.Group,
+  materials: Materials,
+  config: PalletStackConfig
+) {
+  addNamedBox(
+    group,
+    `${config.name}-deck`,
+    config.deckSize,
+    positionFromXz(config.center, config.deckSize[1] / 2),
+    materials.darkSteel
+  );
+
+  config.slatZOffsets.forEach((zOffset, index) => {
+    addNamedBox(
+      group,
+      `${config.name}-slat-${index + 1}`,
+      config.slatSize,
+      positionFromXz(config.center, config.slatSize[1] / 2, 0, zOffset),
+      materials.darkSteel,
+      false
+    );
+  });
+
+  const layers: THREE.Mesh[] = [];
+  for (let index = 0; index < config.layerCount; index += 1) {
+    const layerCenter = positionFromXz(
+      config.center,
+      config.layerBaseY + index * config.layerPitch + config.layerSize[1] / 2
+    );
+    const layer = addNamedBox(
+      group,
+      `${config.name}-package-layer-${index + 1}`,
+      config.layerSize,
+      layerCenter,
+      config.layerMaterials[index % config.layerMaterials.length]
+    );
+    layer.visible = false;
+    layers.push(layer);
+
+    addNamedBox(
+      group,
+      `${config.name}-label-${index + 1}`,
+      config.labelSize,
+      offsetPosition(layerCenter, config.labelOffsetFromLayerCenter),
+      materials.enamel,
+      false
+    );
+  }
+
+  return layers;
+}
+
 function applyStackLayers(
   layers: THREE.Mesh[],
   visibleLayers: number,
@@ -199,45 +299,81 @@ export function buildPackaging(materials: Materials) {
     group.add(light);
   });
 
-  const paX = 2.88;
-  const paZ = -0.68;
-  group.add(box([1.18, 0.09, 0.98], [paX, 0.045, paZ], materials.darkSteel));
-  ([-0.42, 0, 0.42] as number[]).forEach((oz) => {
-    group.add(box([0.96, 0.04, 0.16], [paX, 0.02, paZ + oz], materials.darkSteel, false));
+  const palletA = {
+    center: { x: 2.88, z: -0.68 },
+    deckSize: [1.18, 0.09, 0.98] as Vec3,
+    layerSize: [1.04, 0.23, 0.82] as Vec3,
+  };
+  const palletALayers = addPalletStack(group, materials, {
+    name: "packaging-pallet-a",
+    center: palletA.center,
+    deckSize: palletA.deckSize,
+    slatSize: [0.96, 0.04, 0.16],
+    slatZOffsets: [-0.42, 0, 0.42],
+    layerCount: 4,
+    layerSize: palletA.layerSize,
+    layerPitch: 0.27,
+    layerBaseY: palletA.deckSize[1],
+    labelSize: [0.26, 0.14, 0.038],
+    labelOffsetFromLayerCenter: [-0.22, -0.015, -palletA.layerSize[2] / 2],
+    layerMaterials: [materials.machineLight, materials.package],
   });
-  const palletALayers: THREE.Mesh[] = [];
-  for (let i = 0; i < 4; i += 1) {
-    const by = 0.09 + i * 0.27;
-    const layerMat = i % 2 === 0 ? materials.machineLight : materials.package;
-    const layer = box([1.04, 0.23, 0.82], [paX, by + 0.115, paZ], layerMat);
-    layer.visible = false;
-    palletALayers.push(layer);
-    group.add(layer);
-    group.add(box([0.26, 0.14, 0.038], [paX - 0.22, by + 0.1, paZ - 0.41], materials.enamel, false));
-  }
 
-  const pbX = 4.12;
-  const pbZ = -0.72;
-  group.add(box([0.98, 0.09, 0.82], [pbX, 0.045, pbZ], materials.darkSteel));
-  ([-0.32, 0.32] as number[]).forEach((oz) => {
-    group.add(box([0.78, 0.04, 0.14], [pbX, 0.02, pbZ + oz], materials.darkSteel, false));
+  const palletB = {
+    center: { x: 4.12, z: -0.72 },
+    deckSize: [0.98, 0.09, 0.82] as Vec3,
+    layerSize: [0.84, 0.21, 0.68] as Vec3,
+  };
+  const palletBLayers = addPalletStack(group, materials, {
+    name: "packaging-pallet-b",
+    center: palletB.center,
+    deckSize: palletB.deckSize,
+    slatSize: [0.78, 0.04, 0.14],
+    slatZOffsets: [-0.32, 0.32],
+    layerCount: 3,
+    layerSize: palletB.layerSize,
+    layerPitch: 0.25,
+    layerBaseY: palletB.deckSize[1],
+    labelSize: [0.22, 0.12, 0.036],
+    labelOffsetFromLayerCenter: [-0.18, -0.035, -palletB.layerSize[2] / 2],
+    layerMaterials: [materials.package, materials.machineLight],
   });
-  const palletBLayers: THREE.Mesh[] = [];
-  for (let i = 0; i < 3; i += 1) {
-    const by = 0.09 + i * 0.25;
-    const layer = box([0.84, 0.21, 0.68], [pbX, by + 0.105, pbZ], i % 2 === 0 ? materials.package : materials.machineLight);
-    layer.visible = false;
-    palletBLayers.push(layer);
-    group.add(layer);
-    group.add(box([0.22, 0.12, 0.036], [pbX - 0.18, by + 0.07, pbZ - 0.34], materials.enamel, false));
-  }
 
-  const pcX = 1.98;
-  const pcZ = -0.72;
-  group.add(box([1.06, 0.09, 0.88], [pcX, 0.045, pcZ], materials.darkSteel));
-  group.add(box([0.92, 0.23, 0.74], [pcX, 0.205, pcZ], materials.machineLight));
-  group.add(box([0.24, 0.14, 0.036], [pcX - 0.2, 0.16, pcZ - 0.37], materials.enamel, false));
-  const inboundProduct = makeProduct(materials.enamel, [pcX, 0.28, pcZ]);
+  const inboundCartonSize: Vec3 = [0.92, 0.23, 0.74];
+  const inboundBuffer = {
+    center: { x: 1.98, z: -0.72 },
+    deckSize: [1.06, 0.09, 0.88] as Vec3,
+    cartonSize: inboundCartonSize,
+    labelSize: [0.24, 0.14, 0.036] as Vec3,
+    labelOffsetFromCartonCenter: [-0.2, -0.045, -inboundCartonSize[2] / 2] as Vec3,
+  };
+  addNamedBox(
+    group,
+    "packaging-inbound-deck",
+    inboundBuffer.deckSize,
+    positionFromXz(inboundBuffer.center, inboundBuffer.deckSize[1] / 2),
+    materials.darkSteel
+  );
+  const inboundCartonCenter = positionFromXz(
+    inboundBuffer.center,
+    inboundBuffer.deckSize[1] + inboundBuffer.cartonSize[1] / 2
+  );
+  addNamedBox(
+    group,
+    "packaging-inbound-carton",
+    inboundBuffer.cartonSize,
+    inboundCartonCenter,
+    materials.machineLight
+  );
+  addNamedBox(
+    group,
+    "packaging-inbound-label",
+    inboundBuffer.labelSize,
+    offsetPosition(inboundCartonCenter, inboundBuffer.labelOffsetFromCartonCenter),
+    materials.enamel,
+    false
+  );
+  const inboundProduct = makeProduct(materials.enamel, positionFromXz(inboundBuffer.center, 0.28));
   applyProductShape(inboundProduct, PRODUCT_SHAPE_CUBE);
   inboundProduct.visible = false;
   group.add(inboundProduct);
@@ -251,21 +387,93 @@ export function buildPackaging(materials: Materials) {
   }
   group.add(box([1.4, 0.014, 0.42], [5.1, 0.092, -0.68], materials.belt, false));
 
-  const craneH = 3.28;
-  const craneCols: [number, number][] = [[1.94, 0.3], [4.48, 0.3], [1.94, -1.72], [4.48, -1.72]];
-  craneCols.forEach(([cx, cz]) => {
-    group.add(box([0.13, craneH, 0.13], [cx, craneH / 2, cz], materials.machineDark));
-    group.add(box([0.17, 0.024, 0.17], [cx, 0.13, cz], materials.darkSteel));
-    group.add(box([0.17, 0.024, 0.17], [cx, craneH - 0.07, cz], materials.darkSteel));
+  const craneFrame = {
+    height: 3.28,
+    leftX: inboundBuffer.center.x - 0.04,
+    rightX: palletB.center.x + 0.36,
+    frontZ: palletA.center.z + 0.98,
+    backZ: palletB.center.z - 1,
+  };
+  const craneCenter = {
+    x: midpoint(craneFrame.leftX, craneFrame.rightX),
+    z: midpoint(craneFrame.frontZ, craneFrame.backZ),
+  };
+  const craneSpanX = craneFrame.rightX - craneFrame.leftX;
+  const craneSpanZ = craneFrame.frontZ - craneFrame.backZ;
+  const craneColumns = [
+    { name: "front-left", x: craneFrame.leftX, z: craneFrame.frontZ },
+    { name: "front-right", x: craneFrame.rightX, z: craneFrame.frontZ },
+    { name: "back-left", x: craneFrame.leftX, z: craneFrame.backZ },
+    { name: "back-right", x: craneFrame.rightX, z: craneFrame.backZ },
+  ];
+  craneColumns.forEach((column) => {
+    addNamedBox(
+      group,
+      `packaging-crane-column-${column.name}`,
+      [0.13, craneFrame.height, 0.13],
+      [column.x, craneFrame.height / 2, column.z],
+      materials.machineDark
+    );
+    addNamedBox(
+      group,
+      `packaging-crane-foot-${column.name}`,
+      [0.17, 0.024, 0.17],
+      [column.x, 0.13, column.z],
+      materials.darkSteel
+    );
+    addNamedBox(
+      group,
+      `packaging-crane-cap-${column.name}`,
+      [0.17, 0.024, 0.17],
+      [column.x, craneFrame.height - 0.07, column.z],
+      materials.darkSteel
+    );
   });
-  group.add(box([2.7, 0.1, 0.1], [3.21, craneH, 0.3], materials.darkSteel));
-  group.add(box([2.7, 0.1, 0.1], [3.21, craneH, -1.72], materials.darkSteel));
-  group.add(box([0.1, 0.1, 2.18], [1.94, craneH, -0.71], materials.darkSteel));
-  group.add(box([0.1, 0.1, 2.18], [4.48, craneH, -0.71], materials.darkSteel));
-  group.add(box([2.66, 0.065, 2.14], [3.21, craneH + 0.04, -0.71], materials.machineDark));
-  group.add(box([2.5, 0.014, 1.98], [3.21, craneH + 0.06, -0.71], materials.machine));
+  addNamedBox(
+    group,
+    "packaging-crane-front-rail",
+    [craneSpanX + 0.16, 0.1, 0.1],
+    [craneCenter.x, craneFrame.height, craneFrame.frontZ],
+    materials.darkSteel
+  );
+  addNamedBox(
+    group,
+    "packaging-crane-back-rail",
+    [craneSpanX + 0.16, 0.1, 0.1],
+    [craneCenter.x, craneFrame.height, craneFrame.backZ],
+    materials.darkSteel
+  );
+  addNamedBox(
+    group,
+    "packaging-crane-left-cross-rail",
+    [0.1, 0.1, craneSpanZ + 0.16],
+    [craneFrame.leftX, craneFrame.height, craneCenter.z],
+    materials.darkSteel
+  );
+  addNamedBox(
+    group,
+    "packaging-crane-right-cross-rail",
+    [0.1, 0.1, craneSpanZ + 0.16],
+    [craneFrame.rightX, craneFrame.height, craneCenter.z],
+    materials.darkSteel
+  );
+  addNamedBox(
+    group,
+    "packaging-crane-overhead-deck",
+    [craneSpanX + 0.12, 0.065, craneSpanZ + 0.12],
+    [craneCenter.x, craneFrame.height + 0.04, craneCenter.z],
+    materials.machineDark
+  );
+  addNamedBox(
+    group,
+    "packaging-crane-overhead-panel",
+    [craneSpanX - 0.04, 0.014, craneSpanZ - 0.04],
+    [craneCenter.x, craneFrame.height + 0.06, craneCenter.z],
+    materials.machine
+  );
   const gantryCrane = new THREE.Group();
-  gantryCrane.position.set(2.2, craneH, -0.71);
+  gantryCrane.name = "packaging-gantry-crane";
+  gantryCrane.position.set(inboundBuffer.center.x + 0.22, craneFrame.height, craneCenter.z);
   group.add(gantryCrane);
   gantryCrane.add(box([0.58, 0.26, 0.62], [0, 0, 0], materials.machine));
   gantryCrane.add(box([0.5, 0.08, 0.52], [0, 0.17, 0], materials.machineLight));
@@ -342,8 +550,8 @@ export function buildPackaging(materials: Materials) {
   packingLight.position.set(2.4, 1.0, -0.68);
   group.add(packingLight);
 
-  const craneHome = new THREE.Vector3(2.0, craneH, -0.71);
-  const cranePick = new THREE.Vector3(4.35, craneH, -1.02);
+  const craneHome = new THREE.Vector3(inboundBuffer.center.x + 0.02, craneFrame.height, craneCenter.z);
+  const cranePick = new THREE.Vector3(palletB.center.x + 0.23, craneFrame.height, palletB.center.z - 0.3);
 
   group.userData.packagingRig = {
     sealHead,

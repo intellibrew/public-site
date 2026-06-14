@@ -16,10 +16,10 @@ const dataNodes = [
 
 const DESIGN_SIZE = 484; 
 
-const SECTION_PADDING = 32;
-const LABEL_PADDING = 40;
+const SECTION_PADDING = 40;
+const LABEL_PADDING = 32;
 const NARROW_BREAKPOINT = 520;
-const MIN_SCALE = 0.65;
+const MIN_SCALE = 0.5;
 
 function getScaleForViewport(): number {
   if (typeof window === "undefined") return 1;
@@ -30,7 +30,7 @@ function getScaleForViewport(): number {
   return Math.min(1, Math.max(MIN_SCALE, maxDiagramWithPadding / DESIGN_SIZE));
 }
 
-export default function AdvancedFactoryAnimation() {
+export default function AdvancedFactoryAnimation({ active = true }: { active?: boolean }) {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
   const nodeCount = dataNodes.length;
@@ -57,28 +57,23 @@ export default function AdvancedFactoryAnimation() {
 
   const scaledSize = size * scale;
   const isNarrow = scale < 1;
-  const availableWidth = typeof window !== "undefined" ? window.innerWidth - SECTION_PADDING : size;
-  const wrapperSize = isNarrow
-    ? Math.min(scaledSize + LABEL_PADDING * 2, availableWidth)
-    : size;
 
   return (
     <div
-      className="relative mx-auto overflow-visible"
+      className="relative mx-auto flex w-full items-center justify-center overflow-visible"
       style={{
-        width: wrapperSize,
-        height: wrapperSize,
+        width: "100%",
+        height: isNarrow ? scaledSize + 8 : size,
         maxWidth: "100%",
       }}
     >
       <div
-        className="relative"
+        className="relative shrink-0"
         style={{
           width: size,
           height: size,
           transform: `scale(${scale})`,
-          transformOrigin: "0 0",
-          ...(isNarrow ? { position: "absolute" as const, left: LABEL_PADDING / 2, top: LABEL_PADDING / 2 } : {}),
+          transformOrigin: "center center",
         }}
       >
       <div 
@@ -108,7 +103,7 @@ export default function AdvancedFactoryAnimation() {
           cy={center}
           r={orbitRadius}
           fill="none"
-          stroke="rgba(251,113,133,0.1)"
+          stroke="rgba(251,113,133,0.22)"
           strokeWidth="1"
           strokeDasharray="5 8"
         />
@@ -136,8 +131,8 @@ export default function AdvancedFactoryAnimation() {
               y1={startY}
               x2={pos.x}
               y2={pos.y}
-              stroke="rgba(251,113,133,0.06)"
-              strokeWidth="1"
+              stroke="rgba(251,113,133,0.18)"
+              strokeWidth="1.25"
             />
           );
         })}
@@ -161,8 +156,8 @@ export default function AdvancedFactoryAnimation() {
           cx={center}
           cy={center}
           r={centerRadius}
-          fill="rgba(10,15,25,0.95)"
-          stroke="rgba(251,113,133,0.2)"
+          fill="none"
+          stroke="rgba(251,113,133,0.32)"
           strokeWidth="1.5"
         />
 
@@ -171,7 +166,7 @@ export default function AdvancedFactoryAnimation() {
           cy={center}
           r={centerRadius - 8}
           fill="none"
-          stroke="rgba(251,113,133,0.08)"
+          stroke="rgba(251,113,133,0.16)"
           strokeWidth="1"
         />
       </svg>
@@ -180,15 +175,15 @@ export default function AdvancedFactoryAnimation() {
         width={size}
         height={size}
         className="absolute inset-0 pointer-events-none"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 100, repeat: Infinity, ease: "linear" }}
+        animate={active ? { rotate: 360 } : false}
+        transition={{ duration: 100, repeat: active ? Infinity : 0, ease: "linear" }}
       >
         <circle
           cx={center}
           cy={center}
           r={orbitRadius}
           fill="none"
-          stroke="rgba(251,113,133,0.04)"
+          stroke="rgba(251,113,133,0.12)"
           strokeWidth="1"
           strokeDasharray="3 15"
         />
@@ -202,37 +197,53 @@ export default function AdvancedFactoryAnimation() {
           width: (centerRadius + 8) * 2,
           height: (centerRadius + 8) * 2,
         }}
-        animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.25, 0, 0.25],
-        }}
-        transition={{ duration: 4, repeat: Infinity, ease: [0.4, 0, 0.6, 1] }}
+        animate={
+          active
+            ? {
+                scale: [1, 1.2, 1],
+                opacity: [0.25, 0, 0.25],
+              }
+            : false
+        }
+        transition={{ duration: 4, repeat: active ? Infinity : 0, ease: [0.4, 0, 0.6, 1] }}
       />
 
       <div
-        className="absolute flex items-center justify-center z-10"
+        className="absolute z-10 flex items-center justify-center"
         style={{
-          left: center - 28,
-          top: center - 28,
-          width: 56,
-          height: 56,
+          left: center - centerRadius + 8,
+          top: center - centerRadius + 8,
+          width: (centerRadius - 8) * 2,
+          height: (centerRadius - 8) * 2,
         }}
       >
         <motion.button
           type="button"
-          className="cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080a0f] rounded-full p-1"
+          className="relative flex h-full w-full cursor-pointer items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080a0f]"
           onMouseEnter={() => setHoveredNode("center")}
           onMouseLeave={() => setHoveredNode(null)}
           onFocus={() => setHoveredNode("center")}
           onBlur={() => setHoveredNode(null)}
           title="Scattered inputs, no single source of truth"
         >
+          <div className="absolute inset-0 rounded-full bg-black/90 backdrop-blur-md" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent" />
+          <div
+            className="absolute inset-0 rounded-full border transition-colors duration-300"
+            style={{
+              borderColor:
+                hoveredNode === "center" ? "rgba(251,113,133,0.4)" : "rgba(251,113,133,0.2)",
+            }}
+          />
           <motion.div
-            animate={{ scale: hoveredNode === "center" ? 1.08 : [1, 1.04, 1] }}
+            className="relative z-10"
+            animate={{ scale: hoveredNode === "center" ? 1.08 : active ? [1, 1.04, 1] : 1 }}
             transition={
               hoveredNode === "center"
                 ? { type: "spring", stiffness: 280, damping: 28 }
-                : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                : active
+                  ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                  : { duration: 0 }
             }
             style={{
               filter: hoveredNode === "center"
@@ -241,7 +252,7 @@ export default function AdvancedFactoryAnimation() {
             }}
           >
             <svg
-              className="w-14 h-14 text-red-400"
+              className="h-14 w-14 text-red-400"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -300,11 +311,13 @@ export default function AdvancedFactoryAnimation() {
               aria-label={node.tooltip}
             >
               <motion.div
-                animate={{ y: isHovered ? 0 : [0, -5, 0] }}
+                animate={{ y: isHovered ? 0 : active ? [0, -5, 0] : 0 }}
                 transition={
                   isHovered
                     ? { type: "spring", stiffness: 280, damping: 28 }
-                    : { duration: 5, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }
+                    : active
+                      ? { duration: 5, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }
+                      : { duration: 0 }
                 }
               >
                 <motion.div
@@ -351,7 +364,8 @@ export default function AdvancedFactoryAnimation() {
         );
       })}
 
-      {dataNodes.map((_, i) => {
+      {active &&
+        dataNodes.map((_, i) => {
         const pos = getNodePosition(i);
         return (
           <motion.div

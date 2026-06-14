@@ -7,6 +7,8 @@ import {
   progressToScrollY,
   resolveSnapProgress,
   scrollYToProgress,
+  shouldCommitTransition,
+  shouldDisableJourneySnap,
   SNAP_DURATION_S,
   SNAP_IDLE_MS,
   SNAP_MIN_DELTA,
@@ -43,9 +45,32 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
 
   const scrollToProgress = useCallback(
     (progress: number, duration = SNAP_DURATION_S) => {
+      if (isSnappingRef.current) return;
       animateToProgress(progress, duration);
     },
     [animateToProgress]
+  );
+
+  const trySnap = useCallback(
+    (lenis: Lenis, direction: 0 | 1 | -1) => {
+      if (isSnappingRef.current || !hasUserScrolledRef.current) return false;
+
+      const journeyEl = journeyRef.current;
+      if (!journeyEl) return false;
+
+      const progress = scrollYToProgress(lenis.scroll, journeyEl.offsetHeight, window.innerHeight);
+      if (shouldDisableJourneySnap(progress)) return false;
+
+      const targetProgress = resolveSnapProgress(progress, direction);
+      if (targetProgress == null) return false;
+
+      const delta = Math.abs(targetProgress - progress);
+      if (delta < SNAP_MIN_DELTA) return false;
+
+      animateToProgress(targetProgress);
+      return true;
+    },
+    [animateToProgress, journeyRef]
   );
 
   useEffect(() => {
@@ -69,40 +94,48 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
   useEffect(() => {
     if (!enabled) return;
 
-    const runSnap = (lenis: Lenis) => {
-      if (isSnappingRef.current || !hasUserScrolledRef.current) return;
-
-      const journeyEl = journeyRef.current;
-      if (!journeyEl) return;
-
-      const progress = scrollYToProgress(lenis.scroll, journeyEl.offsetHeight, window.innerHeight);
-      const targetProgress = resolveSnapProgress(progress, directionRef.current);
-      if (targetProgress == null) return;
-
-      const delta = Math.abs(targetProgress - progress);
-      if (delta < SNAP_MIN_DELTA) return;
-
-      const targetY = progressToScrollY(targetProgress, journeyEl.offsetHeight, window.innerHeight);
-      if (Math.abs(targetY - lenis.scroll) < 1) return;
-
-      animateToProgress(targetProgress);
-    };
-
     const scheduleSnap = (lenis: Lenis) => {
       if (!hasUserScrolledRef.current) return;
 
+      const journeyEl = journeyRef.current;
+      if (journeyEl) {
+        const progress = scrollYToProgress(
+          lenis.scroll,
+          journeyEl.offsetHeight,
+          window.innerHeight
+        );
+        if (shouldDisableJourneySnap(progress)) return;
+      }
+
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       idleTimerRef.current = setTimeout(() => {
-        if (Math.abs(lenis.velocity) > 0.02) {
+        if (Math.abs(lenis.velocity) > 0.015) {
           scheduleSnap(lenis);
           return;
         }
-        runSnap(lenis);
+        trySnap(lenis, directionRef.current);
       }, SNAP_IDLE_MS);
     };
 
     const unsubscribe = onScroll((lenis) => {
       if (isSnappingRef.current) return;
+
+      const journeyEl = journeyRef.current;
+      if (journeyEl && hasUserScrolledRef.current && lenis.direction !== 0) {
+        const progress = scrollYToProgress(
+          lenis.scroll,
+          journeyEl.offsetHeight,
+          window.innerHeight
+        );
+        if (
+          !shouldDisableJourneySnap(progress) &&
+          shouldCommitTransition(progress, lenis.direction) &&
+          Math.abs(lenis.velocity) < 0.35
+        ) {
+          if (trySnap(lenis, lenis.direction)) return;
+        }
+      }
+
       directionRef.current = lenis.direction;
       scheduleSnap(lenis);
     });
@@ -111,7 +144,7 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
       unsubscribe();
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
-  }, [enabled, journeyRef, onScroll, animateToProgress]);
+  }, [enabled, journeyRef, onScroll, trySnap]);
 
-  return { scrollToProgress };
+  return { scrollToProgress, isSnappingRef };
 }

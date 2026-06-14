@@ -2910,6 +2910,19 @@ h3 {
   z-index: 10;
 }
 
+.factory-scroll-layer--native-scroll {
+  pointer-events: auto;
+  touch-action: pan-y;
+}
+
+.factory-scroll-layer--story {
+  z-index: 15;
+}
+
+.factory-scroll-layer--customers {
+  z-index: 16;
+}
+
 .factory-scroll-layer--problem {
   z-index: 15;
 }
@@ -2932,6 +2945,122 @@ h3 {
 
 .factory-scroll-panel {
   background: transparent;
+}
+
+.factory-stitched-story__grid {
+  max-width: 80rem;
+}
+
+.factory-stitched-story__text-panel {
+  contain: layout style;
+}
+
+.factory-stitched-story__visual {
+  contain: layout style paint;
+}
+
+@media (max-width: 767px) {
+  .factory-stitched-story__grid {
+    flex: 1;
+    min-height: 0;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    gap: 0.375rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .factory-stitched-story__text {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .factory-stitched-story__text-panel {
+    grid-area: 1 / 1;
+    position: relative;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .factory-stitched-story__text-panel--problem {
+    gap: 0.875rem;
+  }
+
+  .factory-stitched-story__text-panel--solution {
+    gap: 0.875rem;
+  }
+
+  .factory-stitched-story__text-panel--problem .text-heading {
+    font-size: clamp(1.5rem, 6.8vw, 1.875rem);
+    line-height: 1.12;
+  }
+
+  .factory-stitched-story__visual {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .factory-stitched-story__visual-panel {
+    grid-area: 1 / 1;
+    position: relative;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .factory-stitched-story__visual-panel--problem {
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0.125rem 0;
+  }
+
+  .factory-stitched-story__visual-panel--solution {
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .factory-scroll-panel--customers {
+    min-height: 0;
+  }
+
+  .factory-customers__shell {
+    min-height: 0;
+    justify-content: flex-start;
+    gap: 0.625rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .factory-customers__main {
+    min-height: 0;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .factory-customers__cards {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .factory-customers__footer {
+    flex: 0 0 auto;
+    width: 100%;
+    padding-bottom: 0.125rem;
+  }
+
+  .factory-customers__logos img {
+    max-height: 32px !important;
+    max-width: 92px !important;
+  }
 }
 
 .factory-contact-section {
@@ -3274,7 +3403,7 @@ h3 {
 }
 
 .factory-landing .factory-scroll-hint {
-  bottom: max(3.25rem, calc(var(--factory-bottom-chrome-total) + 0.85rem));
+  bottom: max(1.5rem, calc(var(--factory-bottom-chrome-total) + 0.2rem));
   padding-inline: max(1rem, var(--site-safe-left)) max(1rem, var(--site-safe-right));
 }
 
@@ -3646,7 +3775,7 @@ html.lenis body {
   }
 
   .factory-landing .factory-scroll-hint {
-    bottom: max(2.85rem, calc(var(--factory-bottom-chrome-total) + 0.65rem));
+    bottom: max(1.35rem, calc(var(--factory-bottom-chrome-total) + 0.15rem));
     font-size: 9px;
     letter-spacing: 0.18em;
   }
@@ -3706,7 +3835,7 @@ html.lenis body {
   }
 
   .factory-landing .factory-scroll-hint {
-    bottom: max(3rem, calc(var(--factory-bottom-chrome-total) + 0.75rem));
+    bottom: max(1.25rem, calc(var(--factory-bottom-chrome-total) + 0.15rem));
     font-size: 8px;
     letter-spacing: 0.14em;
     max-width: calc(100vw - 8rem);
@@ -3849,7 +3978,7 @@ html.lenis body {
   }
 
   .factory-landing .factory-scroll-hint {
-    bottom: max(2.35rem, calc(var(--factory-bottom-chrome-total) + 0.35rem));
+    bottom: max(1.1rem, calc(var(--factory-bottom-chrome-total) + 0.1rem));
     font-size: 8px;
   }
 }
@@ -3883,7 +4012,7 @@ html.lenis body {
   }
 
   .factory-landing .factory-scroll-hint {
-    bottom: max(2.65rem, calc(var(--factory-bottom-chrome-total) + 0.5rem));
+    bottom: max(1.25rem, calc(var(--factory-bottom-chrome-total) + 0.15rem));
   }
 
   .holo-overlay .holo-tablet,

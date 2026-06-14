@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { mountFactoryScene, type FactorySceneHandle } from "@/lib/factory/runtime";
 import type { StorySnapshot } from "@/lib/factory/flowOptimization";
 
@@ -33,25 +33,56 @@ export default function FactoryThreeScene({
 }: FactoryThreeSceneProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneHandleRef = useRef<FactorySceneHandle | null>(null);
+  const latestRefs = useRef({
+    getBuildProgress,
+    getStoryActive,
+    getScenePaused,
+    storyRef,
+    onFocusChange,
+    onStationHover,
+  });
 
-  useEffect(() => {
+  latestRefs.current = {
+    getBuildProgress,
+    getStoryActive,
+    getScenePaused,
+    storyRef,
+    onFocusChange,
+    onStationHover,
+  };
+
+  const applyCanvasInteraction = useCallback(() => {
     const canvas = mountRef.current?.querySelector("canvas");
     if (!(canvas instanceof HTMLCanvasElement)) return;
+
     canvas.style.pointerEvents = sceneInteractive ? "auto" : "none";
     canvas.style.touchAction = sceneInteractive ? "none" : "pan-y";
+
+    if (sceneInteractive) {
+      canvas.setAttribute("data-lenis-prevent", "");
+    } else {
+      canvas.removeAttribute("data-lenis-prevent");
+    }
   }, [sceneInteractive]);
+
+  useEffect(() => {
+    applyCanvasInteraction();
+    const frameId = requestAnimationFrame(applyCanvasInteraction);
+    return () => cancelAnimationFrame(frameId);
+  }, [applyCanvasInteraction]);
 
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
 
     const scene = mountFactoryScene(mount, {
-      getProgress: getBuildProgress,
-      getStoryActive,
-      getScenePaused,
-      getStorySnapshot: () => storyRef.current,
-      onFocusChange,
-      onStationHover,
+      getProgress: () => latestRefs.current.getBuildProgress(),
+      getStoryActive: () => latestRefs.current.getStoryActive(),
+      getScenePaused: () => latestRefs.current.getScenePaused?.() ?? false,
+      getStorySnapshot: () => latestRefs.current.storyRef.current,
+      onFocusChange: (stationId, phase) =>
+        latestRefs.current.onFocusChange?.(stationId, phase),
+      onStationHover: (stationId) => latestRefs.current.onStationHover?.(stationId),
       simplified,
     });
     sceneHandleRef.current = scene;
@@ -67,22 +98,15 @@ export default function FactoryThreeScene({
         focusRequestRef.current = null;
       }
     };
-  }, [
-    onFocusChange,
-    onStationHover,
-    focusRequestRef,
-    storyRef,
-    getBuildProgress,
-    getStoryActive,
-    getScenePaused,
-    simplified,
-  ]);
+  }, [focusRequestRef, simplified]);
 
   return (
     <div className="factory-model-mount relative h-full w-full overflow-hidden">
       <div
         ref={mountRef}
         className={`absolute inset-0 ${sceneInteractive ? "pointer-events-auto" : "pointer-events-none"}`}
+        data-lenis-prevent={sceneInteractive ? "" : undefined}
+        style={{ touchAction: sceneInteractive ? "none" : "pan-y" }}
         aria-label="Interactive 3D factory build"
       />
     </div>

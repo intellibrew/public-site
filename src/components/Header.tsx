@@ -17,16 +17,11 @@ type HeaderProps = {
   transparent?: boolean;
 };
 
-export default function Header({ onBookDemo, minimal = false, overlay = false, transparent = false }: HeaderProps) {
+export default function Header({ minimal = false, overlay = false, transparent = false }: HeaderProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
-
-  const handleBookDemo = useCallback(() => {
-    closeMobile();
-    onBookDemo?.();
-  }, [closeMobile, onBookDemo]);
 
   return (
     <header
@@ -66,19 +61,6 @@ export default function Header({ onBookDemo, minimal = false, overlay = false, t
                 );
               })}
             </nav>
-          )}
-
-          {!minimal && onBookDemo && (
-            <div className="hidden md:block ml-4">
-              <button
-                type="button"
-                onClick={onBookDemo}
-                className="nav-demo-btn"
-                aria-label="Book a demo"
-              >
-                <span>Book a demo</span>
-              </button>
-            </div>
           )}
 
           {!minimal && (
@@ -128,18 +110,6 @@ export default function Header({ onBookDemo, minimal = false, overlay = false, t
                     </Link>
                   );
                 })}
-                {onBookDemo && (
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <button
-                      type="button"
-                      onClick={handleBookDemo}
-                      className="w-full py-3 px-4 rounded-lg nav-demo-btn text-center"
-                      aria-label="Book a demo"
-                    >
-                      Book a demo
-                    </button>
-                  </div>
-                )}
               </nav>
             </div>
           </>,

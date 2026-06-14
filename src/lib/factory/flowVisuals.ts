@@ -335,6 +335,20 @@ export function prepareBottleneckFxForStation(group: THREE.Group) {
   hideBottleneckFxRig(rig);
 }
 
+export function prewarmFlowVisuals(
+  stationGroups: Map<string, THREE.Group>,
+  bottleneckStationId: string
+) {
+  stationGroups.forEach((group) => {
+    getStationFlowCache(group);
+  });
+
+  const bottleneckStation = stationGroups.get(bottleneckStationId);
+  if (bottleneckStation) {
+    prepareBottleneckFxForStation(bottleneckStation);
+  }
+}
+
 function updateBottleneckFxRig(
   rig: BottleneckFxRig,
   intensity: number,

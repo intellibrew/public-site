@@ -1,28 +1,79 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { motion } from "framer-motion";
-import DemoRequestModal from "@/components/DemoRequestModal";
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useInView,
+  useMotionValue,
+  useMotionValueEvent,
+  type MotionValue,
+} from "framer-motion";
+import FactoryContactCue from "@/components/FactoryContactCue";
+import { MaskedTextReveal } from "@/components/motion/MaskedTextReveal";
+import { TextRevealAuto } from "@/components/motion/TextRevealAuto";
+import { JOURNEY } from "@/lib/factory/scrollJourney";
 
 type FactoryContactSectionProps = {
   embedded?: boolean;
+  scrollProgress?: MotionValue<number>;
 };
 
-const STANDALONE_MOTION = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.55 },
-  transition: { duration: 0.55 },
-} as const;
+const MUTED = "#475569";
+const BODY = "#94a3b8";
 
-export default function FactoryContactSection({ embedded = false }: FactoryContactSectionProps) {
-  const [demoOpen, setDemoOpen] = useState(false);
-  const closeDemo = useCallback(() => setDemoOpen(false), []);
-  const openDemo = useCallback(() => setDemoOpen(true), []);
+export default function FactoryContactSection({
+  embedded = false,
+  scrollProgress,
+}: FactoryContactSectionProps) {
+  const [headingActive, setHeadingActive] = useState(false);
+  const [subtextActive, setSubtextActive] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(false);
+  const [contactCycle, setContactCycle] = useState(0);
+  const prevHeadingActive = useRef(false);
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { amount: 0.45, once: false });
+  const idleProgress = useMotionValue(0);
+  const progressSource = scrollProgress ?? idleProgress;
+
+  useMotionValueEvent(progressSource, "change", (p) => {
+    if (!embedded || !scrollProgress) return;
+    setHeadingActive(p >= JOURNEY.contact.fadeIn[0]);
+  });
+
+  useEffect(() => {
+    if (embedded && scrollProgress) return;
+    setHeadingActive(inView);
+  }, [embedded, inView, scrollProgress]);
+
+  useEffect(() => {
+    if (!headingActive) {
+      setSubtextActive(false);
+      setCtaVisible(false);
+      prevHeadingActive.current = false;
+      return;
+    }
+    if (!prevHeadingActive.current) {
+      setContactCycle((c) => c + 1);
+    }
+    prevHeadingActive.current = true;
+    const subtextTimer = setTimeout(() => setSubtextActive(true), 380);
+    const ctaTimer = setTimeout(() => setCtaVisible(true), 720);
+    return () => {
+      clearTimeout(subtextTimer);
+      clearTimeout(ctaTimer);
+    };
+  }, [headingActive]);
+
+  const headingTransition = {
+    duration: 0.85,
+    ease: [0, 0.75, 0.25, 0.98] as number[],
+  };
 
   return (
     <>
       <section
+        ref={sectionRef}
         id="contact"
         className={
           embedded
@@ -37,37 +88,66 @@ export default function FactoryContactSection({ embedded = false }: FactoryConta
               : ""
           }`}
         >
-          <motion.h2
-            className="text-heading mb-5 font-orbitron md:mb-6"
-            {...(embedded ? {} : STANDALONE_MOTION)}
-          >
-            Plan your factory <span className="text-primary">in hours.</span>
-          </motion.h2>
+          <div className="mb-5 flex flex-col items-center md:mb-6" key={`contact-heading-${contactCycle}`}>
+            <MaskedTextReveal
+              as="span"
+              text="Plan your factory"
+              align="center"
+              className="text-heading block font-orbitron text-white"
+              active={headingActive}
+              fromY={120}
+              rotateFrom={3}
+              stagger={0.07}
+              transition={{ ...headingTransition, delay: 0.05 }}
+            />
+            <span className="flex flex-wrap justify-center gap-x-[0.28em]">
+              <MaskedTextReveal
+                as="span"
+                text="in"
+                align="center"
+                className="text-heading font-orbitron text-white"
+                active={headingActive}
+                fromY={120}
+                rotateFrom={3}
+                stagger={0.07}
+                transition={{ ...headingTransition, delay: 0.2 }}
+              />
+              <MaskedTextReveal
+                as="span"
+                text="hours."
+                align="center"
+                className="text-heading font-orbitron !text-primary"
+                active={headingActive}
+                fromY={120}
+                rotateFrom={3}
+                stagger={0.07}
+                transition={{ ...headingTransition, delay: 0.24 }}
+              />
+            </span>
+          </div>
 
-          <motion.p
+          <TextRevealAuto
+            key={`contact-subtext-${contactCycle}`}
+            text="Get a sample output pack and see what NeoFab generates from your inputs."
             className="text-body mx-auto mb-10 max-w-xl md:mb-12"
-            {...(embedded ? {} : { ...STANDALONE_MOTION, transition: { duration: 0.55, delay: 0.08 } })}
-          >
-            Get a sample output pack and see what NeoFab generates from your inputs.
-          </motion.p>
+            mutedColor={MUTED}
+            primaryColor={BODY}
+            active={subtextActive}
+            delay={0}
+            stagger={0.022}
+            duration={0.2}
+          />
 
           <motion.div
-            className="factory-contact-cta-wrap"
-            {...(embedded ? {} : { ...STANDALONE_MOTION, transition: { duration: 0.55, delay: 0.16 } })}
+            className="flex w-full flex-col items-center gap-6 md:gap-8"
+            initial={{ opacity: 0, y: 16 }}
+            animate={ctaVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+            transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <button
-              type="button"
-              className="btn-cta-large btn-pulse inline-flex"
-              aria-label="Book a demo"
-              onClick={openDemo}
-            >
-              <span>Book a demo</span>
-            </button>
+            <FactoryContactCue inline />
           </motion.div>
         </div>
       </section>
-
-      <DemoRequestModal open={demoOpen} onClose={closeDemo} />
     </>
   );
 }

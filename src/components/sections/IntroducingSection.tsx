@@ -104,20 +104,18 @@ export function IntroducingSection({ embedded = false }: IntroducingSectionProps
   );
 }
 
-function FlowDiagramMobile() {
+export function FlowDiagramMobile() {
   return (
     <div
-      className="mx-auto rounded-2xl border border-teal-500/25 overflow-visible w-full max-w-full"
+      className="mx-auto rounded-2xl border border-teal-500/25 overflow-hidden w-full max-w-full"
       style={{
         background: "linear-gradient(180deg, rgba(10,10,12,0.95) 0%, rgba(4,4,6,0.98) 100%)",
-        boxShadow: "0 0 40px rgba(20,184,166,0.08), inset 0 1px 0 rgba(255,255,255,0.02)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)",
       }}
     >
       <div className="relative p-5 flex flex-col items-center">
-        {/* Vertical line: under BOM/inputs → Outputs header only */}
         <div className="absolute left-1/2 top-[4.75rem] bottom-[14rem] w-px -ml-px bg-gradient-to-b from-teal-500/30 via-teal-500/60 to-teal-500/30" />
 
-        {/* Inputs - above, connect down to spine */}
         <div className="relative w-full flex flex-col items-center pb-2">
           <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
             Inputs
@@ -134,17 +132,15 @@ function FlowDiagramMobile() {
               </button>
             ))}
           </div>
-          {/* Connector: inputs → spine */}
           <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/40 to-teal-500/60" />
         </div>
 
-        {/* Line Model - ON the spine */}
         <div className="relative flex flex-col items-center py-2">
           <div className="relative">
             <div
               className="absolute inset-[-20px] rounded-full pointer-events-none"
               style={{
-                background: "radial-gradient(circle, rgba(20,184,166,0.22) 0%, transparent 70%)",
+                background: "radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)",
               }}
             />
             <div className="absolute inset-[-10px] rounded-full border border-teal-500/40 pointer-events-none" />
@@ -153,17 +149,15 @@ function FlowDiagramMobile() {
               className="relative rounded-full border border-teal-400/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
               style={{
                 background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-                boxShadow: "0 0 50px rgba(20,184,166,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2)",
               }}
             >
               <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">NeoFab AI</span>
             </button>
           </div>
-          {/* Connector: spine → outputs */}
           <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/60 to-teal-500/40" />
         </div>
 
-        {/* Outputs - below, fed by spine */}
         <div className="relative w-full flex flex-col items-center pt-2">
           <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
             Outputs
@@ -308,7 +302,7 @@ function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number
   );
 }
 
-function FlowDiagram() {
+export function FlowDiagram() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 900, height: 320 });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -371,14 +365,14 @@ function FlowDiagram() {
   return (
     <div 
       ref={containerRef}
-      className="relative mx-auto rounded-2xl border border-teal-500/20 overflow-visible"
+      className="relative mx-auto rounded-2xl border border-teal-500/20 overflow-hidden"
       style={{
         background: "linear-gradient(180deg, rgba(10,10,12,0.98) 0%, rgba(4,4,6,0.99) 100%)",
         maxWidth: 900,
-        boxShadow: "0 0 60px rgba(20,184,166,0.15), 0 0 100px rgba(20,184,166,0.08), inset 0 1px 0 rgba(255,255,255,0.03)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
       }}
     >
-      <div className="relative p-8 overflow-visible rounded-2xl">
+      <div className="relative p-8 overflow-hidden rounded-2xl">
 
         <svg 
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -482,7 +476,7 @@ function FlowDiagram() {
               <div 
                 className="absolute inset-[-35px] rounded-full pointer-events-none"
                 style={{
-                  background: "radial-gradient(circle, rgba(20,184,166,0.22) 0%, transparent 70%)",
+                  background: "radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)",
                   opacity: 1,
                 }}
               />
@@ -495,7 +489,7 @@ function FlowDiagram() {
                 className="relative px-7 py-4 rounded-full border border-teal-400/60"
                 style={{
                   background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-                  boxShadow: "0 0 50px rgba(20,184,166,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2)",
                 }}
               >
                 <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">

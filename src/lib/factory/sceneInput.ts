@@ -33,7 +33,9 @@ export function bindSceneInput({
   let lastPinchDistance: number | null = null;
   const activePointers = new Map<number, ActivePointer>();
   const zoomOffset = new THREE.Vector3();
-  const stopPropagation = (event: Event) => event.stopPropagation();
+  const stopCanvasEvent = (event: Event) => {
+    event.stopPropagation();
+  };
 
   const getPinchDistance = () => {
     const pointers = [...activePointers.values()];
@@ -183,7 +185,7 @@ export function bindSceneInput({
   element.addEventListener("pointerup", onPointerUp);
   element.addEventListener("pointercancel", onPointerUp);
   CANVAS_EVENTS_TO_STOP.forEach((eventName) => {
-    element.addEventListener(eventName, stopPropagation);
+    element.addEventListener(eventName, stopCanvasEvent);
   });
   element.addEventListener("dblclick", onDoubleClick);
 
@@ -208,7 +210,7 @@ export function bindSceneInput({
       element.removeEventListener("pointerup", onPointerUp);
       element.removeEventListener("pointercancel", onPointerUp);
       CANVAS_EVENTS_TO_STOP.forEach((eventName) => {
-        element.removeEventListener(eventName, stopPropagation);
+        element.removeEventListener(eventName, stopCanvasEvent);
       });
       element.removeEventListener("dblclick", onDoubleClick);
     },
