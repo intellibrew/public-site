@@ -11,19 +11,26 @@ export function useCountUp(end: number, durationMs: number = 1500) {
   useEffect(() => {
     if (!isInView) return;
     const startTime = performance.now();
+    let frameId = 0;
+    let lastValue = -1;
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / durationMs, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(easeOut * end));
+      const nextValue = Math.round(easeOut * end);
+      if (nextValue !== lastValue) {
+        lastValue = nextValue;
+        setCount(nextValue);
+      }
 
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        frameId = requestAnimationFrame(animate);
       }
     };
 
-    requestAnimationFrame(animate);
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
   }, [isInView, end, durationMs]);
 
   return { count, ref };

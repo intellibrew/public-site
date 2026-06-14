@@ -20,9 +20,21 @@ const teams = [
   },
 ];
 
-export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
+type TeamsSectionProps = {
+  embedded?: boolean;
+  onBookDemo?: () => void;
+};
+
+export function TeamsSection({ embedded = false, onBookDemo }: TeamsSectionProps = {}) {
   return (
-    <section id="customers" className="relative bg-[#060608] py-24 overflow-hidden">
+    <section
+      id="customers"
+      className={
+        embedded
+          ? "factory-scroll-panel factory-scroll-panel--customers relative h-full overflow-hidden bg-transparent"
+          : "relative bg-[#060608] py-24 overflow-hidden"
+      }
+    >
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -30,9 +42,15 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
         }}
       />
 
-      <div className="mx-auto max-w-6xl px-6">
+      <div
+        className={
+          embedded
+            ? "relative z-10 mx-auto flex h-full max-w-6xl flex-col justify-center px-6 py-[calc(var(--site-header-total)+1rem)]"
+            : "mx-auto max-w-6xl px-6"
+        }
+      >
         <motion.div
-          className="flex justify-center mb-6"
+          className={`flex justify-center ${embedded ? "mb-4" : "mb-6"}`}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -40,8 +58,8 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
         >
           <span className="shiny-badge">Customers</span>
         </motion.div>
-        <motion.h2 
-          className="text-center text-heading mb-16"
+        <motion.h2
+          className={`text-center text-heading ${embedded ? "mb-8 md:mb-10" : "mb-16"}`}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -50,7 +68,7 @@ export function TeamsSection({ onBookDemo }: { onBookDemo?: () => void } = {}) {
           Built for manufacturing <span className="text-primary">teams that ship.</span>
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${embedded ? "" : "mb-12"}`}>
           {teams.map((team, index) => (
             <motion.div
               key={team.title}

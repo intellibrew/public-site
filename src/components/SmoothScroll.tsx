@@ -1,65 +1,97 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Lenis from "lenis";
-import "lenis/dist/lenis.css";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react";
 
-interface SmoothScrollProps {
-  children: React.ReactNode;
+type ScrollToOptions = {
+  duration?: number;
+  immediate?: boolean;
+  onComplete?: () => void;
+};
+
+type LenisContextValue = {
+  scrollTo: (target: number, options?: ScrollToOptions) => void;
+  getLenis: () => Lenis | null;
+  onScroll: (callback: (lenis: Lenis) => void) => () => void;
+};
+
+const LenisContext = createContext<LenisContextValue | null>(null);
+
+export function useLenisContext() {
+  const context = useContext(LenisContext);
+  if (!context) {
+    throw new Error("useLenisContext must be used within SmoothScroll");
+  }
+  return context;
 }
 
-declare global {
-  interface Window {
-    lenis?: Lenis;
-  }
+interface SmoothScrollProps {
+  children: ReactNode;
 }
 
 export default function SmoothScroll({ children }: SmoothScrollProps) {
   const lenisRef = useRef<Lenis | null>(null);
+  const listenersRef = useRef(new Set<(lenis: Lenis) => void>());
 
   useEffect(() => {
     const lenis = new Lenis({
-      lerp: 0.2,
-      orientation: "vertical",
-      gestureOrientation: "vertical",
+      autoRaf: true,
+      lerp: 0.118,
       smoothWheel: true,
-      wheelMultiplier: 1.6,
-      touchMultiplier: 1.2,
-      syncTouch: false, // Keep false for stability on older iOS
-      infinite: false,
-      autoRaf: true, // Use Lenis's internal RAF for consistent timing
+      syncTouch: true,
+      syncTouchLerp: 0.1,
+      wheelMultiplier: 0.88,
+      touchMultiplier: 1,
+      touchInertiaExponent: 28,
+      prevent: (node) => Boolean(node.closest("[data-lenis-prevent]")),
     });
-
     lenisRef.current = lenis;
+    lenis.scrollTo(0, { immediate: true });
 
-    const handleAnchorClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const anchor = target.closest('a[href^="#"]');
-      if (anchor) {
-        const href = anchor.getAttribute("href");
-        if (href && href.startsWith("#")) {
-          e.preventDefault();
-          const targetElement = document.querySelector(href);
-          if (targetElement) {
-            lenis.scrollTo(targetElement as HTMLElement, {
-              offset: -80,
-              duration: 0.75,
-              lerp: 0.22,
-            });
-          }
-        }
-      }
+    const onLenisScroll = (instance: Lenis) => {
+      listenersRef.current.forEach((listener) => listener(instance));
     };
 
-    document.addEventListener("click", handleAnchorClick);
-    window.lenis = lenis;
+    lenis.on("scroll", onLenisScroll);
 
     return () => {
-      document.removeEventListener("click", handleAnchorClick);
+      lenis.off("scroll", onLenisScroll);
       lenis.destroy();
       lenisRef.current = null;
     };
   }, []);
 
-  return <>{children}</>;
+  const scrollTo = useCallback((target: number, options?: ScrollToOptions) => {
+    lenisRef.current?.scrollTo(target, {
+      duration: options?.duration,
+      immediate: options?.immediate,
+      onComplete: () => options?.onComplete?.(),
+    });
+  }, []);
+
+  const getLenis = useCallback(() => lenisRef.current, []);
+
+  const onScroll = useCallback((callback: (lenis: Lenis) => void) => {
+    listenersRef.current.add(callback);
+    return () => listenersRef.current.delete(callback);
+  }, []);
+
+  const value = useMemo<LenisContextValue>(
+    () => ({
+      scrollTo,
+      getLenis,
+      onScroll,
+    }),
+    [getLenis, onScroll, scrollTo]
+  );
+
+  return <LenisContext.Provider value={value}>{children}</LenisContext.Provider>;
 }

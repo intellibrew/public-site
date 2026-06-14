@@ -19,64 +19,82 @@ const outputs = [
   { label: "Simulation", tooltip: "Throughput and scenarios" },
 ];
 
-export function IntroducingSection() {
-  return (
-    <section id="solution" className="relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden">
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
-        }}
-      />
+type IntroducingSectionProps = {
+  embedded?: boolean;
+};
 
-      <div className="mx-auto max-w-6xl px-6 relative z-10">
-        <motion.div 
+export function IntroducingSection({ embedded = false }: IntroducingSectionProps) {
+  return (
+    <section
+      id="solution"
+      className={
+        embedded
+          ? "factory-scroll-panel factory-scroll-panel--solution relative h-full overflow-hidden"
+          : "relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden"
+      }
+    >
+      {!embedded && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
+          }}
+        />
+      )}
+
+      <div
+        className={`mx-auto max-w-6xl px-6 relative z-10 ${
+          embedded
+            ? "flex h-full max-h-full flex-col justify-center overflow-y-auto py-[calc(var(--site-header-total)+0.75rem)] [scrollbar-width:thin]"
+            : ""
+        }`}
+        {...(embedded ? { "data-lenis-prevent": true } : {})}
+      >
+        <motion.div
           className="flex justify-center mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          initial={embedded ? false : { opacity: 0, y: 20 }}
+          whileInView={embedded ? undefined : { opacity: 1, y: 0 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5 }}
         >
-          <span className="shiny-badge">
-            Solution
-          </span>
+          <span className="shiny-badge">Solution</span>
         </motion.div>
 
-        <motion.h2 
+        <motion.h2
           className="text-center text-heading mb-4 font-fragment"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          initial={embedded ? false : { opacity: 0, y: 20 }}
+          whileInView={embedded ? undefined : { opacity: 1, y: 0 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5, delay: 0.1 }}
         >
-          Intelligence for{" "}
-          <span className="text-primary">Factories</span>
+          Intelligence for <span className="text-primary">Factories</span>
         </motion.h2>
 
-        <motion.p 
-          className="text-center text-body mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+        <motion.p
+          className={`text-center text-body ${embedded ? "mb-8" : "mb-16"}`}
+          initial={embedded ? false : { opacity: 0, y: 20 }}
+          whileInView={embedded ? undefined : { opacity: 1, y: 0 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5, delay: 0.2 }}
         >
           One platform. Complete automation. From inputs to a full production line model.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          initial={embedded ? false : { opacity: 0 }}
+          whileInView={embedded ? undefined : { opacity: 1 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.8, delay: 0.3 }}
           className="hidden md:block"
         >
           <FlowDiagram />
         </motion.div>
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          initial={embedded ? false : { opacity: 0 }}
+          whileInView={embedded ? undefined : { opacity: 1 }}
+          viewport={embedded ? undefined : { once: true }}
+          transition={embedded ? undefined : { duration: 0.5, delay: 0.2 }}
           className="md:hidden"
         >
           <FlowDiagramMobile />
@@ -86,20 +104,18 @@ export function IntroducingSection() {
   );
 }
 
-function FlowDiagramMobile() {
+export function FlowDiagramMobile() {
   return (
     <div
-      className="mx-auto rounded-2xl border border-teal-500/25 overflow-visible w-full max-w-full"
+      className="mx-auto rounded-2xl border border-teal-500/25 overflow-hidden w-full max-w-full"
       style={{
         background: "linear-gradient(180deg, rgba(10,10,12,0.95) 0%, rgba(4,4,6,0.98) 100%)",
-        boxShadow: "0 0 40px rgba(20,184,166,0.08), inset 0 1px 0 rgba(255,255,255,0.02)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)",
       }}
     >
       <div className="relative p-5 flex flex-col items-center">
-        {/* Vertical line: under BOM/inputs → Outputs header only */}
         <div className="absolute left-1/2 top-[4.75rem] bottom-[14rem] w-px -ml-px bg-gradient-to-b from-teal-500/30 via-teal-500/60 to-teal-500/30" />
 
-        {/* Inputs - above, connect down to spine */}
         <div className="relative w-full flex flex-col items-center pb-2">
           <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
             Inputs
@@ -116,17 +132,15 @@ function FlowDiagramMobile() {
               </button>
             ))}
           </div>
-          {/* Connector: inputs → spine */}
           <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/40 to-teal-500/60" />
         </div>
 
-        {/* Line Model - ON the spine */}
         <div className="relative flex flex-col items-center py-2">
           <div className="relative">
             <div
               className="absolute inset-[-20px] rounded-full pointer-events-none"
               style={{
-                background: "radial-gradient(circle, rgba(20,184,166,0.22) 0%, transparent 70%)",
+                background: "radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)",
               }}
             />
             <div className="absolute inset-[-10px] rounded-full border border-teal-500/40 pointer-events-none" />
@@ -135,17 +149,15 @@ function FlowDiagramMobile() {
               className="relative rounded-full border border-teal-400/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
               style={{
                 background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-                boxShadow: "0 0 50px rgba(20,184,166,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2)",
               }}
             >
               <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">NeoFab AI</span>
             </button>
           </div>
-          {/* Connector: spine → outputs */}
           <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/60 to-teal-500/40" />
         </div>
 
-        {/* Outputs - below, fed by spine */}
         <div className="relative w-full flex flex-col items-center pt-2">
           <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
             Outputs
@@ -169,65 +181,120 @@ function FlowDiagramMobile() {
 }
 
 function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number; duration: number }) {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [opacity, setOpacity] = useState(0);
+  const [dot, setDot] = useState({ x: 0, y: 0, opacity: 0 });
 
   useEffect(() => {
     const path = document.getElementById(pathId) as SVGPathElement | null;
     if (!path) return;
 
     const pathLength = path.getTotalLength();
-    let animationId: number;
+    let animationId = 0;
     let startTime: number | null = null;
+    let lastDrawTime = 0;
+    let lastDot = { x: 0, y: 0, opacity: 0 };
+    let isNearViewport = !path.closest("section");
     const totalCycle = (delay + duration) * 1000;
+    const minFrameMs = 1000 / 30;
+
+    const section = path.closest("section");
+    const stop = () => {
+      if (!animationId) return;
+      cancelAnimationFrame(animationId);
+      animationId = 0;
+    };
+    const start = () => {
+      if (animationId || !isNearViewport || document.visibilityState !== "visible") return;
+      animationId = requestAnimationFrame(animate);
+    };
+    const observer = section
+      ? new IntersectionObserver(
+          ([entry]) => {
+            isNearViewport = entry.isIntersecting;
+            if (isNearViewport) {
+              start();
+            } else {
+              stop();
+            }
+          },
+          { rootMargin: "160px" }
+        )
+      : null;
+    if (section && observer) observer.observe(section);
 
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
+      animationId = 0;
+      if (!isNearViewport || document.visibilityState !== "visible") return;
+      if (timestamp - lastDrawTime < minFrameMs) {
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
+      lastDrawTime = timestamp;
+
       const elapsed = (timestamp - startTime) % totalCycle;
-      
+      let nextDot = { ...lastDot, opacity: 0 };
+
       if (elapsed < delay * 1000) {
-        setOpacity(0);
+        nextDot = { ...lastDot, opacity: 0 };
       } else {
         const progress = (elapsed - delay * 1000) / (duration * 1000);
         if (progress <= 1) {
           const point = path.getPointAtLength(progress * pathLength);
-          setPosition({ x: point.x, y: point.y });
-          
+          let opacity = 1;
           if (progress < 0.15) {
-            setOpacity(progress / 0.15);
+            opacity = progress / 0.15;
           } else if (progress > 0.85) {
-            setOpacity((1 - progress) / 0.15);
-          } else {
-            setOpacity(1);
+            opacity = (1 - progress) / 0.15;
           }
-        } else {
-          setOpacity(0);
+          nextDot = { x: point.x, y: point.y, opacity };
         }
+      }
+
+      if (
+        Math.abs(nextDot.x - lastDot.x) > 0.25 ||
+        Math.abs(nextDot.y - lastDot.y) > 0.25 ||
+        Math.abs(nextDot.opacity - lastDot.opacity) > 0.02
+      ) {
+        lastDot = nextDot;
+        setDot(nextDot);
       }
 
       animationId = requestAnimationFrame(animate);
     };
 
-    animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        start();
+      } else {
+        stop();
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    start();
+    return () => {
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      stop();
+    };
   }, [pathId, delay, duration]);
 
   return (
     <g>
       <circle
-        cx={position.x}
-        cy={position.y}
+        cx={dot.x}
+        cy={dot.y}
         r="12"
         fill="rgba(20,184,166,0.4)"
-        style={{ opacity: opacity * 0.7 }}
+        style={{ opacity: dot.opacity * 0.7 }}
       />
       <circle
-        cx={position.x}
-        cy={position.y}
+        cx={dot.x}
+        cy={dot.y}
         r="5"
         fill="rgba(153,246,228,1)"
         style={{
-          opacity,
+          opacity: dot.opacity,
           filter: "drop-shadow(0 0 6px rgba(94,234,212,1))",
         }}
       />
@@ -235,7 +302,7 @@ function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number
   );
 }
 
-function FlowDiagram() {
+export function FlowDiagram() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 900, height: 320 });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -298,14 +365,14 @@ function FlowDiagram() {
   return (
     <div 
       ref={containerRef}
-      className="relative mx-auto rounded-2xl border border-teal-500/20 overflow-visible"
+      className="relative mx-auto rounded-2xl border border-teal-500/20 overflow-hidden"
       style={{
         background: "linear-gradient(180deg, rgba(10,10,12,0.98) 0%, rgba(4,4,6,0.99) 100%)",
         maxWidth: 900,
-        boxShadow: "0 0 60px rgba(20,184,166,0.15), 0 0 100px rgba(20,184,166,0.08), inset 0 1px 0 rgba(255,255,255,0.03)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
       }}
     >
-      <div className="relative p-8 overflow-visible rounded-2xl">
+      <div className="relative p-8 overflow-hidden rounded-2xl">
 
         <svg 
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -409,7 +476,7 @@ function FlowDiagram() {
               <div 
                 className="absolute inset-[-35px] rounded-full pointer-events-none"
                 style={{
-                  background: "radial-gradient(circle, rgba(20,184,166,0.22) 0%, transparent 70%)",
+                  background: "radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)",
                   opacity: 1,
                 }}
               />
@@ -422,7 +489,7 @@ function FlowDiagram() {
                 className="relative px-7 py-4 rounded-full border border-teal-400/60"
                 style={{
                   background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-                  boxShadow: "0 0 50px rgba(20,184,166,0.5), inset 0 1px 0 rgba(255,255,255,0.2)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2)",
                 }}
               >
                 <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">

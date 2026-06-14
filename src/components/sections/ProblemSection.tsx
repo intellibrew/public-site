@@ -6,7 +6,11 @@ import { Clock3, GitBranch, FileText } from "lucide-react";
 import { AnimateInView } from "@/components/AnimateInView";
 import AdvancedFactoryAnimation from "@/components/AdvancedFactoryAnimation";
 
-export function ProblemSection() {
+type ProblemSectionProps = {
+  embedded?: boolean;
+};
+
+export function ProblemSection({ embedded = false }: ProblemSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -20,18 +24,27 @@ export function ProblemSection() {
     <section
       ref={sectionRef}
       id="problem"
-      className="relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden"
+      className={
+        embedded
+          ? "factory-scroll-panel factory-scroll-panel--problem relative h-full overflow-hidden"
+          : "relative bg-[rgba(8,10,15,0.88)] py-24 overflow-hidden"
+      }
     >
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
-        }}
-      />
+      {!embedded && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
+          }}
+        />
+      )}
 
-      <motion.div 
-        className="relative z-10 mx-auto flex max-w-7xl flex-col gap-10 px-6 md:flex-row md:items-center md:px-10"
-        style={{ opacity }}
+      <motion.div
+        className={`relative z-10 mx-auto flex max-w-7xl flex-col gap-8 px-6 md:flex-row md:items-center md:px-10 ${
+          embedded ? "h-full max-h-full justify-center py-[calc(var(--site-header-total)+1rem)]" : ""
+        }`}
+        style={embedded ? undefined : { opacity }}
       >
         <div className="flex-1 space-y-6">
           <AnimateInView>
@@ -67,13 +80,13 @@ export function ProblemSection() {
                   icon: <FileText className="h-3.5 w-3.5" />,
                 },
               ].map(({ label, icon }, index) => (
-                <motion.li 
-                  key={label} 
+                <motion.li
+                  key={label}
                   className="flex items-center gap-3"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                  initial={embedded ? false : { opacity: 0, x: -20 }}
+                  whileInView={embedded ? undefined : { opacity: 1, x: 0 }}
+                  viewport={embedded ? undefined : { once: true }}
+                  transition={embedded ? undefined : { duration: 0.5, delay: 0.2 + index * 0.1 }}
                 >
                   <motion.span 
                     className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-2xl border border-teal-500/50 bg-[radial-gradient(circle_at_30%_0%,rgba(94,234,212,0.35),rgba(20,184,166,0.2))] text-teal-200 shadow-[0_10px_30px_-18px_rgba(20,184,166,0.35)]"
@@ -89,9 +102,9 @@ export function ProblemSection() {
           </AnimateInView>
         </div>
 
-        <motion.div 
-          className="flex-1 flex items-center justify-center"
-          style={{ y }}
+        <motion.div
+          className={`flex-1 flex items-center justify-center ${embedded ? "max-h-[42vh] md:max-h-none" : ""}`}
+          style={embedded ? undefined : { y }}
         >
           <AdvancedFactoryAnimation />
         </motion.div>
