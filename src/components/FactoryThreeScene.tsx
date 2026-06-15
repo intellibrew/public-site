@@ -18,6 +18,7 @@ type FactoryThreeSceneProps = {
   >;
   simplified?: boolean;
   sceneInteractive?: boolean;
+  preferPageScroll?: boolean;
 };
 
 export default function FactoryThreeScene({
@@ -30,6 +31,7 @@ export default function FactoryThreeScene({
   focusRequestRef,
   simplified = false,
   sceneInteractive = false,
+  preferPageScroll = false,
 }: FactoryThreeSceneProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneHandleRef = useRef<FactorySceneHandle | null>(null);
@@ -56,14 +58,14 @@ export default function FactoryThreeScene({
     if (!(canvas instanceof HTMLCanvasElement)) return;
 
     canvas.style.pointerEvents = sceneInteractive ? "auto" : "none";
-    canvas.style.touchAction = sceneInteractive ? "none" : "pan-y";
+    canvas.style.touchAction = sceneInteractive && !preferPageScroll ? "none" : "pan-y";
 
-    if (sceneInteractive) {
+    if (sceneInteractive && !preferPageScroll) {
       canvas.setAttribute("data-lenis-prevent", "");
     } else {
       canvas.removeAttribute("data-lenis-prevent");
     }
-  }, [sceneInteractive]);
+  }, [preferPageScroll, sceneInteractive]);
 
   useEffect(() => {
     applyCanvasInteraction();
@@ -105,8 +107,8 @@ export default function FactoryThreeScene({
       <div
         ref={mountRef}
         className={`absolute inset-0 ${sceneInteractive ? "pointer-events-auto" : "pointer-events-none"}`}
-        data-lenis-prevent={sceneInteractive ? "" : undefined}
-        style={{ touchAction: sceneInteractive ? "none" : "pan-y" }}
+        data-lenis-prevent={sceneInteractive && !preferPageScroll ? "" : undefined}
+        style={{ touchAction: sceneInteractive && !preferPageScroll ? "none" : "pan-y" }}
         aria-label="Interactive 3D factory build"
       />
     </div>

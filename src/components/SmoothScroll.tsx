@@ -10,6 +10,7 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import { isPhoneViewport } from "@/lib/layoutBreakpoints";
 
 type ScrollToOptions = {
   duration?: number;
@@ -42,11 +43,12 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
   const listenersRef = useRef(new Set<(lenis: Lenis) => void>());
 
   useEffect(() => {
+    const isPhone = isPhoneViewport();
     const lenis = new Lenis({
       autoRaf: true,
       lerp: 0.118,
       smoothWheel: true,
-      syncTouch: true,
+      syncTouch: !isPhone,
       syncTouchLerp: 0.1,
       wheelMultiplier: 0.88,
       touchMultiplier: 1,

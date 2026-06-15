@@ -36,6 +36,7 @@ type FactoryBuildExperienceProps = {
   scenePaused?: boolean;
   getScenePaused?: () => boolean;
   sceneInteractive?: boolean;
+  preferPageScroll?: boolean;
   showReturnToHero?: boolean;
   onReturnToHero?: () => void;
   dismissOverlaysRef?: React.MutableRefObject<(() => void) | null>;
@@ -49,6 +50,7 @@ export default function FactoryBuildExperience({
   scenePaused = false,
   getScenePaused,
   sceneInteractive = false,
+  preferPageScroll = false,
   showReturnToHero = false,
   onReturnToHero,
   dismissOverlaysRef,
@@ -221,19 +223,22 @@ export default function FactoryBuildExperience({
         <div
           className={`factory-model-layer ${
             sceneInteractive ? "factory-model-layer--interactive" : ""
+          } ${
+            sceneInteractive && preferPageScroll ? "factory-model-layer--page-scroll" : ""
           }`}
         >
           <FactoryThreeScene
-          getBuildProgress={getBuildProgress}
-          getStoryActive={getStoryEnabled}
-          getScenePaused={getScenePaused}
-          storyRef={storyRef}
-          onFocusChange={handleFocusChange}
-          onStationHover={handleStationHover}
-          focusRequestRef={focusRequestRef}
-          simplified={simplified}
-          sceneInteractive={sceneInteractive}
-        />
+            getBuildProgress={getBuildProgress}
+            getStoryActive={getStoryEnabled}
+            getScenePaused={getScenePaused}
+            storyRef={storyRef}
+            onFocusChange={handleFocusChange}
+            onStationHover={handleStationHover}
+            focusRequestRef={focusRequestRef}
+            simplified={simplified}
+            sceneInteractive={sceneInteractive}
+            preferPageScroll={preferPageScroll}
+          />
         </div>
 
         <SubstationOverlay
