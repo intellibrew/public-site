@@ -11,7 +11,7 @@ import { StitchedStorySection } from "@/components/sections/StitchedStorySection
 import { CustomersClientsSection } from "@/components/sections/CustomersClientsSection";
 import { useJourneySnap } from "@/hooks/useJourneySnap";
 import { useLenis } from "@/hooks/useLenis";
-import { isCompactViewport } from "@/lib/layoutBreakpoints";
+import { isCompactViewport, isPhoneViewport } from "@/lib/layoutBreakpoints";
 import {
   isFactoryPhase,
   JOURNEY,
@@ -42,12 +42,13 @@ export default function FactoryLanding() {
   const [scenePaused, setScenePaused] = useState(true);
   const [storyEnabled, setStoryEnabled] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
+  const [isPhone, setIsPhone] = useState(false);
   const [animationActive, setAnimationActive] = useState(false);
   const [journeyPhase, setJourneyPhase] = useState<JourneyPhase>("hero");
   const [scrollReady, setScrollReady] = useState(false);
 
   const { scrollTo } = useLenis();
-  const { scrollToProgress } = useJourneySnap({ journeyRef, enabled: scrollReady });
+  const { scrollToProgress } = useJourneySnap({ journeyRef, enabled: scrollReady && !isPhone });
 
   const { scrollYProgress } = useScroll({
     target: journeyRef,
@@ -215,7 +216,10 @@ export default function FactoryLanding() {
   });
 
   useEffect(() => {
-    const check = () => setIsCompact(isCompactViewport());
+    const check = () => {
+      setIsCompact(isCompactViewport());
+      setIsPhone(isPhoneViewport());
+    };
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -309,6 +313,7 @@ export default function FactoryLanding() {
                   scenePaused={scenePaused}
                   getScenePaused={getScenePaused}
                   sceneInteractive={factoryInteractive}
+                  preferPageScroll={isPhone}
                   showReturnToHero={false}
                   onReturnToHero={scrollToTop}
                   dismissOverlaysRef={dismissOverlaysRef}

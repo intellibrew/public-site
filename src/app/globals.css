@@ -1323,6 +1323,10 @@ h3 {
   touch-action: none;
 }
 
+.factory-model-layer--page-scroll {
+  touch-action: pan-y;
+}
+
 .factory-stage {
   transform-style: preserve-3d;
 }
