@@ -46,13 +46,13 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
     const isPhone = isPhoneViewport();
     const lenis = new Lenis({
       autoRaf: true,
-      lerp: 0.118,
+      lerp: 0.18,
       smoothWheel: true,
       syncTouch: !isPhone,
-      syncTouchLerp: 0.1,
-      wheelMultiplier: 0.88,
+      syncTouchLerp: 0.16,
+      wheelMultiplier: 0.92,
       touchMultiplier: 1,
-      touchInertiaExponent: 28,
+      touchInertiaExponent: 22,
       prevent: (node) => Boolean(node.closest("[data-lenis-prevent]")),
     });
     lenisRef.current = lenis;

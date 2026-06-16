@@ -294,7 +294,7 @@ export function buildConveyor(materials: Materials) {
       cube.add(edges);
       movers.push({ mesh: cube, edges, path, speed, offset: i / packageCount });
       cube.userData.conveyorPickable = true;
-      cube.visible = i < movingPackages;
+      cube.visible = false;
       group.add(cube);
     }
   };

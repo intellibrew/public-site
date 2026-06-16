@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { makeBuildSequence } from "./buildSequence";
 import { configureControls, makeSceneCamera, updateCameraForProgress } from "./sceneCamera";
-import { SCENE_FOG } from "./sceneConfig";
+import { getEffectivePixelRatio, SCENE_FOG } from "./sceneConfig";
 import { bindSceneInput } from "./sceneInput";
 import { disposeScene, fitRendererToMount, makeSceneRenderer } from "./sceneRenderer";
 import { makeMaterials } from "./materials";
@@ -39,6 +39,98 @@ export type FactorySceneOptions = {
   onStationHover?: (stationId: string | null) => void;
   simplified?: boolean;
 };
+
+const BUILD_LIVE_DETAIL_PROGRESS = 0.985;
+const BUILD_PIXEL_RATIO_CAP = 1;
+const BUILD_SHADOW_REFRESH_STEP = 0.1;
+const PLACEMENT_DETAIL_CACHE = "factoryPlacementDetailCache";
+const KEEP_DURING_PLACEMENT = "keepDuringPlacementDetails";
+
+type PlacementDetailCache = {
+  visible: boolean;
+};
+
+function prewarmFactoryScene(
+  renderer: THREE.WebGLRenderer,
+  scene: THREE.Scene,
+  camera: THREE.Camera
+) {
+  const visibilitySnapshot: Array<[THREE.Object3D, boolean]> = [];
+
+  scene.traverse((object) => {
+    visibilitySnapshot.push([object, object.visible]);
+    object.visible = true;
+  });
+
+  try {
+    renderer.compile(scene, camera);
+  } finally {
+    visibilitySnapshot.forEach(([object, visible]) => {
+      object.visible = visible;
+    });
+  }
+}
+
+function materialIsPlacementDetail(material: THREE.Material) {
+  const standardMaterial = material as THREE.MeshStandardMaterial;
+  const isTransparent = material.transparent || material.opacity < 0.98;
+  const isStrongEmissive =
+    standardMaterial.emissive !== undefined &&
+    standardMaterial.emissive.getHex() !== 0 &&
+    standardMaterial.emissiveIntensity > 0.55;
+
+  return isTransparent || isStrongEmissive;
+}
+
+function objectKeepsPlacementDetail(object: THREE.Object3D) {
+  let current: THREE.Object3D | null = object;
+  while (current) {
+    if (current.userData[KEEP_DURING_PLACEMENT] === true) return true;
+    current = current.parent;
+  }
+  return false;
+}
+
+function objectIsPlacementDetail(object: THREE.Object3D) {
+  if (objectKeepsPlacementDetail(object)) return false;
+  if (object instanceof THREE.PointLight) return true;
+  if (object instanceof THREE.Line || object instanceof THREE.LineSegments) return true;
+  if (!(object instanceof THREE.Mesh)) return false;
+
+  const materials = Array.isArray(object.material) ? object.material : [object.material];
+  return materials.some((material) => materialIsPlacementDetail(material));
+}
+
+function setPlacementDetailsVisible(steps: ReturnType<typeof makeBuildSequence>["steps"], visible: boolean) {
+  steps.forEach((step) => {
+    step.group.traverse((object) => {
+      if (!objectIsPlacementDetail(object)) return;
+
+      let cache = object.userData[PLACEMENT_DETAIL_CACHE] as PlacementDetailCache | undefined;
+      if (!cache) {
+        cache = { visible: object.visible };
+        object.userData[PLACEMENT_DETAIL_CACHE] = cache;
+      }
+
+      object.visible = visible ? cache.visible : false;
+    });
+  });
+}
+
+function setRendererPixelRatioForBuild(
+  mount: HTMLDivElement,
+  renderer: THREE.WebGLRenderer,
+  liveDetails: boolean
+) {
+  const targetPixelRatio = liveDetails
+    ? getEffectivePixelRatio()
+    : Math.min(getEffectivePixelRatio(), BUILD_PIXEL_RATIO_CAP);
+
+  if (Math.abs(renderer.getPixelRatio() - targetPixelRatio) < 0.01) return;
+
+  renderer.setPixelRatio(targetPixelRatio);
+  renderer.setSize(mount.clientWidth, mount.clientHeight, false);
+}
 
 export function mountFactoryScene(
   mount: HTMLDivElement,
@@ -162,6 +254,10 @@ export function mountFactoryScene(
   updateLighting(lights, 0, performance.now(), renderer);
 
   let frameId = 0;
+  let prewarmTimer = window.setTimeout(() => {
+    prewarmTimer = 0;
+    prewarmFactoryScene(renderer, scene, camera);
+  }, 0);
   let isPageVisible = document.visibilityState === "visible";
   const onVisibilityChange = () => {
     isPageVisible = document.visibilityState === "visible";
@@ -172,7 +268,43 @@ export function mountFactoryScene(
   let smoothedP = clamp(getProgress());
   let frozenSimTimeMs: number | null = null;
   let lastPausedRenderMs = 0;
+  let lastBuildShadowProgress = Number.NaN;
+  let livePlacementDetails = true;
   const PAUSED_RENDER_INTERVAL_MS = 250;
+
+  const syncShadowUpdates = (progress: number) => {
+    const needsLiveShadows =
+      progress >= BUILD_LIVE_DETAIL_PROGRESS || focusState !== null || (getStoryActive?.() ?? false);
+
+    if (needsLiveShadows) {
+      if (!renderer.shadowMap.autoUpdate) {
+        renderer.shadowMap.autoUpdate = true;
+        renderer.shadowMap.needsUpdate = true;
+      }
+      return;
+    }
+
+    renderer.shadowMap.autoUpdate = false;
+    if (
+      Number.isNaN(lastBuildShadowProgress) ||
+      Math.abs(progress - lastBuildShadowProgress) >= BUILD_SHADOW_REFRESH_STEP
+    ) {
+      renderer.shadowMap.needsUpdate = true;
+      lastBuildShadowProgress = progress;
+    }
+  };
+
+  const syncPlacementPerformanceMode = (progress: number) => {
+    const nextLivePlacementDetails =
+      progress >= BUILD_LIVE_DETAIL_PROGRESS || focusState !== null || (getStoryActive?.() ?? false);
+
+    if (nextLivePlacementDetails !== livePlacementDetails) {
+      livePlacementDetails = nextLivePlacementDetails;
+      setPlacementDetailsVisible(build.steps, livePlacementDetails);
+    }
+
+    setRendererPixelRatioForBuild(mount, renderer, livePlacementDetails);
+  };
 
   const render = () => {
     frameId = window.requestAnimationFrame(render);
@@ -261,6 +393,8 @@ export function mountFactoryScene(
     }
 
     controls.update(deltaSec);
+    syncPlacementPerformanceMode(p);
+    syncShadowUpdates(p);
     renderer.render(scene, camera);
   };
   render();
@@ -289,6 +423,9 @@ export function mountFactoryScene(
     dispose: () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.cancelAnimationFrame(frameId);
+      if (prewarmTimer) {
+        window.clearTimeout(prewarmTimer);
+      }
       resizeObserver.disconnect();
       picker.dispose();
       input.dispose();

@@ -27,9 +27,7 @@ type ClipTypeStaggerProps = {
   stagger?: number;
   delay?: number;
   align?: "left" | "center" | "right";
-  /** Optional class per line when splitBy is "line" */
   lineClassNames?: string[];
-  /** Change to remount and replay the entrance animation */
   replayKey?: number | string;
   transition?: {
     type?: "spring" | "tween";

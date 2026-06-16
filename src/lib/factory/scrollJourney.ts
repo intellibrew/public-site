@@ -1,4 +1,4 @@
-export const JOURNEY_HEIGHT_VH = 750;
+export const JOURNEY_HEIGHT_VH = 1050;
 
 export type JourneyPhase =
   | "hero"
@@ -59,11 +59,11 @@ const TRANSITION_BANDS = [
   },
 ] as const;
 
-export const SNAP_IDLE_MS = 160;
+export const SNAP_IDLE_MS = 130;
 export const SNAP_MIN_DELTA = 0.004;
 export const SNAP_NEAR_HOLD = 0.035;
-export const SNAP_DURATION_S = 0.55;
-export const SNAP_COMMIT_FRACTION = 0.42;
+export const SNAP_DURATION_S = 0.52;
+export const SNAP_COMMIT_FRACTION = 0.45;
 
 export function getJourneyMaxScroll(journeyHeight: number, viewportHeight: number) {
   return Math.max(0, journeyHeight - viewportHeight);

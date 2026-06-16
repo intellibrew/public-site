@@ -20,11 +20,31 @@ type UseJourneySnapOptions = {
 };
 
 export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOptions) {
-  const { scrollTo, onScroll } = useLenis();
+  const { scrollTo, getLenis, onScroll } = useLenis();
   const directionRef = useRef<0 | 1 | -1>(0);
   const isSnappingRef = useRef(false);
+  const snapRunRef = useRef(0);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasUserScrolledRef = useRef(false);
+
+  const clearIdleTimer = useCallback(() => {
+    if (!idleTimerRef.current) return;
+    clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = null;
+  }, []);
+
+  const cancelSnap = useCallback(() => {
+    if (!isSnappingRef.current) return;
+
+    const lenis = getLenis();
+    snapRunRef.current += 1;
+    isSnappingRef.current = false;
+    clearIdleTimer();
+
+    if (lenis) {
+      scrollTo(lenis.scroll, { immediate: true });
+    }
+  }, [clearIdleTimer, getLenis, scrollTo]);
 
   const animateToProgress = useCallback(
     (progress: number, duration = SNAP_DURATION_S) => {
@@ -32,10 +52,13 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
       if (!journeyEl) return;
 
       const targetY = progressToScrollY(progress, journeyEl.offsetHeight, window.innerHeight);
+      const snapRun = snapRunRef.current + 1;
+      snapRunRef.current = snapRun;
       isSnappingRef.current = true;
       scrollTo(targetY, {
         duration,
         onComplete: () => {
+          if (snapRunRef.current !== snapRun) return;
           isSnappingRef.current = false;
         },
       });
@@ -76,20 +99,38 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
   useEffect(() => {
     if (!enabled) return;
 
-    const markUserScroll = () => {
+    const markUserScroll = (event: Event) => {
+      if (
+        event instanceof KeyboardEvent &&
+        ![
+          "ArrowDown",
+          "ArrowUp",
+          "PageDown",
+          "PageUp",
+          "Home",
+          "End",
+          " ",
+        ].includes(event.key)
+      ) {
+        return;
+      }
+
       hasUserScrolledRef.current = true;
+      cancelSnap();
     };
 
     window.addEventListener("wheel", markUserScroll, { passive: true });
+    window.addEventListener("touchstart", markUserScroll, { passive: true });
     window.addEventListener("touchmove", markUserScroll, { passive: true });
     window.addEventListener("keydown", markUserScroll);
 
     return () => {
       window.removeEventListener("wheel", markUserScroll);
+      window.removeEventListener("touchstart", markUserScroll);
       window.removeEventListener("touchmove", markUserScroll);
       window.removeEventListener("keydown", markUserScroll);
     };
-  }, [enabled]);
+  }, [cancelSnap, enabled]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -107,7 +148,7 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
         if (shouldDisableJourneySnap(progress)) return;
       }
 
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      clearIdleTimer();
       idleTimerRef.current = setTimeout(() => {
         if (Math.abs(lenis.velocity) > 0.015) {
           scheduleSnap(lenis);
@@ -142,9 +183,9 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
 
     return () => {
       unsubscribe();
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      clearIdleTimer();
     };
-  }, [enabled, journeyRef, onScroll, trySnap]);
+  }, [clearIdleTimer, enabled, journeyRef, onScroll, trySnap]);
 
   return { scrollToProgress, isSnappingRef };
 }
