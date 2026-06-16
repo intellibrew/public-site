@@ -48,6 +48,21 @@ const STATION_STEP_IDS = [
   "packaging",
 ] as const;
 
+const FLOW_ACTIVE_EPSILON = 0.001;
+const MACHINE_OPERATION_START_PROGRESS = 0.985;
+
+function hasLineMotion(flow: FlowState) {
+  return (
+    flow.machineLive > FLOW_ACTIVE_EPSILON ||
+    flow.conveyorLive > FLOW_ACTIVE_EPSILON ||
+    flow.activeMoverCount > 0
+  );
+}
+
+function hasFlowVisualState(flow: FlowState) {
+  return flow.accentLevel > FLOW_ACTIVE_EPSILON || flow.bottleneckIntensity > FLOW_ACTIVE_EPSILON;
+}
+
 export function makeBuildSequence(materials: Materials): FactoryBuild {
   const floor = revealStep(buildFloor(materials), 0, 0.12);
   const shell = revealStep(buildShell(materials), 0.06, 0.2);
@@ -115,16 +130,21 @@ export function makeBuildSequence(materials: Materials): FactoryBuild {
     flowVisuals,
     updateMachines: (progress, elapsedMs, flow) => {
       setCurrentFlowState(flow);
-      tickConveyor(conveyor.group, progress, elapsedMs);
+      if (progress < MACHINE_OPERATION_START_PROGRESS || !hasLineMotion(flow)) return;
+
       tickIntake(intake.group, progress, elapsedMs);
       tickBlankingPress(blanking.group, progress, elapsedMs);
       tickStamping(stamping.group, progress, elapsedMs);
       tickSubAssembly(subAssembly.group, progress, elapsedMs);
       tickWelding(welding.group, progress, elapsedMs);
       tickPaintBooth(paint.group, progress, elapsedMs);
+      tickConveyor(conveyor.group, progress, elapsedMs);
       tickFinalAssembly(finalAssembly.group, progress, elapsedMs);
       tickPackaging(packaging.group, progress, elapsedMs);
-      applyFlowVisuals(flowVisuals, flow, stationGroups, elapsedMs);
+
+      if (hasFlowVisualState(flow)) {
+        applyFlowVisuals(flowVisuals, flow, stationGroups, elapsedMs);
+      }
     },
   };
 }

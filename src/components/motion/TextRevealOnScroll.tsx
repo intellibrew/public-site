@@ -26,9 +26,7 @@ type TextRevealOnScrollProps = {
   balance?: boolean;
   replay?: boolean;
   mode?: "character" | "word" | "sentence";
-  /** External scroll progress (0–1). When provided, internal scroll tracking is skipped. */
   progress?: MotionValue<number>;
-  /** Remap external progress into 0–1 reveal range */
   progressRange?: [number, number];
   transition?: SpringTransition;
 };
