@@ -132,9 +132,9 @@ function buildControlRoom(materials: Materials) {
     room.add(chair);
   };
 
-  addChair(-0.72, 0.05, Math.PI);
-  addChair(-0.32, 0.05, Math.PI);
-  addChair(0.08, 0.05, Math.PI);
+  addChair(-0.72, 0.05, 0);
+  addChair(-0.32, 0.05, 0);
+  addChair(0.08, 0.05, 0);
 
   const sideConsoleX = 0.66;
   room.add(box([0.52, 0.06, 0.34], [sideConsoleX, 0.32, 0.2], materials.machineDark, false));
@@ -265,6 +265,7 @@ export function buildFloor(materials: Materials) {
     )
   );
 
+  markKeepDuringPlacement(group);
   return group;
 }
 

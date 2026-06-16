@@ -2,18 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValueEvent, useTransform, type MotionValue } from "framer-motion";
-import { Clock3, GitBranch, FileText } from "lucide-react";
 import AdvancedFactoryAnimation from "@/components/AdvancedFactoryAnimation";
 import { MaskedTextReveal } from "@/components/motion/MaskedTextReveal";
 import { TextRevealAuto } from "@/components/motion/TextRevealAuto";
-import { FlowDiagram, FlowDiagramMobile } from "@/components/sections/IntroducingSection";
+import { ProblemBulletList } from "@/components/sections/ProblemBulletList";
+import { FlowDiagram } from "@/components/sections/IntroducingSection";
 import { JOURNEY } from "@/lib/factory/scrollJourney";
-
-const PROBLEM_BULLETS = [
-  { label: "Weeks of back-and-forth.", icon: Clock3 },
-  { label: "Decisions scattered without a single model.", icon: GitBranch },
-  { label: "Design-to-RFQs start too late, costs drift.", icon: FileText },
-] as const;
 
 const MUTED = "#475569";
 const BODY = "#94a3b8";
@@ -245,26 +239,14 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
                 />
               </div>
 
-            <ul className="w-full space-y-2.5 text-body md:space-y-3">
-              {PROBLEM_BULLETS.map(({ label, icon: Icon }, index) => (
-                <li key={label} className="flex items-start gap-3">
-                  <span className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-2xl border border-teal-500/50 bg-[radial-gradient(circle_at_30%_0%,rgba(94,234,212,0.35),rgba(20,184,166,0.2))] text-teal-200 shadow-[0_10px_30px_-18px_rgba(20,184,166,0.35)]">
-                    <Icon className="h-3.5 w-3.5 text-teal-300" />
-                  </span>
-                  <TextRevealAuto
-                    key={`problem-bullet-${index}-${problemCycle}`}
-                    text={label}
-                    className="font-body text-sm leading-relaxed md:text-base"
-                    mutedColor={MUTED}
-                    primaryColor={BODY}
-                    active={problemSubtextActive}
-                    delay={index * 0.12}
-                    stagger={0.022}
-                    duration={0.2}
-                  />
-                </li>
-              ))}
-            </ul>
+            <ProblemBulletList
+              reveal={{
+                active: problemSubtextActive,
+                cycle: problemCycle,
+                mutedColor: MUTED,
+                primaryColor: BODY,
+              }}
+            />
           </motion.div>
 
           <motion.div
@@ -321,14 +303,11 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
           </motion.div>
 
           <motion.div
-            className={`factory-stitched-story__visual-panel factory-stitched-story__visual-panel--solution flex items-center justify-center overflow-hidden md:absolute md:inset-0 ${mobileLayoutPhase === "problem" ? "max-md:hidden" : ""}`}
+            className={`factory-stitched-story__visual-panel factory-stitched-story__visual-panel--solution flex items-center justify-center overflow-hidden md:overflow-visible md:absolute md:inset-0 ${mobileLayoutPhase === "problem" ? "max-md:hidden" : ""}`}
             style={{ opacity: solutionVisualOpacity, visibility: solutionVisualVisibility }}
           >
-            <div className="hidden w-full md:block">
+            <div className="w-full min-w-0">
               <FlowDiagram />
-            </div>
-            <div className="w-full md:hidden">
-              <FlowDiagramMobile />
             </div>
           </motion.div>
         </div>

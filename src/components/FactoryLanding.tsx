@@ -16,6 +16,8 @@ import {
   isFactoryPhase,
   JOURNEY,
   JOURNEY_HEIGHT_VH,
+  JOURNEY_PHONE_HEIGHT_VH,
+  JOURNEY_TABLET_HEIGHT_VH,
   resolveJourneyPhase,
   shouldMountFactory,
   shouldStartFactoryBuild,
@@ -46,29 +48,25 @@ export default function FactoryLanding() {
   const [animationActive, setAnimationActive] = useState(false);
   const [journeyPhase, setJourneyPhase] = useState<JourneyPhase>("hero");
   const [scrollReady, setScrollReady] = useState(false);
+  const [showHeroChrome, setShowHeroChrome] = useState(true);
 
   const { scrollTo } = useLenis();
-  const { scrollToProgress } = useJourneySnap({ journeyRef, enabled: scrollReady && !isPhone });
+  const { scrollToProgress } = useJourneySnap({
+    journeyRef,
+    enabled: scrollReady,
+    aggressive: isPhone || isCompact,
+  });
 
   const { scrollYProgress } = useScroll({
     target: journeyRef,
     offset: ["start start", "end end"],
   });
 
-  const heroOpacity = useTransform(
+  const heroVisible = useTransform(
     scrollYProgress,
-    [0, JOURNEY.hero.fadeOut[0], JOURNEY.hero.fadeOut[1]],
-    [1, 1, 0]
-  );
-  const heroY = useTransform(
-    scrollYProgress,
-    [0, JOURNEY.hero.fadeOut[0], JOURNEY.hero.fadeOut[1]],
-    [0, 0, -16]
+    (progress) => (progress < JOURNEY.hero.fadeOut[1] ? "visible" : "hidden")
   );
   const heroZIndex = useTransform(scrollYProgress, [0, 0.06, JOURNEY.hero.fadeOut[1]], [20, 20, 8]);
-  const heroVisibility = useTransform(heroOpacity, (value) =>
-    value < 0.04 ? "hidden" : "visible"
-  );
 
   const storyOpacity = useTransform(
     scrollYProgress,
@@ -84,16 +82,11 @@ export default function FactoryLanding() {
     value < 0.02 ? "hidden" : "visible"
   );
 
-  const factoryOpacity = useTransform(
-    scrollYProgress,
-    [
-      JOURNEY.factory.fadeIn[0],
-      JOURNEY.factory.fadeIn[1],
-      JOURNEY.problem.fadeIn[0],
-      JOURNEY.problem.fadeIn[0] + 0.001,
-    ],
-    [0, 1, 1, 0]
-  );
+  const factoryOpacity = useTransform(scrollYProgress, (progress) => {
+    if (progress < JOURNEY.factory.fadeIn[1]) return 0;
+    if (progress < JOURNEY.problem.fadeIn[0]) return 1;
+    return 0;
+  });
 
   const customersOpacity = useTransform(
     scrollYProgress,
@@ -174,6 +167,8 @@ export default function FactoryLanding() {
   }, []);
 
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
+    setShowHeroChrome(progress < JOURNEY.hero.fadeOut[1]);
+
     if (!hasUserScrolledRef.current && progress > 0.002) {
       return;
     }
@@ -272,8 +267,12 @@ export default function FactoryLanding() {
     };
   }, [animationActive, scrollYProgress]);
 
-  const showHeroBeams = journeyPhase === "hero";
-  const showScrollHint = journeyPhase === "hero";
+  const showScrollHint = showHeroChrome;
+  const journeyHeightVh = isPhone
+    ? JOURNEY_PHONE_HEIGHT_VH
+    : isCompact
+      ? JOURNEY_TABLET_HEIGHT_VH
+      : JOURNEY_HEIGHT_VH;
 
   return (
     <main
@@ -286,7 +285,7 @@ export default function FactoryLanding() {
       <div
         ref={journeyRef}
         className="factory-scroll-journey"
-        style={{ ["--factory-journey-vh" as string]: String(JOURNEY_HEIGHT_VH) }}
+        style={{ ["--factory-journey-vh" as string]: String(journeyHeightVh) }}
       >
         <div
           className="factory-experience-stage"
@@ -340,9 +339,9 @@ export default function FactoryLanding() {
 
           <motion.div
             className="factory-scroll-layer factory-scroll-layer--hero factory-hero-overlay"
-            style={{ opacity: heroOpacity, y: heroY, visibility: heroVisibility, zIndex: heroZIndex }}
+            style={{ visibility: heroVisible, zIndex: heroZIndex }}
           >
-            {showHeroBeams && (
+            {showHeroChrome && (
               <div aria-hidden className="hero-beams-layer absolute inset-0 z-0 opacity-70">
                 <Beams
                   active
@@ -364,7 +363,7 @@ export default function FactoryLanding() {
 
             <div className="factory-hero-content relative z-10 min-h-0 flex-1">
               <div className="factory-hero-inner">
-                {journeyPhase === "hero" && (
+                {showHeroChrome && (
                   <p className="factory-hero-kicker mb-3 font-fragment uppercase text-teal-300/70 sm:mb-4">
                     NeoFab · AI factory planning
                   </p>

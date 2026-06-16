@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { FC, PropsWithChildren } from "react";
 
 const SafeAnimatePresence = AnimatePresence as FC<PropsWithChildren>;
@@ -86,98 +86,34 @@ export function IntroducingSection({ embedded = false }: IntroducingSectionProps
           whileInView={embedded ? undefined : { opacity: 1 }}
           viewport={embedded ? undefined : { once: true }}
           transition={embedded ? undefined : { duration: 0.8, delay: 0.3 }}
-          className="hidden md:block"
         >
           <FlowDiagram />
-        </motion.div>
-        <motion.div
-          initial={embedded ? false : { opacity: 0 }}
-          whileInView={embedded ? undefined : { opacity: 1 }}
-          viewport={embedded ? undefined : { once: true }}
-          transition={embedded ? undefined : { duration: 0.5, delay: 0.2 }}
-          className="md:hidden"
-        >
-          <FlowDiagramMobile />
         </motion.div>
       </div>
     </section>
   );
 }
 
-export function FlowDiagramMobile() {
-  return (
-    <div
-      className="mx-auto rounded-2xl border border-teal-500/25 overflow-hidden w-full max-w-full"
-      style={{
-        background: "linear-gradient(180deg, rgba(10,10,12,0.95) 0%, rgba(4,4,6,0.98) 100%)",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)",
-      }}
-    >
-      <div className="relative p-5 flex flex-col items-center">
-        <div className="absolute left-1/2 top-[4.75rem] bottom-[14rem] w-px -ml-px bg-gradient-to-b from-teal-500/30 via-teal-500/60 to-teal-500/30" />
+const DESIGN_WIDTH = 900;
+const DESIGN_HEIGHT = 320;
 
-        <div className="relative w-full flex flex-col items-center pb-2">
-          <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
-            Inputs
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {inputs.map((input) => (
-              <button
-                key={input.label}
-                type="button"
-                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-body text-slate-300 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
-                title={input.tooltip}
-              >
-                {input.label}
-              </button>
-            ))}
-          </div>
-          <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/40 to-teal-500/60" />
-        </div>
+const MOBILE_WIDTH = 340;
+const MOBILE_HEIGHT = 500;
 
-        <div className="relative flex flex-col items-center py-2">
-          <div className="relative">
-            <div
-              className="absolute inset-[-20px] rounded-full pointer-events-none"
-              style={{
-                background: "radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)",
-              }}
-            />
-            <div className="absolute inset-[-10px] rounded-full border border-teal-500/40 pointer-events-none" />
-            <button
-              type="button"
-              className="relative rounded-full border border-teal-400/60 px-6 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
-              style={{
-                background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2)",
-              }}
-            >
-              <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">NeoFab AI</span>
-            </button>
-          </div>
-          <div className="w-px h-4 mt-2 bg-gradient-to-b from-teal-500/60 to-teal-500/40" />
-        </div>
-
-        <div className="relative w-full flex flex-col items-center pt-2">
-          <p className="text-[10px] font-body tracking-widest text-teal-400 uppercase mb-2">
-            Outputs
-          </p>
-          <div className="flex flex-col gap-2 w-full max-w-[200px]">
-            {outputs.map((output) => (
-              <button
-                key={output.label}
-                type="button"
-                className="rounded-full border border-teal-500/40 bg-black/40 px-3 py-2 text-[12px] font-body text-teal-200 tracking-wide text-center w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
-                title={output.tooltip}
-              >
-                {output.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+function useIsNarrowLayout() {
+  const [isNarrow, setIsNarrow] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches
   );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsNarrow(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  return isNarrow;
 }
 
 function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number; duration: number }) {
@@ -302,22 +238,350 @@ function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number
   );
 }
 
-export function FlowDiagram() {
+type FlowNodeProps = {
+  label: string;
+  tooltip: string;
+  nodeKey: string;
+  hoveredNode: string | null;
+  setHoveredNode: (key: string | null) => void;
+  className?: string;
+  labelClassName?: string;
+  initial?: { opacity: number; x?: number; y?: number };
+  animateTo?: { opacity: number; x?: number; y?: number };
+  transition?: { duration: number; delay?: number };
+};
+
+function FlowNodeButton({
+  label,
+  tooltip,
+  nodeKey,
+  hoveredNode,
+  setHoveredNode,
+  className = "",
+  labelClassName = "text-[13px] font-body text-slate-300 tracking-wide block px-5 py-3",
+  initial,
+  animateTo,
+  transition,
+}: FlowNodeProps) {
+  const isHovered = hoveredNode === nodeKey;
+
+  return (
+    <motion.button
+      type="button"
+      initial={initial}
+      whileInView={animateTo}
+      viewport={{ once: true }}
+      transition={transition}
+      onMouseEnter={() => setHoveredNode(nodeKey)}
+      onMouseLeave={() => setHoveredNode(null)}
+      onFocus={() => setHoveredNode(nodeKey)}
+      onBlur={() => setHoveredNode(null)}
+      className={`group relative rounded-full border bg-black/40 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18] ${className}`}
+      title={tooltip}
+      style={{
+        borderColor: isHovered ? "rgba(20,184,166,0.7)" : "rgba(20,184,166,0.3)",
+        boxShadow: isHovered ? "0 0 20px rgba(20,184,166,0.35)" : "none",
+      }}
+    >
+      <motion.span
+        className={labelClassName}
+        animate={{ scale: isHovered ? 1.03 : 1 }}
+        transition={{ type: "spring", stiffness: 280, damping: 28 }}
+      >
+        {label}
+      </motion.span>
+      <SafeAnimatePresence>
+        {isHovered && (
+          <motion.span
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+            style={{ transformOrigin: "center bottom" }}
+            className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-body whitespace-nowrap z-[100] shadow-xl pointer-events-none"
+          >
+            {tooltip}
+          </motion.span>
+        )}
+      </SafeAnimatePresence>
+    </motion.button>
+  );
+}
+
+function FlowDiagramShell({
+  width,
+  height,
+  children,
+  progressDirection = "horizontal",
+}: {
+  width: number;
+  height: number;
+  children: ReactNode;
+  progressDirection?: "horizontal" | "vertical";
+}) {
+  return (
+    <div
+      className="relative mx-auto w-full max-w-full rounded-2xl border border-teal-500/20 overflow-hidden"
+      style={{
+        background: "linear-gradient(180deg, rgba(10,10,12,0.98) 0%, rgba(4,4,6,0.99) 100%)",
+        width,
+        maxWidth: "100%",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
+      }}
+    >
+      <div className="relative overflow-hidden rounded-2xl" style={{ width, height }}>
+        {children}
+        <div
+          className={`absolute overflow-hidden ${
+            progressDirection === "vertical"
+              ? "left-0 top-0 bottom-0 w-[2px]"
+              : "bottom-0 left-0 right-0 h-[2px]"
+          }`}
+        >
+          <motion.div
+            className={progressDirection === "vertical" ? "h-1/5 w-full" : "h-full w-1/5"}
+            style={{
+              background:
+                progressDirection === "vertical"
+                  ? "linear-gradient(180deg, transparent, rgba(20,184,166,1), transparent)"
+                  : "linear-gradient(90deg, transparent, rgba(20,184,166,1), transparent)",
+              boxShadow: "0 0 15px rgba(20,184,166,0.7)",
+            }}
+            animate={progressDirection === "vertical" ? { y: ["-20%", "600%"] } : { x: ["-20%", "600%"] }}
+            transition={{
+              duration: 5.5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NeoFabHub({ className = "" }: { className?: string }) {
+  return (
+    <motion.button
+      type="button"
+      className={`relative cursor-default rounded-full focus:outline-none ${className}`}
+      title=""
+    >
+      <div
+        className="absolute inset-[-28px] rounded-full pointer-events-none md:inset-[-35px]"
+        style={{
+          background: "radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)",
+        }}
+      />
+      <div className="absolute inset-[-14px] rounded-full border border-teal-500/40 pointer-events-none md:inset-[-18px]" />
+      <div
+        className="relative rounded-full border border-teal-400/60 px-6 py-3 md:px-7 md:py-4"
+        style={{
+          background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2)",
+        }}
+      >
+        <span className="text-[13px] font-orbitron text-teal-50 tracking-wider md:text-[14px]">NeoFab AI</span>
+      </div>
+    </motion.button>
+  );
+}
+
+function FlowDiagramVertical() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const updateScale = () => {
+      const wrapper = wrapperRef.current;
+      if (!wrapper) return;
+      setScale(Math.min(1, wrapper.clientWidth / MOBILE_WIDTH));
+    };
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    if (wrapperRef.current) observer.observe(wrapperRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const centerX = MOBILE_WIDTH / 2;
+  const centerY = 214;
+  const inputY = 88;
+  const inputNodes = inputs.map((input, i) => ({
+    ...input,
+    x: [62, centerX, 278][i],
+    y: inputY,
+  }));
+  const outputNodes = [
+    { ...outputs[0], x: 88, y: 312 },
+    { ...outputs[1], x: 252, y: 312 },
+    { ...outputs[2], x: 88, y: 360 },
+    { ...outputs[3], x: 252, y: 360 },
+    { ...outputs[4], x: centerX, y: 418 },
+  ];
+
+  const inputPaths = inputNodes.map((node, i) => ({
+    id: `path-v-in-${i}`,
+    d: `M ${node.x} ${node.y + 20} Q ${node.x} ${(node.y + centerY) / 2 + 24}, ${centerX} ${centerY - 26}`,
+  }));
+
+  const outputPaths = outputNodes.map((node, i) => ({
+    id: `path-v-out-${i}`,
+    d: `M ${centerX} ${centerY + 26} Q ${centerX} ${(centerY + node.y) / 2 + 12}, ${node.x} ${node.y - 18}`,
+  }));
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="mx-auto w-full"
+      style={{
+        maxWidth: MOBILE_WIDTH,
+        height: MOBILE_HEIGHT * scale,
+      }}
+    >
+      <div
+        style={{
+          width: MOBILE_WIDTH,
+          height: MOBILE_HEIGHT,
+          transform: `scale(${scale})`,
+          transformOrigin: "top center",
+        }}
+      >
+    <FlowDiagramShell width={MOBILE_WIDTH} height={MOBILE_HEIGHT} progressDirection="vertical">
+      <svg
+        className="absolute inset-0 pointer-events-none"
+        width={MOBILE_WIDTH}
+        height={MOBILE_HEIGHT}
+        viewBox={`0 0 ${MOBILE_WIDTH} ${MOBILE_HEIGHT}`}
+      >
+        {inputPaths.map((path) => (
+          <path
+            key={path.id}
+            id={path.id}
+            d={path.d}
+            fill="none"
+            stroke="rgba(45,212,191,0.25)"
+            strokeWidth="1.5"
+          />
+        ))}
+        {outputPaths.map((path) => (
+          <path
+            key={path.id}
+            id={path.id}
+            d={path.d}
+            fill="none"
+            stroke="rgba(45,212,191,0.25)"
+            strokeWidth="1.5"
+          />
+        ))}
+
+        <FlowingDot pathId="path-v-in-0" delay={0} duration={2.8} />
+        <FlowingDot pathId="path-v-in-1" delay={0.9} duration={2.8} />
+        <FlowingDot pathId="path-v-in-2" delay={1.8} duration={2.8} />
+        <FlowingDot pathId="path-v-out-0" delay={3} duration={2.4} />
+        <FlowingDot pathId="path-v-out-1" delay={3.3} duration={2.4} />
+        <FlowingDot pathId="path-v-out-2" delay={3.6} duration={2.4} />
+        <FlowingDot pathId="path-v-out-3" delay={3.9} duration={2.4} />
+        <FlowingDot pathId="path-v-out-4" delay={4.2} duration={2.4} />
+      </svg>
+
+      <p className="absolute left-1/2 top-5 z-10 -translate-x-1/2 text-[10px] font-body uppercase tracking-widest text-slate-500">
+        Inputs
+      </p>
+
+      {inputNodes.map((input, i) => (
+        <div
+          key={input.label}
+          className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+          style={{ left: input.x, top: input.y }}
+        >
+          <FlowNodeButton
+            label={input.label}
+            tooltip={input.tooltip}
+            nodeKey={`input-${input.label}`}
+            hoveredNode={hoveredNode}
+            setHoveredNode={setHoveredNode}
+            labelClassName="text-[11px] font-body text-slate-300 tracking-wide block px-3 py-2.5 whitespace-nowrap"
+            initial={{ opacity: 0, y: -12 }}
+            animateTo={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 + i * 0.08 }}
+          />
+        </div>
+      ))}
+
+      <div
+        className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+        style={{ left: centerX, top: centerY }}
+      >
+        <NeoFabHub />
+      </div>
+
+      <p className="absolute left-1/2 top-[286px] z-10 -translate-x-1/2 text-[10px] font-body uppercase tracking-widest text-teal-400">
+        Outputs
+      </p>
+
+      {outputNodes.map((output, i) => (
+        <div
+          key={output.label}
+          className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+          style={{ left: output.x, top: output.y }}
+        >
+          <FlowNodeButton
+            label={output.label}
+            tooltip={output.tooltip}
+            nodeKey={`output-${output.label}`}
+            hoveredNode={hoveredNode}
+            setHoveredNode={setHoveredNode}
+            labelClassName="text-[11px] font-body text-teal-200 tracking-wide block px-3 py-2 text-center whitespace-nowrap"
+            initial={{ opacity: 0, y: 12 }}
+            animateTo={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.35 + i * 0.08 }}
+          />
+        </div>
+      ))}
+    </FlowDiagramShell>
+      </div>
+    </div>
+  );
+}
+
+function FlowDiagramHorizontal() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 900, height: 320 });
+  const [dimensions, setDimensions] = useState({ width: DESIGN_WIDTH, height: DESIGN_HEIGHT });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
   useEffect(() => {
     const updateDimensions = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: rect.width, height: rect.height });
-      }
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      setDimensions({
+        width: rect.width > 0 ? rect.width : DESIGN_WIDTH,
+        height: DESIGN_HEIGHT,
+      });
     };
 
     updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
+    const element = containerRef.current;
+    if (!element) return;
+
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    resizeObserver.observe(element);
+
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) updateDimensions();
+      },
+      { threshold: 0.01 }
+    );
+    intersectionObserver.observe(element);
+
+    window.addEventListener("resize", updateDimensions);
+    return () => {
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      window.removeEventListener("resize", updateDimensions);
+    };
   }, []);
 
   const padding = 32;
@@ -363,19 +627,18 @@ export function FlowDiagram() {
   }));
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="relative mx-auto rounded-2xl border border-teal-500/20 overflow-hidden"
+      className="relative mx-auto w-full rounded-2xl border border-teal-500/20 overflow-hidden"
       style={{
         background: "linear-gradient(180deg, rgba(10,10,12,0.98) 0%, rgba(4,4,6,0.99) 100%)",
-        maxWidth: 900,
+        maxWidth: DESIGN_WIDTH,
         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
       }}
     >
-      <div className="relative p-8 overflow-hidden rounded-2xl">
-
-        <svg 
-          className="absolute inset-0 w-full h-full pointer-events-none"
+      <div className="relative overflow-hidden rounded-2xl p-8" style={{ minHeight: DESIGN_HEIGHT }}>
+        <svg
+          className="absolute inset-0 h-full w-full pointer-events-none"
           style={{ width: dimensions.width, height: dimensions.height }}
         >
           {inputPaths.map((path) => (
@@ -400,11 +663,9 @@ export function FlowDiagram() {
             />
           ))}
 
-
           <FlowingDot pathId="path-in-0" delay={0} duration={3} />
           <FlowingDot pathId="path-in-1" delay={1} duration={3} />
           <FlowingDot pathId="path-in-2" delay={2} duration={3} />
-
           <FlowingDot pathId="path-out-0" delay={3.2} duration={2.6} />
           <FlowingDot pathId="path-out-1" delay={3.5} duration={2.6} />
           <FlowingDot pathId="path-out-2" delay={3.8} duration={2.6} />
@@ -412,142 +673,52 @@ export function FlowDiagram() {
           <FlowingDot pathId="path-out-4" delay={4.4} duration={2.6} />
         </svg>
 
-        <div className="relative z-10 flex items-center justify-between min-h-[260px]">
-          
+        <div className="relative z-10 flex min-h-[260px] items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="text-[10px] font-body tracking-widest text-slate-500 uppercase writing-mode-vertical">
+            <div className="text-[10px] font-body uppercase tracking-widest text-slate-500">
               <span className="[writing-mode:vertical-lr] rotate-180">Inputs</span>
             </div>
-            <div className="flex flex-col gap-5 w-[130px]">
-              {inputs.map((input, i) => {
-                const isHovered = hoveredNode === `input-${input.label}`;
-                return (
-                  <motion.button
-                    key={input.label}
-                    type="button"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
-                    onMouseEnter={() => setHoveredNode(`input-${input.label}`)}
-                    onMouseLeave={() => setHoveredNode(null)}
-                    onFocus={() => setHoveredNode(`input-${input.label}`)}
-                    onBlur={() => setHoveredNode(null)}
-                    className="group relative text-left w-full rounded-full border bg-black/40 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
-                    title={input.tooltip}
-                    style={{
-                      borderColor: isHovered ? "rgba(20,184,166,0.7)" : "rgba(20,184,166,0.3)",
-                      boxShadow: isHovered ? "0 0 20px rgba(20,184,166,0.35)" : "none",
-                    }}
-                  >
-                    <motion.span
-                      className="text-[13px] font-body text-slate-300 tracking-wide block px-5 py-3"
-                      animate={{ scale: isHovered ? 1.03 : 1 }}
-                      transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                    >
-                      {input.label}
-                    </motion.span>
-                    <SafeAnimatePresence>
-                      {isHovered && (
-                        <motion.span
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 6 }}
-                          transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-                          style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-body whitespace-nowrap z-[100] shadow-xl pointer-events-none"
-                        >
-                          {input.tooltip}
-                        </motion.span>
-                      )}
-                    </SafeAnimatePresence>
-                  </motion.button>
-                );
-              })}
+            <div className="flex w-[130px] flex-col gap-5">
+              {inputs.map((input, i) => (
+                <FlowNodeButton
+                  key={input.label}
+                  label={input.label}
+                  tooltip={input.tooltip}
+                  nodeKey={`input-${input.label}`}
+                  hoveredNode={hoveredNode}
+                  setHoveredNode={setHoveredNode}
+                  className="w-full text-left"
+                  initial={{ opacity: 0, x: -20 }}
+                  animateTo={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
+                />
+              ))}
             </div>
           </div>
 
-          <div className="flex-1 flex justify-center">
-            <motion.button
-              type="button"
-              className="relative cursor-default rounded-full focus:outline-none"
-              title=""
-            >
-              <div 
-                className="absolute inset-[-35px] rounded-full pointer-events-none"
-                style={{
-                  background: "radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)",
-                  opacity: 1,
-                }}
-              />
-              
-              <div
-                className="absolute inset-[-18px] rounded-full border border-teal-500/40 pointer-events-none"
-              />
-              
-              <div 
-                className="relative px-7 py-4 rounded-full border border-teal-400/60"
-                style={{
-                  background: "linear-gradient(180deg, rgba(13,148,136,0.95) 0%, rgba(19,78,74,0.98) 100%)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.2)",
-                }}
-              >
-                <span className="text-[14px] font-orbitron text-teal-50 tracking-wider">
-                  NeoFab AI
-                </span>
-              </div>
-            </motion.button>
+          <div className="flex flex-1 justify-center px-4">
+            <NeoFabHub />
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex flex-col gap-2.5 w-[140px]">
-              {outputs.map((output, i) => {
-                const isHovered = hoveredNode === `output-${output.label}`;
-                return (
-                  <motion.button
-                    key={output.label}
-                    type="button"
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
-                    onMouseEnter={() => setHoveredNode(`output-${output.label}`)}
-                    onMouseLeave={() => setHoveredNode(null)}
-                    onFocus={() => setHoveredNode(`output-${output.label}`)}
-                    onBlur={() => setHoveredNode(null)}
-                    className="group relative w-full rounded-full border bg-black/40 backdrop-blur-sm text-center cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f18]"
-                    title={output.tooltip}
-                    style={{
-                      borderColor: isHovered ? "rgba(20,184,166,0.8)" : "rgba(20,184,166,0.4)",
-                      boxShadow: isHovered ? "0 0 20px rgba(20,184,166,0.35)" : "none",
-                    }}
-                  >
-                    <motion.span
-                      className="text-[11px] font-body text-teal-200 tracking-wide block px-4 py-2 text-center"
-                      animate={{ scale: isHovered ? 1.03 : 1 }}
-                      transition={{ type: "spring", stiffness: 280, damping: 28 }}
-                    >
-                      {output.label}
-                    </motion.span>
-                    <SafeAnimatePresence>
-                      {isHovered && (
-                        <motion.span
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 6 }}
-                          transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-                          style={{ transformOrigin: "center bottom" }}
-                          className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 rounded-lg bg-black/95 border border-teal-500/30 text-slate-200 text-xs font-body whitespace-nowrap z-[100] shadow-xl pointer-events-none"
-                        >
-                          {output.tooltip}
-                        </motion.span>
-                      )}
-                    </SafeAnimatePresence>
-                  </motion.button>
-                );
-              })}
+            <div className="flex w-[140px] flex-col gap-2.5">
+              {outputs.map((output, i) => (
+                <FlowNodeButton
+                  key={output.label}
+                  label={output.label}
+                  tooltip={output.tooltip}
+                  nodeKey={`output-${output.label}`}
+                  hoveredNode={hoveredNode}
+                  setHoveredNode={setHoveredNode}
+                  className="w-full"
+                  labelClassName="text-[11px] font-body text-teal-200 tracking-wide block px-4 py-2 text-center"
+                  initial={{ opacity: 0, x: 20 }}
+                  animateTo={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
+                />
+              ))}
             </div>
-            <div className="text-[10px] font-body tracking-widest text-teal-400 uppercase">
+            <div className="text-[10px] font-body uppercase tracking-widest text-teal-400">
               <span className="[writing-mode:vertical-lr]">Outputs</span>
             </div>
           </div>
@@ -571,4 +742,9 @@ export function FlowDiagram() {
       </div>
     </div>
   );
+}
+
+export function FlowDiagram() {
+  const isNarrow = useIsNarrowLayout();
+  return isNarrow ? <FlowDiagramVertical /> : <FlowDiagramHorizontal />;
 }

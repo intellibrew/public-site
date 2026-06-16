@@ -34,18 +34,18 @@ export const CAMERA_SETTINGS = {
 } as const;
 
 export const MOBILE_CAMERA = {
-  position: new THREE.Vector3(6.15, 13.1, 11.45),
-  target: new THREE.Vector3(0.9, 0.28, 0.2),
+  position: new THREE.Vector3(7.2, 13.6, 10.8),
+  target: new THREE.Vector3(0.1, 0.26, -0.55),
 } as const;
 
 export const CAMERA_PATH = {
-  overview: new THREE.Vector3(6.55, 10.8, 8.65),
-  iso: new THREE.Vector3(6.08, 9.45, 7.7),
-  close: new THREE.Vector3(5.5, 8.3, 6.92),
-  final: new THREE.Vector3(5.15, 7.75, 6.45),
-  lookStart: new THREE.Vector3(0.55, 0.25, -0.02),
-  lookMid: new THREE.Vector3(0.85, 0.28, 0.15),
-  lookEnd: new THREE.Vector3(1.05, 0.28, 0.42),
+  overview: new THREE.Vector3(7.5, 12.5, 9.2),
+  iso: new THREE.Vector3(6.85, 11.0, 8.2),
+  close: new THREE.Vector3(6.15, 9.6, 7.3),
+  final: new THREE.Vector3(5.55, 8.7, 6.55),
+  lookStart: new THREE.Vector3(0.1, 0.26, -0.7),
+  lookMid: new THREE.Vector3(0.4, 0.28, -0.15),
+  lookEnd: new THREE.Vector3(0.75, 0.28, 0.22),
 } as const;
 
 export const POINTER_DRAG_THRESHOLD_SQ = 6 * 6;
@@ -67,7 +67,7 @@ export const CANVAS_EVENTS_TO_STOP = [
 
 export const CTRL_WHEEL_ZOOM = {
   minDistance: 3.6,
-  maxDistance: 16.2,
+  maxDistance: 18.5,
   speed: 0.0014,
   smoothFactor: 0.16,
 } as const;

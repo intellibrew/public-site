@@ -1,4 +1,6 @@
 export const JOURNEY_HEIGHT_VH = 1050;
+export const JOURNEY_TABLET_HEIGHT_VH = 900;
+export const JOURNEY_PHONE_HEIGHT_VH = 760;
 
 export type JourneyPhase =
   | "hero"
@@ -59,11 +61,14 @@ const TRANSITION_BANDS = [
   },
 ] as const;
 
-export const SNAP_IDLE_MS = 130;
-export const SNAP_MIN_DELTA = 0.004;
-export const SNAP_NEAR_HOLD = 0.035;
-export const SNAP_DURATION_S = 0.52;
-export const SNAP_COMMIT_FRACTION = 0.45;
+export const SNAP_IDLE_MS = 60;
+export const SNAP_IDLE_MS_AGGRESSIVE = 40;
+export const SNAP_MIN_DELTA = 0.002;
+export const SNAP_NEAR_HOLD = 0.1;
+export const SNAP_DURATION_S = 0.34;
+export const SNAP_COMMIT_FRACTION = 0.22;
+export const SNAP_VELOCITY_COMMIT = 0.7;
+export const SNAP_VELOCITY_IDLE = 0.03;
 
 export function getJourneyMaxScroll(journeyHeight: number, viewportHeight: number) {
   return Math.max(0, journeyHeight - viewportHeight);
@@ -100,15 +105,10 @@ export function isInFactoryBand(progress: number) {
   return progress >= JOURNEY.factory.fadeIn[1] && progress < JOURNEY.factory.fadeOut[0];
 }
 
-/** Free-scroll zone — journey snap is disabled so the factory sim is not interrupted. */
+/** Free-scroll zone — only the core factory band; fade-out transitions still snap. */
 export function shouldDisableJourneySnap(progress: number) {
-  const inFactoryFreeScroll =
-    progress >= JOURNEY.factory.fadeIn[0] && progress <= JOURNEY.factory.fadeOut[1];
-  const inStoryHandoff =
-    progress >= JOURNEY.problem.fadeOut[0] && progress <= JOURNEY.solution.fadeIn[1];
-
   return (
-    inFactoryFreeScroll || inStoryHandoff
+    progress >= JOURNEY.factory.fadeIn[1] && progress < JOURNEY.factory.fadeOut[0]
   );
 }
 
@@ -165,11 +165,32 @@ export function resolveSnapProgress(progress: number, direction: 1 | -1 | 0): nu
   );
 
   const delta = Math.abs(nearest.progress - progress);
-  if (delta > SNAP_MIN_DELTA && delta <= SNAP_NEAR_HOLD) {
+  if (delta <= SNAP_MIN_DELTA) return null;
+
+  if (delta <= SNAP_NEAR_HOLD) {
+    return nearest.progress;
+  }
+
+  // Catch partial section fades (e.g. problem story still fading in/out).
+  if (isInPartialSectionFade(progress)) {
     return nearest.progress;
   }
 
   return null;
+}
+
+function isInPartialSectionFade(progress: number) {
+  const fadeZones = [
+    [JOURNEY.problem.fadeIn[0], JOURNEY.problem.fadeIn[1]],
+    [JOURNEY.problem.fadeOut[0], JOURNEY.problem.fadeOut[1]],
+    [JOURNEY.solution.fadeIn[0], JOURNEY.solution.fadeIn[1]],
+    [JOURNEY.solution.fadeOut[0], JOURNEY.solution.fadeOut[1]],
+    [JOURNEY.customers.fadeIn[0], JOURNEY.customers.fadeIn[1]],
+    [JOURNEY.customers.fadeOut[0], JOURNEY.customers.fadeOut[1]],
+    [JOURNEY.contact.fadeIn[0], JOURNEY.contact.fadeIn[1]],
+  ] as const;
+
+  return fadeZones.some(([start, end]) => progress >= start && progress <= end);
 }
 
 /** Snap immediately when the user has scrolled far enough into a transition band. */
