@@ -2964,21 +2964,21 @@ h3 {
   min-width: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .factory-stitched-story__visual-panel--solution {
     overflow: visible;
     min-width: 0;
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .factory-stitched-story__grid {
     flex: 1;
     min-height: 0;
-    justify-content: flex-start;
+    justify-content: space-between;
     overflow-x: hidden;
     overflow-y: auto;
-    gap: 0.375rem;
+    gap: 0.75rem;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -3003,7 +3003,13 @@ h3 {
   }
 
   .factory-stitched-story__text-panel--solution {
-    gap: 0.875rem;
+    gap: 0.75rem;
+    padding-top: 0.125rem;
+  }
+
+  .factory-stitched-story__text-panel--solution .text-heading {
+    font-size: clamp(1.625rem, 5.2vw, 2.125rem);
+    line-height: 1.1;
   }
 
   .factory-stitched-story__text-panel--problem .text-heading {
@@ -3014,10 +3020,15 @@ h3 {
   .factory-stitched-story__visual {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-items: center;
     width: 100%;
-    min-height: 0;
+    min-height: min(48vh, 28rem);
     max-height: none;
+    padding-bottom: 0.5rem;
+    overflow-x: hidden;
+    min-width: 0;
   }
 
   .factory-stitched-story__visual-panel {
@@ -3025,19 +3036,20 @@ h3 {
     position: relative;
     width: 100%;
     min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .factory-stitched-story__visual-panel--problem {
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
     padding: 0.125rem 0;
   }
 
   .factory-stitched-story__visual-panel--solution {
-    align-items: center;
-    justify-content: center;
     padding: 0;
+    overflow: hidden;
+    min-width: 0;
   }
 
   .factory-scroll-panel--customers {
@@ -3893,6 +3905,48 @@ html.lenis body {
 
   .holo-bottleneck-layout {
     gap: 0.85rem;
+  }
+
+  .factory-customers__heading {
+    font-size: clamp(1.625rem, 5.2vw, 2.125rem) !important;
+    line-height: 1.1 !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .factory-stitched-story__text-panel--problem .text-heading,
+  .factory-stitched-story__text-panel--solution .text-heading {
+    font-size: clamp(1.625rem, 5.2vw, 2.125rem);
+    line-height: 1.1;
+  }
+
+  .factory-stitched-story__subtext,
+  .factory-stitched-story__text-panel--problem ul.text-body,
+  .factory-stitched-story__text-panel--problem ul.text-body [role="region"] {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .factory-customers__main > .flex.justify-center {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .factory-customers__cards h3 {
+    font-size: 0.9375rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .factory-customers__cards li {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .factory-customers__cards .rounded-2xl {
+    padding: 1rem !important;
+  }
+
+  .factory-customers__footer p {
+    font-size: 0.8125rem !important;
+    line-height: 1.45 !important;
   }
 }
 

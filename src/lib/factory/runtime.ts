@@ -6,7 +6,7 @@ import { getEffectivePixelRatio, SCENE_FOG } from "./sceneConfig";
 import { bindSceneInput } from "./sceneInput";
 import { disposeScene, fitRendererToMount, makeSceneRenderer } from "./sceneRenderer";
 import { makeMaterials } from "./materials";
-import { clamp } from "./math";
+import { clamp, smoothstep } from "./math";
 import { makeLightRig, updateLighting } from "./lighting";
 import { revealPart } from "./reveal";
 import { bindStationPicking } from "./scenePick";
@@ -328,8 +328,13 @@ export function mountFactoryScene(
     lastFrameMs = now;
 
     const rawP = clamp(getProgress());
-    const lerpFactor = Math.min(1, deltaSec * 40);
-    smoothedP += (rawP - smoothedP) * lerpFactor;
+    const isBuilding = rawP < 0.999;
+    if (isBuilding) {
+      smoothedP = rawP;
+    } else {
+      const lerpFactor = Math.min(1, deltaSec * 40);
+      smoothedP += (rawP - smoothedP) * lerpFactor;
+    }
     if (rawP >= 0.999) smoothedP = 1;
     const p = smoothedP;
 
@@ -355,7 +360,8 @@ export function mountFactoryScene(
 
     factoryRoot.rotation.y = 0;
     factoryRoot.scale.setScalar(1);
-    factoryRoot.position.set(0, (1 - p) * -1.2, 0);
+    const rootLift = smoothstep(0, 0.12, p);
+    factoryRoot.position.set(0, (1 - rootLift) * -0.35, 0);
 
     updateShellWallFade(build.shell.group, camera, {
       hideWalls: false,

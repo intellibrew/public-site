@@ -15,3 +15,11 @@ export function isCompactViewport(width = typeof window !== "undefined" ? window
 export function isPhoneViewport(width = typeof window !== "undefined" ? window.innerWidth : 1024) {
   return width <= LAYOUT.phoneMax;
 }
+
+export function prefersNativeTouchScroll(
+  width = typeof window !== "undefined" ? window.innerWidth : 1024
+) {
+  if (width <= LAYOUT.tabletMax) return true;
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+}

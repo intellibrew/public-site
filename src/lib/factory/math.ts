@@ -21,3 +21,19 @@ export function easeOutCubic(t: number) {
   const c = clamp(t);
   return 1 - Math.pow(1 - c, 3);
 }
+
+export function easeInOutCubic(t: number) {
+  const c = clamp(t);
+  return c < 0.5 ? 4 * c * c * c : 1 - Math.pow(-2 * c + 2, 3) / 2;
+}
+
+export function easeOutQuint(t: number) {
+  const c = clamp(t);
+  return 1 - Math.pow(1 - c, 5);
+}
+
+export function easeOutBack(t: number, overshoot = 1.1) {
+  const c = clamp(t);
+  const c3 = overshoot + 1;
+  return 1 + c3 * Math.pow(c - 1, 3) + overshoot * Math.pow(c - 1, 2);
+}

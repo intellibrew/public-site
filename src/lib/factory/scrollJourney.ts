@@ -66,7 +66,7 @@ export const SNAP_IDLE_MS_AGGRESSIVE = 40;
 export const SNAP_MIN_DELTA = 0.002;
 export const SNAP_NEAR_HOLD = 0.1;
 export const SNAP_DURATION_S = 0.34;
-export const SNAP_COMMIT_FRACTION = 0.22;
+export const SNAP_COMMIT_FRACTION = 0.16;
 export const SNAP_VELOCITY_COMMIT = 0.7;
 export const SNAP_VELOCITY_IDLE = 0.03;
 
@@ -105,7 +105,6 @@ export function isInFactoryBand(progress: number) {
   return progress >= JOURNEY.factory.fadeIn[1] && progress < JOURNEY.factory.fadeOut[0];
 }
 
-/** Free-scroll zone — only the core factory band; fade-out transitions still snap. */
 export function shouldDisableJourneySnap(progress: number) {
   return (
     progress >= JOURNEY.factory.fadeIn[1] && progress < JOURNEY.factory.fadeOut[0]
@@ -171,7 +170,6 @@ export function resolveSnapProgress(progress: number, direction: 1 | -1 | 0): nu
     return nearest.progress;
   }
 
-  // Catch partial section fades (e.g. problem story still fading in/out).
   if (isInPartialSectionFade(progress)) {
     return nearest.progress;
   }

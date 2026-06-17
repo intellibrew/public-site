@@ -11,7 +11,11 @@ import { StitchedStorySection } from "@/components/sections/StitchedStorySection
 import { CustomersClientsSection } from "@/components/sections/CustomersClientsSection";
 import { useJourneySnap } from "@/hooks/useJourneySnap";
 import { useLenis } from "@/hooks/useLenis";
-import { isCompactViewport, isPhoneViewport } from "@/lib/layoutBreakpoints";
+import {
+  isCompactViewport,
+  isPhoneViewport,
+  prefersNativeTouchScroll,
+} from "@/lib/layoutBreakpoints";
 import {
   isFactoryPhase,
   JOURNEY,
@@ -23,13 +27,15 @@ import {
   shouldStartFactoryBuild,
   type JourneyPhase,
 } from "@/lib/factory/scrollJourney";
+import { easeInOutCubic } from "@/lib/factory/math";
 
-const BUILD_DURATION = 5500;
+const BUILD_DURATION_MS = 6800;
 const HERO_SCROLL_HINT = "Scroll to explore";
 
 export default function FactoryLanding() {
   const journeyRef = useRef<HTMLDivElement>(null);
   const buildProgressRef = useRef(0);
+  const buildLinearRef = useRef(0);
   const buildCompleteRef = useRef(false);
   const storyEnabledRef = useRef(false);
   const animationStartedRef = useRef(false);
@@ -45,6 +51,9 @@ export default function FactoryLanding() {
   const [storyEnabled, setStoryEnabled] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
   const [isPhone, setIsPhone] = useState(false);
+  const [prefersNativeTouch, setPrefersNativeTouch] = useState(() =>
+    typeof window !== "undefined" ? prefersNativeTouchScroll() : false
+  );
   const [animationActive, setAnimationActive] = useState(false);
   const [journeyPhase, setJourneyPhase] = useState<JourneyPhase>("hero");
   const [scrollReady, setScrollReady] = useState(false);
@@ -53,8 +62,8 @@ export default function FactoryLanding() {
   const { scrollTo } = useLenis();
   const { scrollToProgress } = useJourneySnap({
     journeyRef,
-    enabled: scrollReady,
-    aggressive: isPhone || isCompact,
+    enabled: scrollReady && !prefersNativeTouch,
+    aggressive: false,
   });
 
   const { scrollYProgress } = useScroll({
@@ -214,10 +223,15 @@ export default function FactoryLanding() {
     const check = () => {
       setIsCompact(isCompactViewport());
       setIsPhone(isPhoneViewport());
+      setPrefersNativeTouch(prefersNativeTouchScroll());
     };
     check();
     window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    window.addEventListener("orientationchange", check);
+    return () => {
+      window.removeEventListener("resize", check);
+      window.removeEventListener("orientationchange", check);
+    };
   }, []);
 
   useEffect(() => {
@@ -238,14 +252,15 @@ export default function FactoryLanding() {
         document.visibilityState === "visible" && !factoryPausedRef.current;
 
       if (shouldAdvanceBuild) {
-        buildProgressRef.current = Math.min(
+        buildLinearRef.current = Math.min(
           1,
-          buildProgressRef.current + delta / BUILD_DURATION
+          buildLinearRef.current + delta / BUILD_DURATION_MS
         );
+        buildProgressRef.current = easeInOutCubic(buildLinearRef.current);
       }
 
-
-      if (buildProgressRef.current >= 1) {
+      if (buildLinearRef.current >= 1) {
+        buildLinearRef.current = 1;
         buildProgressRef.current = 1;
         buildCompleteRef.current = true;
         storyEnabledRef.current = true;
@@ -312,7 +327,7 @@ export default function FactoryLanding() {
                   scenePaused={scenePaused}
                   getScenePaused={getScenePaused}
                   sceneInteractive={factoryInteractive}
-                  preferPageScroll={isPhone}
+                  preferPageScroll={prefersNativeTouch}
                   showReturnToHero={false}
                   onReturnToHero={scrollToTop}
                   dismissOverlaysRef={dismissOverlaysRef}

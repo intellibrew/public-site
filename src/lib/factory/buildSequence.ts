@@ -64,17 +64,17 @@ function hasFlowVisualState(flow: FlowState) {
 }
 
 export function makeBuildSequence(materials: Materials): FactoryBuild {
-  const floor = revealStep(buildFloor(materials), 0, 0.12);
-  const shell = revealStep(buildShell(materials), 0.06, 0.2);
-  const intake = revealStep(buildIntake(materials), 0.2, 0.28);
-  const blanking = revealStep(buildBlankingPress(materials), 0.24, 0.32);
-  const stamping = revealStep(buildStamping(materials), 0.28, 0.36);
-  const subAssembly = revealStep(buildSubAssembly(materials), 0.32, 0.4);
-  const welding = revealStep(buildWelding(materials), 0.36, 0.44);
-  const paint = revealStep(buildPaintBooth(materials), 0.4, 0.48);
-  const finalAssembly = revealStep(buildFinalAssembly(materials), 0.44, 0.54);
-  const packaging = revealStep(buildPackaging(materials), 0.48, 0.58);
-  const conveyor = revealStep(buildConveyor(materials), 0.62, 0.78);
+  const floor = revealStep(buildFloor(materials), 0, 0.09);
+  const shell = revealStep(buildShell(materials), 0.07, 0.17);
+  const intake = revealStep(buildIntake(materials), 0.15, 0.23, 0.22);
+  const blanking = revealStep(buildBlankingPress(materials), 0.21, 0.29, 0.24);
+  const stamping = revealStep(buildStamping(materials), 0.27, 0.35, 0.26);
+  const subAssembly = revealStep(buildSubAssembly(materials), 0.33, 0.41, 0.28);
+  const welding = revealStep(buildWelding(materials), 0.39, 0.47, 0.27);
+  const paint = revealStep(buildPaintBooth(materials), 0.45, 0.53, 0.25);
+  const finalAssembly = revealStep(buildFinalAssembly(materials), 0.51, 0.59, 0.3);
+  const packaging = revealStep(buildPackaging(materials), 0.57, 0.65, 0.26);
+  const conveyor = revealStep(buildConveyor(materials), 0.68, 0.86, 0.2);
   const steps = [
     floor,
     shell,
@@ -149,6 +149,9 @@ export function makeBuildSequence(materials: Materials): FactoryBuild {
   };
 }
 
-function revealStep(group: THREE.Group, start: number, end: number): RevealStep {
+function revealStep(group: THREE.Group, start: number, end: number, lift?: number): RevealStep {
+  if (lift !== undefined) {
+    group.userData.buildFromLift = lift;
+  }
   return { group, start, end };
 }

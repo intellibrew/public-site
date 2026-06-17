@@ -10,12 +10,10 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { isPhoneViewport } from "@/lib/layoutBreakpoints";
+import { prefersNativeTouchScroll } from "@/lib/layoutBreakpoints";
 
-const COARSE_WHEEL_SCALE = 0.36;
-const COARSE_WHEEL_MAX_DELTA = 44;
-const COARSE_WHEEL_MIN_DELTA = 18;
-const PRECISION_WHEEL_MAX_DELTA = 120;
+const WHEEL_MAX_DELTA = 120;
+const DESKTOP_WHEEL_MULTIPLIER = 1.55;
 const LINE_HEIGHT_PX = 16;
 
 function clampDelta(delta: number, max: number) {
@@ -34,44 +32,12 @@ function wheelDeltaToPixels(delta: number, deltaMode: number) {
   }
 }
 
-function isCoarseWheelEvent(event: WheelEvent) {
-  if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) return true;
-  if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) return true;
-
-  const dominantDelta = Math.max(Math.abs(event.deltaY), Math.abs(event.deltaX));
-  if (dominantDelta === 0) return false;
-
-  // Trackpads emit fractional pixel deltas; mouse wheels emit integer detents.
-  const hasFractionalDelta =
-    !Number.isInteger(event.deltaY) || !Number.isInteger(event.deltaX);
-  if (hasFractionalDelta) return false;
-
-  return dominantDelta >= 48;
-}
-
-function softenCoarseWheelDelta(delta: number) {
-  if (delta === 0) return 0;
-  const sign = Math.sign(delta);
-  const softened = Math.abs(delta) * COARSE_WHEEL_SCALE;
-  return sign * Math.min(COARSE_WHEEL_MAX_DELTA, Math.max(COARSE_WHEEL_MIN_DELTA, softened));
-}
-
 function normalizeVirtualScroll(data: VirtualScrollData) {
   if (!(data.event instanceof WheelEvent)) return true;
 
   const event = data.event;
-  const coarse = isCoarseWheelEvent(event);
-  const pixelDeltaX = wheelDeltaToPixels(data.deltaX, event.deltaMode);
-  const pixelDeltaY = wheelDeltaToPixels(data.deltaY, event.deltaMode);
-
-  if (coarse) {
-    data.deltaX = softenCoarseWheelDelta(pixelDeltaX);
-    data.deltaY = softenCoarseWheelDelta(pixelDeltaY);
-    return true;
-  }
-
-  data.deltaX = clampDelta(pixelDeltaX, PRECISION_WHEEL_MAX_DELTA);
-  data.deltaY = clampDelta(pixelDeltaY, PRECISION_WHEEL_MAX_DELTA);
+  data.deltaX = clampDelta(wheelDeltaToPixels(data.deltaX, event.deltaMode), WHEEL_MAX_DELTA);
+  data.deltaY = clampDelta(wheelDeltaToPixels(data.deltaY, event.deltaMode), WHEEL_MAX_DELTA);
   return true;
 }
 
@@ -106,16 +72,16 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
   const listenersRef = useRef(new Set<(lenis: Lenis) => void>());
 
   useEffect(() => {
-    const isPhone = isPhoneViewport();
+    const useNativeTouch = prefersNativeTouchScroll();
     const lenis = new Lenis({
       autoRaf: true,
-      lerp: isPhone ? 0.12 : 0.16,
-      smoothWheel: true,
-      syncTouch: !isPhone,
-      syncTouchLerp: 0.12,
-      wheelMultiplier: 1,
-      touchMultiplier: 0.95,
-      touchInertiaExponent: 1.7,
+      lerp: useNativeTouch ? 0.1 : 0.18,
+      smoothWheel: !useNativeTouch,
+      syncTouch: false,
+      syncTouchLerp: 0.1,
+      wheelMultiplier: useNativeTouch ? 1 : DESKTOP_WHEEL_MULTIPLIER,
+      touchMultiplier: useNativeTouch ? 0.82 : 1,
+      touchInertiaExponent: useNativeTouch ? 1.15 : 1.7,
       virtualScroll: normalizeVirtualScroll,
       prevent: (node) => Boolean(node.closest("[data-lenis-prevent]")),
     });

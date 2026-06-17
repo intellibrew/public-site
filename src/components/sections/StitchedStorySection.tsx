@@ -171,10 +171,10 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
       className="factory-scroll-panel factory-stitched-story relative h-full overflow-hidden"
       aria-label="Problem and solution"
     >
-      <div className="factory-stitched-story__grid relative z-10 mx-auto flex h-full max-h-full flex-col gap-2 px-5 py-[calc(var(--site-header-total)+0.5rem)] md:flex-row md:items-center md:gap-10 md:px-10 md:py-[calc(var(--site-header-total)+1rem)]">
-        <div className="factory-stitched-story__text relative min-h-0 w-full md:min-h-[18rem] md:flex-[0_0_40%]">
+      <div className="factory-stitched-story__grid relative z-10 mx-auto flex h-full max-h-full flex-col gap-3 px-5 py-[calc(var(--site-header-total)+0.5rem)] max-lg:justify-between lg:flex-row lg:items-center lg:gap-10 lg:px-10 lg:py-[calc(var(--site-header-total)+1rem)]">
+        <div className="factory-stitched-story__text relative min-h-0 w-full shrink-0 lg:min-h-[18rem] lg:flex-[0_0_40%]">
           <motion.div
-            className={`factory-stitched-story__text-panel factory-stitched-story__text-panel--problem flex flex-col space-y-4 md:absolute md:inset-0 md:justify-center md:space-y-5 ${mobileLayoutPhase === "solution" ? "max-md:hidden" : ""}`}
+            className={`factory-stitched-story__text-panel factory-stitched-story__text-panel--problem flex flex-col space-y-4 lg:absolute lg:inset-0 lg:justify-center lg:space-y-5 ${mobileLayoutPhase === "solution" ? "max-lg:hidden" : ""}`}
             style={{ opacity: problemTextOpacity, visibility: problemTextVisibility }}
           >
             <span className="shiny-badge w-fit shrink-0 self-start px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em]">
@@ -250,10 +250,10 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
           </motion.div>
 
           <motion.div
-            className={`factory-stitched-story__text-panel factory-stitched-story__text-panel--solution flex flex-col space-y-4 md:absolute md:inset-0 md:justify-center md:space-y-5 ${mobileLayoutPhase === "problem" ? "max-md:hidden" : ""}`}
+            className={`factory-stitched-story__text-panel factory-stitched-story__text-panel--solution flex flex-col space-y-4 lg:absolute lg:inset-0 lg:justify-center lg:space-y-5 ${mobileLayoutPhase === "problem" ? "max-lg:hidden" : ""}`}
             style={{ opacity: solutionTextOpacity, visibility: solutionTextVisibility }}
           >
-            <span className="shiny-badge w-fit px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em]">
+            <span className="shiny-badge w-fit self-start px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em]">
               Solution
             </span>
 
@@ -283,7 +283,7 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
             <TextRevealAuto
               key={`solution-subtext-${solutionCycle}`}
               text="One platform. Complete automation. From inputs to a full production line model."
-              className="font-body text-sm leading-relaxed md:text-base"
+              className="factory-stitched-story__subtext max-w-md font-body text-sm leading-relaxed md:text-base"
               mutedColor={MUTED}
               primaryColor={BODY}
               active={solutionSubtextActive}
@@ -294,19 +294,19 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
           </motion.div>
         </div>
 
-        <div className="factory-stitched-story__visual relative w-full min-h-0 md:flex-[0_0_60%] md:self-stretch">
+        <div className="factory-stitched-story__visual relative flex w-full min-h-0 flex-1 items-center justify-center lg:flex-[0_0_60%] lg:self-stretch">
           <motion.div
-            className={`factory-stitched-story__visual-panel factory-stitched-story__visual-panel--problem flex justify-center md:absolute md:inset-0 md:items-center ${mobileLayoutPhase === "solution" ? "max-md:hidden" : ""}`}
+            className={`factory-stitched-story__visual-panel factory-stitched-story__visual-panel--problem flex justify-center lg:absolute lg:inset-0 lg:items-center ${mobileLayoutPhase === "solution" ? "max-lg:hidden" : ""}`}
             style={{ opacity: problemVisualOpacity, visibility: problemVisualVisibility }}
           >
             <AdvancedFactoryAnimation active={problemVisualActive} />
           </motion.div>
 
           <motion.div
-            className={`factory-stitched-story__visual-panel factory-stitched-story__visual-panel--solution flex items-center justify-center overflow-hidden md:overflow-visible md:absolute md:inset-0 ${mobileLayoutPhase === "problem" ? "max-md:hidden" : ""}`}
+            className={`factory-stitched-story__visual-panel factory-stitched-story__visual-panel--solution flex items-center justify-center overflow-hidden lg:overflow-visible lg:absolute lg:inset-0 ${mobileLayoutPhase === "problem" ? "max-lg:hidden" : ""}`}
             style={{ opacity: solutionVisualOpacity, visibility: solutionVisualVisibility }}
           >
-            <div className="w-full min-w-0">
+            <div className="w-full min-w-0 max-lg:mx-auto lg:max-w-none">
               <FlowDiagram />
             </div>
           </motion.div>

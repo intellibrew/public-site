@@ -51,7 +51,7 @@ function getFlowMotion(group: THREE.Group): FlowMotionState {
 
 export function tickConveyor(group: THREE.Group, progress: number, elapsedMs: number) {
   const flow = getCurrentFlowState();
-  const revealLive = smoothstep(0.72, 0.88, progress);
+  const revealLive = smoothstep(0.68, 0.86, progress);
   const targetLive = revealLive * flow.conveyorLive;
 
   const motion = getFlowMotion(group);

@@ -97,23 +97,26 @@ export function IntroducingSection({ embedded = false }: IntroducingSectionProps
 const DESIGN_WIDTH = 900;
 const DESIGN_HEIGHT = 320;
 
-const MOBILE_WIDTH = 340;
-const MOBILE_HEIGHT = 500;
+const MOBILE_WIDTH = 500;
+const MOBILE_HEIGHT = 440;
 
-function useIsNarrowLayout() {
-  const [isNarrow, setIsNarrow] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches
-  );
+function getVerticalDiagramTargetWidth(containerWidth: number) {
+  return Math.min(MOBILE_WIDTH, containerWidth);
+}
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsNarrow(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener("change", update);
-    return () => mediaQuery.removeEventListener("change", update);
-  }, []);
-
-  return isNarrow;
+function spreadHorizontalNodes<T extends { label: string; tooltip: string }>(
+  items: readonly T[],
+  width: number,
+  y: number,
+  marginX: number,
+): Array<T & { x: number; y: number }> {
+  const span = width - marginX * 2;
+  const step = items.length > 1 ? span / (items.length - 1) : 0;
+  return items.map((item, i) => ({
+    ...item,
+    x: marginX + i * step,
+    y,
+  }));
 }
 
 function FlowingDot({ pathId, delay, duration }: { pathId: string; delay: number; duration: number }) {
@@ -396,7 +399,8 @@ function FlowDiagramVertical() {
     const updateScale = () => {
       const wrapper = wrapperRef.current;
       if (!wrapper) return;
-      setScale(Math.min(1, wrapper.clientWidth / MOBILE_WIDTH));
+      const targetWidth = getVerticalDiagramTargetWidth(wrapper.clientWidth);
+      setScale(targetWidth / MOBILE_WIDTH);
     };
 
     updateScale();
@@ -405,49 +409,43 @@ function FlowDiagramVertical() {
     return () => observer.disconnect();
   }, []);
 
+  const scaledWidth = MOBILE_WIDTH * scale;
+  const scaledHeight = MOBILE_HEIGHT * scale;
+
   const centerX = MOBILE_WIDTH / 2;
-  const centerY = 214;
-  const inputY = 88;
-  const inputNodes = inputs.map((input, i) => ({
-    ...input,
-    x: [62, centerX, 278][i],
-    y: inputY,
-  }));
-  const outputNodes = [
-    { ...outputs[0], x: 88, y: 312 },
-    { ...outputs[1], x: 252, y: 312 },
-    { ...outputs[2], x: 88, y: 360 },
-    { ...outputs[3], x: 252, y: 360 },
-    { ...outputs[4], x: centerX, y: 418 },
-  ];
+  const centerY = 198;
+  const inputY = 78;
+  const outputY = 372;
+  const inputNodes = spreadHorizontalNodes(inputs, MOBILE_WIDTH, inputY, 54);
+  const outputNodes = spreadHorizontalNodes(outputs, MOBILE_WIDTH, outputY, 44);
 
   const inputPaths = inputNodes.map((node, i) => ({
     id: `path-v-in-${i}`,
-    d: `M ${node.x} ${node.y + 20} Q ${node.x} ${(node.y + centerY) / 2 + 24}, ${centerX} ${centerY - 26}`,
+    d: `M ${node.x} ${node.y + 18} Q ${node.x} ${(node.y + centerY) / 2 + 20}, ${centerX} ${centerY - 24}`,
   }));
 
   const outputPaths = outputNodes.map((node, i) => ({
     id: `path-v-out-${i}`,
-    d: `M ${centerX} ${centerY + 26} Q ${centerX} ${(centerY + node.y) / 2 + 12}, ${node.x} ${node.y - 18}`,
+    d: `M ${centerX} ${centerY + 24} Q ${node.x} ${centerY + 72}, ${node.x} ${node.y - 16}`,
   }));
 
   return (
-    <div
-      ref={wrapperRef}
-      className="mx-auto w-full"
-      style={{
-        maxWidth: MOBILE_WIDTH,
-        height: MOBILE_HEIGHT * scale,
-      }}
-    >
+    <div ref={wrapperRef} className="mx-auto w-full max-w-full overflow-hidden">
       <div
+        className="mx-auto overflow-hidden"
         style={{
-          width: MOBILE_WIDTH,
-          height: MOBILE_HEIGHT,
-          transform: `scale(${scale})`,
-          transformOrigin: "top center",
+          width: scaledWidth,
+          height: scaledHeight,
         }}
       >
+        <div
+          style={{
+            width: MOBILE_WIDTH,
+            height: MOBILE_HEIGHT,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        >
     <FlowDiagramShell width={MOBILE_WIDTH} height={MOBILE_HEIGHT} progressDirection="vertical">
       <svg
         className="absolute inset-0 pointer-events-none"
@@ -517,7 +515,7 @@ function FlowDiagramVertical() {
         <NeoFabHub />
       </div>
 
-      <p className="absolute left-1/2 top-[286px] z-10 -translate-x-1/2 text-[10px] font-body uppercase tracking-widest text-teal-400">
+      <p className="absolute left-1/2 top-[328px] z-10 -translate-x-1/2 text-[10px] font-body uppercase tracking-widest text-teal-400">
         Outputs
       </p>
 
@@ -533,7 +531,8 @@ function FlowDiagramVertical() {
             nodeKey={`output-${output.label}`}
             hoveredNode={hoveredNode}
             setHoveredNode={setHoveredNode}
-            labelClassName="text-[11px] font-body text-teal-200 tracking-wide block px-3 py-2 text-center whitespace-nowrap"
+            className="w-max shrink-0"
+            labelClassName="text-[10px] font-body text-teal-200 tracking-wide whitespace-nowrap px-2.5 py-1.5"
             initial={{ opacity: 0, y: 12 }}
             animateTo={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.35 + i * 0.08 }}
@@ -541,6 +540,7 @@ function FlowDiagramVertical() {
         </div>
       ))}
     </FlowDiagramShell>
+        </div>
       </div>
     </div>
   );
@@ -745,6 +745,14 @@ function FlowDiagramHorizontal() {
 }
 
 export function FlowDiagram() {
-  const isNarrow = useIsNarrowLayout();
-  return isNarrow ? <FlowDiagramVertical /> : <FlowDiagramHorizontal />;
+  return (
+    <>
+      <div className="hidden w-full lg:block">
+        <FlowDiagramHorizontal />
+      </div>
+      <div className="w-full lg:hidden">
+        <FlowDiagramVertical />
+      </div>
+    </>
+  );
 }

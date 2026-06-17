@@ -68,7 +68,7 @@ export function CustomersClientsSection({ embedded = false }: CustomersClientsSe
           </motion.div>
 
           <motion.h2
-            className={`text-center font-orbitron leading-[1.12] text-white ${
+            className={`factory-customers__heading text-center font-orbitron leading-[1.12] text-white ${
               embedded
                 ? "mb-3 text-[24px] sm:text-[30px] md:mb-8 md:text-[48px] md:leading-tight"
                 : "text-heading mb-16"
