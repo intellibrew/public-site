@@ -2965,11 +2965,48 @@ h3 {
 .factory-stitched-story__visual {
   contain: layout style paint;
   min-width: 0;
+  isolation: isolate;
 }
 
 @media (min-width: 1024px) {
+  .factory-stitched-story__text {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    align-self: stretch;
+    min-height: 18rem;
+    overflow: hidden;
+  }
+
+  .factory-stitched-story__text-panel {
+    grid-area: 1 / 1;
+    position: relative;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .factory-stitched-story__visual {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    align-self: stretch;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .factory-stitched-story__visual-panel {
+    grid-area: 1 / 1;
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .factory-stitched-story__visual-panel--solution {
-    overflow: visible;
+    overflow: hidden;
     min-width: 0;
   }
 }
@@ -2978,7 +3015,7 @@ h3 {
   .factory-stitched-story__grid {
     flex: 1;
     min-height: 0;
-    justify-content: space-between;
+    justify-content: flex-start;
     overflow-x: hidden;
     overflow-y: auto;
     gap: 0.75rem;
@@ -2986,15 +3023,13 @@ h3 {
   }
 
   .factory-stitched-story__text {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    display: block;
     flex: 0 0 auto;
     width: 100%;
     min-height: 0;
   }
 
   .factory-stitched-story__text-panel {
-    grid-area: 1 / 1;
     position: relative;
     justify-content: flex-start;
     width: 100%;
@@ -3021,13 +3056,12 @@ h3 {
   }
 
   .factory-stitched-story__visual {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    display: block;
     flex: 1 1 auto;
     align-items: center;
     justify-items: center;
     width: 100%;
-    min-height: min(48vh, 28rem);
+    min-height: min(42vh, 22rem);
     max-height: none;
     padding-bottom: 0.5rem;
     overflow-x: hidden;
@@ -3035,7 +3069,6 @@ h3 {
   }
 
   .factory-stitched-story__visual-panel {
-    grid-area: 1 / 1;
     position: relative;
     width: 100%;
     min-width: 0;
@@ -4133,5 +4166,34 @@ html.lenis body {
     margin-top: 0.22rem;
     font-size: 9px;
     line-height: 1.28;
+  }
+
+  .factory-stitched-story__grid {
+    gap: 0.5rem;
+    padding-top: calc(var(--site-header-total) + 0.25rem) !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .factory-stitched-story__text-panel--problem,
+  .factory-stitched-story__text-panel--solution {
+    gap: 0.5rem;
+  }
+
+  .factory-stitched-story__text-panel--problem .text-heading,
+  .factory-stitched-story__text-panel--solution .text-heading {
+    font-size: clamp(1.25rem, 4.8vw, 1.75rem) !important;
+    line-height: 1.08 !important;
+  }
+
+  .factory-stitched-story__subtext,
+  .factory-stitched-story__text-panel--problem ul.text-body,
+  .factory-stitched-story__text-panel--problem ul.text-body [role="region"] {
+    font-size: 0.8125rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .factory-stitched-story__visual {
+    min-height: min(34vh, 14rem);
+    flex: 1 1 auto;
   }
 }

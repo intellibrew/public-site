@@ -8,6 +8,8 @@ import {
   SCROLL_INTENT_VERTICAL_RATIO,
   TOUCH_DRAG_HORIZONTAL_RATIO,
   TOUCH_DRAG_INTENT_MIN_DELTA,
+  CONTROL_SETTINGS,
+  TOUCH_ORBIT_SPEED,
 } from "./sceneConfig";
 
 type SceneInputOptions = {
@@ -49,8 +51,12 @@ export function bindSceneInput({
   let lastResetAt = 0;
   let lastPinchDistance: number | null = null;
   let preferPageScrollEnabled = preferPageScroll;
+  let userOrbitView = false;
+  let touchOrbitLastClient: { x: number; y: number } | null = null;
   const activePointers = new Map<number, ActivePointer>();
   const zoomOffset = new THREE.Vector3();
+  const touchOrbitOffset = new THREE.Vector3();
+  const touchOrbitSpherical = new THREE.Spherical();
 
   const isTouchGesture = () =>
     preferPageScrollEnabled && activePointers.size === 1;
@@ -111,6 +117,7 @@ export function bindSceneInput({
     activePointer = null;
     activePointers.clear();
     lastPinchDistance = null;
+    touchOrbitLastClient = null;
     syncControlsEnabled(false);
     syncTouchAction();
     element.style.cursor = "default";
@@ -133,44 +140,86 @@ export function bindSceneInput({
     return absX >= absY * TOUCH_DRAG_HORIZONTAL_RATIO;
   };
 
-  const beginTouchOrbit = (pointer: ActivePointer) => {
+  const syncControlsFromCamera = () => {
+    controls.update();
+  };
+
+  const applyTouchOrbitDelta = (dx: number, dy: number) => {
+    if (dx === 0 && dy === 0) return;
+
+    const speed = CONTROL_SETTINGS.rotateSpeed * TOUCH_ORBIT_SPEED;
+    touchOrbitOffset.copy(camera.position).sub(controls.target);
+    touchOrbitSpherical.setFromVector3(touchOrbitOffset);
+    touchOrbitSpherical.theta -= dx * speed;
+    touchOrbitSpherical.phi -= dy * speed;
+    touchOrbitSpherical.phi = THREE.MathUtils.clamp(
+      touchOrbitSpherical.phi,
+      CONTROL_SETTINGS.minPolarAngle,
+      CONTROL_SETTINGS.maxPolarAngle
+    );
+    touchOrbitSpherical.makeSafe();
+    touchOrbitOffset.setFromSpherical(touchOrbitSpherical);
+    camera.position.copy(controls.target).add(touchOrbitOffset);
+    camera.updateMatrixWorld();
+    syncControlsFromCamera();
+  };
+
+  const stepTouchOrbit = (clientX: number, clientY: number) => {
+    if (touchOrbitLastClient) {
+      applyTouchOrbitDelta(
+        clientX - touchOrbitLastClient.x,
+        clientY - touchOrbitLastClient.y
+      );
+    }
+    touchOrbitLastClient = { x: clientX, y: clientY };
+    cameraOverride = true;
+    userOrbitView = true;
+  };
+
+  const freezeCameraForGesture = () => {
+    cameraOverride = true;
+    syncControlsFromCamera();
+  };
+
+  const releaseCameraFreeze = () => {
+    if (userOrbitView) return;
+    cameraOverride = false;
+  };
+
+  const beginTouchOrbit = (clientX: number, clientY: number) => {
     if (touchOrbitActive || scrollIntent || !orbitEligible) return;
 
     touchOrbitActive = true;
     isDragging = true;
+    userOrbitView = true;
     cameraOverride = true;
-    syncControlsEnabled(true);
+    syncControlsFromCamera();
+    syncControlsEnabled(false);
     syncTouchAction();
     element.style.cursor = "grabbing";
-
-    bootstrappingOrbit = true;
-    element.dispatchEvent(
-      new PointerEvent("pointerdown", {
-        bubbles: true,
-        cancelable: true,
-        clientX: pointer.x,
-        clientY: pointer.y,
-        pointerId: pointer.id,
-        pointerType: "touch",
-        isPrimary: true,
-      })
-    );
-    bootstrappingOrbit = false;
+    touchOrbitLastClient = { x: clientX, y: clientY };
   };
 
-  const resolveTouchGesture = (dx: number, dy: number, pointer: ActivePointer) => {
+  const resolveTouchGesture = (
+    dx: number,
+    dy: number,
+    pointer: ActivePointer,
+    clientX: number,
+    clientY: number
+  ) => {
     if (!isTouchGesture() || touchOrbitActive) return false;
+
+    if (detectTouchDragIntent(dx, dy)) {
+      beginTouchOrbit(clientX, clientY);
+      return true;
+    }
 
     if (detectScrollIntent(dx, dy)) {
       scrollIntent = true;
       orbitEligible = false;
+      releaseCameraFreeze();
       syncControlsEnabled(false);
       syncTouchAction();
-      return true;
-    }
-
-    if (detectTouchDragIntent(dx, dy)) {
-      beginTouchOrbit(pointer);
       return true;
     }
 
@@ -229,7 +278,14 @@ export function bindSceneInput({
     scrollIntent = false;
     touchOrbitActive = false;
 
+    if (onFactory && interactive) {
+      freezeCameraForGesture();
+    }
+
     if (!onFactory || !shouldArmOrbitControls(event)) {
+      if (!onFactory) {
+        releaseCameraFreeze();
+      }
       syncControlsEnabled(false);
       if (!onFactory) {
         blockOrbitEvent(event);
@@ -237,21 +293,29 @@ export function bindSceneInput({
       return;
     }
 
+    syncControlsFromCamera();
     syncControlsEnabled(true);
   };
 
   const onPointerMoveCapture = (event: PointerEvent) => {
     if (!pointerDown || !activePointer || event.pointerId !== activePointer.id) return;
-    if (touchOrbitActive) return;
+    if (touchOrbitActive) {
+      if (preferPageScrollEnabled && event.pointerType === "touch") {
+        stepTouchOrbit(event.clientX, event.clientY);
+      }
+      return;
+    }
 
     const dx = event.clientX - activePointer.x;
     const dy = event.clientY - activePointer.y;
 
     if (preferPageScrollEnabled && event.pointerType === "touch" && activePointers.size === 1) {
-      resolveTouchGesture(dx, dy, activePointer);
-      if (!touchOrbitActive) {
-        blockOrbitEvent(event);
+      resolveTouchGesture(dx, dy, activePointer, event.clientX, event.clientY);
+      if (touchOrbitActive) {
+        stepTouchOrbit(event.clientX, event.clientY);
+        return;
       }
+      blockOrbitEvent(event);
       return;
     }
 
@@ -262,6 +326,7 @@ export function bindSceneInput({
 
     if (detectScrollIntent(dx, dy)) {
       scrollIntent = true;
+      releaseCameraFreeze();
       syncControlsEnabled(false);
       syncTouchAction();
       blockOrbitEvent(event);
@@ -318,19 +383,25 @@ export function bindSceneInput({
     }
 
     if (!activePointer || event.pointerId !== activePointer.id) return;
+
+    if (touchOrbitActive && preferPageScrollEnabled) {
+      stepTouchOrbit(event.clientX, event.clientY);
+      return;
+    }
     if (touchOrbitActive) return;
 
     const dx = event.clientX - activePointer.x;
     const dy = event.clientY - activePointer.y;
 
     if (preferPageScrollEnabled && event.pointerType === "touch") {
-      resolveTouchGesture(dx, dy, activePointer);
+      resolveTouchGesture(dx, dy, activePointer, event.clientX, event.clientY);
       return;
     }
 
     if (!isDragging && detectScrollIntent(dx, dy)) {
       scrollIntent = true;
       orbitEligible = false;
+      releaseCameraFreeze();
       syncControlsEnabled(false);
       syncTouchAction();
       return;
@@ -381,6 +452,10 @@ export function bindSceneInput({
     const hadTouchOrbit = touchOrbitActive;
     schedulePointerReset();
 
+    if (!wasDragging && !hadTouchOrbit && !userOrbitView) {
+      releaseCameraFreeze();
+    }
+
     if (wasDragging || hadScrollIntent || hadTouchOrbit) return;
     if (event.pointerType !== "touch" || !onResetView) return;
 
@@ -395,7 +470,8 @@ export function bindSceneInput({
   const onControlStart = () => {
     if (!orbitEligible || scrollIntent) return;
     isDragging = true;
-    cameraOverride = true;
+    userOrbitView = true;
+    freezeCameraForGesture();
     controls.enableDamping = false;
     element.style.cursor = "grabbing";
     syncTouchAction();
@@ -436,6 +512,12 @@ export function bindSceneInput({
     invokeReset();
   };
 
+  const maintainUserOrbit = () => {
+    if (!userOrbitView && !touchOrbitActive) return;
+    controls.enableDamping = false;
+    controls.update();
+  };
+
   syncControlsEnabled(false);
   controls.addEventListener("start", onControlStart);
   controls.addEventListener("end", onControlEnd);
@@ -454,6 +536,9 @@ export function bindSceneInput({
 
   return {
     hasCameraOverride: () => cameraOverride,
+    hasUserOrbitView: () => userOrbitView,
+    isTouchOrbitActive: () => touchOrbitActive,
+    maintainUserOrbit,
     isDragging: () => isDragging,
     isScrollIntent: () => scrollIntent,
     isPointerDown: () => pointerDown,
@@ -462,6 +547,7 @@ export function bindSceneInput({
       syncTouchAction();
     },
     resetCameraOverride: () => {
+      userOrbitView = false;
       cameraOverride = false;
       resetPointerState();
       targetZoomDistance = null;

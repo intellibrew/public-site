@@ -381,7 +381,7 @@ export function mountFactoryScene(
       hideWalls: false,
     });
 
-    const hasOverride = input.hasCameraOverride();
+    const hasOverride = input.hasCameraOverride() || input.hasUserOrbitView();
     if (!isPaused) {
       input.tickZoom();
     }
@@ -412,7 +412,11 @@ export function mountFactoryScene(
       }
     }
 
-    controls.update(deltaSec);
+    if (hasOverride) {
+      input.maintainUserOrbit();
+    } else {
+      controls.update(deltaSec);
+    }
     syncPlacementPerformanceMode(p);
     syncShadowUpdates(p);
     renderer.render(scene, camera);

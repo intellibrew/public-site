@@ -32,19 +32,27 @@ export function MaskedTextReveal({
   className = "",
   textColor,
   align = "left",
-  fromY = 200,
-  rotateFrom = 4,
+  fromY = 48,
+  rotateFrom = 0,
   blur = 0,
-  stagger = 0.08,
+  stagger = 0.05,
   once = true,
   active,
   viewportAmount = 0.4,
   wordMaskPadding = 4,
-  transition = { type: "tween", ease: [0, 0.75, 0.25, 0.98], duration: 1, delay: 0.2 },
+  transition = { type: "tween", ease: [0.22, 1, 0.36, 1], duration: 0.55, delay: 0.04 },
 }: MaskedTextRevealProps) {
   const containerRef = useRef<HTMLElement>(null);
   const inView = useInView(containerRef, { amount: viewportAmount, once });
-  const showFinal = active ?? inView;
+  const revealLatchedRef = useRef(false);
+
+  if (active) {
+    revealLatchedRef.current = true;
+  } else if (active === false && !once) {
+    revealLatchedRef.current = false;
+  }
+
+  const showFinal = active !== undefined ? revealLatchedRef.current : inView;
 
   const words = useMemo(() => {
     const trimmed = text.trim();
@@ -91,6 +99,7 @@ export function MaskedTextReveal({
         columnGap: "0.28em",
         justifyContent,
         color: textColor,
+        transform: "translateZ(0)",
       }}
     >
       {words.length === 0 ? (
@@ -117,7 +126,8 @@ export function MaskedTextReveal({
               style={{
                 display: "inline-block",
                 transformOrigin: "50% 100%",
-                willChange: "transform, filter",
+                willChange: showFinal ? "transform" : "auto",
+                backfaceVisibility: "hidden",
               }}
             >
               {word}

@@ -27,6 +27,16 @@ type CustomersClientsSectionProps = {
   embedded?: boolean;
 };
 
+const revealProps = (embedded: boolean, delay = 0) =>
+  embedded
+    ? {}
+    : {
+        initial: { opacity: 0, y: 16 } as const,
+        whileInView: { opacity: 1, y: 0 } as const,
+        viewport: { once: true } as const,
+        transition: { duration: 0.45, delay },
+      };
+
 export function CustomersClientsSection({ embedded = false }: CustomersClientsSectionProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -59,10 +69,7 @@ export function CustomersClientsSection({ embedded = false }: CustomersClientsSe
         <div className={embedded ? "factory-customers__main flex min-h-0 flex-1 flex-col justify-start md:justify-center" : ""}>
           <motion.div
             className={`flex justify-center ${embedded ? "mb-2 md:mb-3" : "mb-6"}`}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            {...revealProps(embedded)}
           >
             <span className="shiny-badge">Customers</span>
           </motion.div>
@@ -73,10 +80,7 @@ export function CustomersClientsSection({ embedded = false }: CustomersClientsSe
                 ? "mb-3 text-[24px] sm:text-[30px] md:mb-8 md:text-[48px] md:leading-tight"
                 : "text-heading mb-16"
             }`}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            {...revealProps(embedded, 0.06)}
           >
             Built for manufacturing <span className="text-primary">teams that ship.</span>
           </motion.h2>
@@ -87,10 +91,7 @@ export function CustomersClientsSection({ embedded = false }: CustomersClientsSe
             {teams.map((team, index) => (
               <motion.div
                 key={team.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                {...revealProps(embedded, 0.08 + index * 0.06)}
                 className={`relative rounded-2xl border border-teal-500/20 ${embedded ? "p-3.5 md:p-6" : "p-6 md:p-8"}`}
                 style={{
                   background:
@@ -129,10 +130,7 @@ export function CustomersClientsSection({ embedded = false }: CustomersClientsSe
         >
           <motion.p
             className="mb-2 text-center text-xs italic text-slate-400 sm:mb-3 sm:text-sm md:mb-4 md:text-[15px]"
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45 }}
+            {...revealProps(embedded, 0.1)}
           >
             Trusted by engineers and manufacturers globally
           </motion.p>

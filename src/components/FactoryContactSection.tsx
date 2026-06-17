@@ -29,6 +29,7 @@ export default function FactoryContactSection({
   const [subtextActive, setSubtextActive] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
   const [contactCycle, setContactCycle] = useState(0);
+  const headingLatchedRef = useRef(false);
   const prevHeadingActive = useRef(false);
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -38,7 +39,18 @@ export default function FactoryContactSection({
 
   useMotionValueEvent(progressSource, "change", (p) => {
     if (!embedded || !scrollProgress) return;
-    setHeadingActive(p >= JOURNEY.contact.fadeIn[0]);
+    if (p >= JOURNEY.contact.fadeIn[0]) {
+      if (!headingLatchedRef.current) {
+        headingLatchedRef.current = true;
+        setHeadingActive(true);
+      }
+    } else if (p < JOURNEY.contact.fadeIn[0] - 0.03) {
+      headingLatchedRef.current = false;
+      setHeadingActive(false);
+      setSubtextActive(false);
+      setCtaVisible(false);
+      prevHeadingActive.current = false;
+    }
   });
 
   useEffect(() => {
@@ -57,17 +69,16 @@ export default function FactoryContactSection({
       setContactCycle((c) => c + 1);
     }
     prevHeadingActive.current = true;
-    const subtextTimer = setTimeout(() => setSubtextActive(true), 380);
-    const ctaTimer = setTimeout(() => setCtaVisible(true), 720);
+    setSubtextActive(true);
+    const ctaTimer = setTimeout(() => setCtaVisible(true), 320);
     return () => {
-      clearTimeout(subtextTimer);
       clearTimeout(ctaTimer);
     };
   }, [headingActive]);
 
   const headingTransition = {
-    duration: 0.85,
-    ease: [0, 0.75, 0.25, 0.98] as number[],
+    duration: 0.55,
+    ease: [0.22, 1, 0.36, 1] as number[],
   };
 
   return (
@@ -95,10 +106,10 @@ export default function FactoryContactSection({
               align="center"
               className="text-heading block font-orbitron text-white"
               active={headingActive}
-              fromY={120}
-              rotateFrom={3}
-              stagger={0.07}
-              transition={{ ...headingTransition, delay: 0.05 }}
+              fromY={40}
+              rotateFrom={0}
+              stagger={0.05}
+              transition={{ ...headingTransition, delay: 0.02 }}
             />
             <span className="flex flex-wrap justify-center gap-x-[0.28em]">
               <MaskedTextReveal
@@ -107,10 +118,10 @@ export default function FactoryContactSection({
                 align="center"
                 className="text-heading font-orbitron text-white"
                 active={headingActive}
-                fromY={120}
-                rotateFrom={3}
-                stagger={0.07}
-                transition={{ ...headingTransition, delay: 0.2 }}
+                fromY={40}
+                rotateFrom={0}
+                stagger={0.05}
+                transition={{ ...headingTransition, delay: 0.1 }}
               />
               <MaskedTextReveal
                 as="span"
@@ -118,10 +129,10 @@ export default function FactoryContactSection({
                 align="center"
                 className="text-heading font-orbitron !text-primary"
                 active={headingActive}
-                fromY={120}
-                rotateFrom={3}
-                stagger={0.07}
-                transition={{ ...headingTransition, delay: 0.24 }}
+                fromY={40}
+                rotateFrom={0}
+                stagger={0.05}
+                transition={{ ...headingTransition, delay: 0.14 }}
               />
             </span>
           </div>

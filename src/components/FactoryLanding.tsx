@@ -77,18 +77,8 @@ export default function FactoryLanding() {
   );
   const heroZIndex = useTransform(scrollYProgress, [0, 0.06, JOURNEY.hero.fadeOut[1]], [20, 20, 8]);
 
-  const storyOpacity = useTransform(
-    scrollYProgress,
-    [JOURNEY.problem.fadeIn[0], JOURNEY.problem.fadeIn[1], JOURNEY.solution.fadeOut[0], JOURNEY.solution.fadeOut[1]],
-    [0, 1, 1, 0]
-  );
-  const storyY = useTransform(
-    scrollYProgress,
-    [JOURNEY.problem.fadeIn[0], JOURNEY.problem.fadeIn[1], JOURNEY.solution.fadeOut[0], JOURNEY.solution.fadeOut[1]],
-    [20, 0, 0, -16]
-  );
-  const storyVisibility = useTransform(storyOpacity, (value) =>
-    value < 0.02 ? "hidden" : "visible"
+  const storyLayerOpacity = useTransform(scrollYProgress, (p) =>
+    p >= JOURNEY.problem.fadeIn[0] && p <= JOURNEY.solution.fadeOut[1] ? 1 : 0
   );
 
   const factoryOpacity = useTransform(scrollYProgress, (progress) => {
@@ -115,10 +105,7 @@ export default function FactoryLanding() {
       JOURNEY.customers.fadeOut[0],
       JOURNEY.customers.fadeOut[1],
     ],
-    [20, 0, 0, -16]
-  );
-  const customersVisibility = useTransform(customersOpacity, (value) =>
-    value < 0.02 ? "hidden" : "visible"
+    [0, 0, 0, 0]
   );
 
   const contactOpacity = useTransform(
@@ -129,10 +116,7 @@ export default function FactoryLanding() {
   const contactY = useTransform(
     scrollYProgress,
     [JOURNEY.contact.fadeIn[0], JOURNEY.contact.fadeIn[1]],
-    [24, 0]
-  );
-  const contactVisibility = useTransform(contactOpacity, (value) =>
-    value < 0.04 ? "hidden" : "visible"
+    [0, 0]
   );
 
   const getBuildProgress = useCallback(() => buildProgressRef.current, []);
@@ -338,7 +322,7 @@ export default function FactoryLanding() {
 
           <motion.div
             className="factory-scroll-layer factory-scroll-layer--story"
-            style={{ opacity: storyOpacity, y: storyY, visibility: storyVisibility }}
+            style={{ opacity: storyLayerOpacity }}
           >
             <StitchedStorySection scrollProgress={scrollYProgress} />
           </motion.div>
@@ -347,7 +331,7 @@ export default function FactoryLanding() {
             className={`factory-scroll-layer factory-scroll-layer--customers ${
               journeyPhase === "customers" ? "factory-scroll-layer--interactive" : ""
             }`}
-            style={{ opacity: customersOpacity, y: customersY, visibility: customersVisibility }}
+            style={{ opacity: customersOpacity, y: customersY }}
           >
             <CustomersClientsSection embedded />
           </motion.div>
@@ -392,7 +376,7 @@ export default function FactoryLanding() {
             className={`factory-scroll-layer factory-scroll-layer--contact ${
               journeyPhase === "contact" ? "factory-scroll-layer--interactive" : ""
             }`}
-            style={{ opacity: contactOpacity, y: contactY, visibility: contactVisibility }}
+            style={{ opacity: contactOpacity, y: contactY }}
           >
             <FactoryContactSection embedded scrollProgress={scrollYProgress} />
           </motion.div>
