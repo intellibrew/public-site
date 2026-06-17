@@ -49,6 +49,10 @@ export const CAMERA_PATH = {
 } as const;
 
 export const POINTER_DRAG_THRESHOLD_SQ = 6 * 6;
+export const SCROLL_INTENT_MIN_DELTA_Y = 4;
+export const SCROLL_INTENT_VERTICAL_RATIO = 1.25;
+export const TOUCH_DRAG_INTENT_MIN_DELTA = 6;
+export const TOUCH_DRAG_HORIZONTAL_RATIO = 1.05;
 
 export const CONTROL_SETTINGS = {
   dampingFactor: 0.12,

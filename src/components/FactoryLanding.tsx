@@ -312,7 +312,7 @@ export default function FactoryLanding() {
             className={`factory-scroll-layer factory-scroll-layer--factory ${
               journeyPhase === "factory" ? "factory-scroll-layer--native-scroll" : ""
             }`}
-            data-lenis-prevent={journeyPhase === "factory" ? "" : undefined}
+            data-lenis-prevent={journeyPhase === "factory" && !prefersNativeTouch ? "" : undefined}
             style={{ opacity: factoryOpacity }}
           >
             {factoryMounted && (

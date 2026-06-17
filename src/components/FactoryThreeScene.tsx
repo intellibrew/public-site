@@ -58,13 +58,11 @@ export default function FactoryThreeScene({
     if (!(canvas instanceof HTMLCanvasElement)) return;
 
     canvas.style.pointerEvents = sceneInteractive ? "auto" : "none";
-    canvas.style.touchAction = sceneInteractive && !preferPageScroll ? "none" : "pan-y";
-
-    if (sceneInteractive && !preferPageScroll) {
-      canvas.setAttribute("data-lenis-prevent", "");
-    } else {
-      canvas.removeAttribute("data-lenis-prevent");
+    if (!sceneInteractive) {
+      canvas.style.touchAction = "auto";
+      return;
     }
+    canvas.style.touchAction = preferPageScroll ? "pan-y" : "auto";
   }, [preferPageScroll, sceneInteractive]);
 
   useEffect(() => {
@@ -72,6 +70,10 @@ export default function FactoryThreeScene({
     const frameId = requestAnimationFrame(applyCanvasInteraction);
     return () => cancelAnimationFrame(frameId);
   }, [applyCanvasInteraction]);
+
+  useEffect(() => {
+    sceneHandleRef.current?.setPreferPageScroll(preferPageScroll);
+  }, [preferPageScroll]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -86,6 +88,7 @@ export default function FactoryThreeScene({
         latestRefs.current.onFocusChange?.(stationId, phase),
       onStationHover: (stationId) => latestRefs.current.onStationHover?.(stationId),
       simplified,
+      preferPageScroll,
     });
     sceneHandleRef.current = scene;
 
@@ -107,8 +110,7 @@ export default function FactoryThreeScene({
       <div
         ref={mountRef}
         className={`absolute inset-0 ${sceneInteractive ? "pointer-events-auto" : "pointer-events-none"}`}
-        data-lenis-prevent={sceneInteractive && !preferPageScroll ? "" : undefined}
-        style={{ touchAction: sceneInteractive && !preferPageScroll ? "none" : "pan-y" }}
+        style={{ touchAction: sceneInteractive && preferPageScroll ? "pan-y" : "auto" }}
         aria-label="Interactive 3D factory build"
       />
     </div>

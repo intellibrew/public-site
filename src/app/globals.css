@@ -1320,7 +1320,10 @@ h3 {
 
 .factory-model-layer--interactive {
   pointer-events: auto;
-  touch-action: none;
+}
+
+.factory-model-layer--interactive:not(.factory-model-layer--page-scroll) {
+  touch-action: auto;
 }
 
 .factory-model-layer--page-scroll {
