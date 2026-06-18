@@ -9,6 +9,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import FactoryContactCue from "@/components/FactoryContactCue";
+import { ClientsLogoMarquee } from "@/components/sections/ClientsLogoMarquee";
 import { MaskedTextReveal } from "@/components/motion/MaskedTextReveal";
 import { TextRevealAuto } from "@/components/motion/TextRevealAuto";
 import { JOURNEY } from "@/lib/factory/scrollJourney";
@@ -88,15 +89,13 @@ export default function FactoryContactSection({
         id="contact"
         className={
           embedded
-            ? "factory-scroll-panel factory-scroll-panel--contact factory-contact-finale relative h-full overflow-hidden"
+            ? "factory-scroll-panel factory-scroll-panel--contact factory-contact-finale relative flex h-full flex-col items-center justify-center overflow-hidden"
             : "factory-contact-section factory-contact-finale relative overflow-hidden py-24 md:py-28"
         }
       >
         <div
-          className={`relative z-10 mx-auto w-full max-w-4xl px-6 text-center ${
-            embedded
-              ? "flex h-full flex-col items-center justify-center py-[calc(var(--site-header-total)+1rem)]"
-              : ""
+          className={`factory-contact__stack relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-6 text-center ${
+            embedded ? "py-[calc(var(--site-header-total)+1rem)]" : ""
           }`}
         >
           <div className="mb-5 flex flex-col items-center md:mb-6" key={`contact-heading-${contactCycle}`}>
@@ -157,6 +156,27 @@ export default function FactoryContactSection({
           >
             <FactoryContactCue inline />
           </motion.div>
+
+          <div
+            className={
+              embedded
+                ? "factory-contact__trusted relative z-10 mt-8 w-full max-w-7xl shrink-0 border-t border-teal-500/10 pt-4 md:mt-10 md:pt-5 lg:px-4"
+                : "relative z-10 mt-12 w-full max-w-7xl border-t border-teal-500/10 pt-10"
+            }
+          >
+            <motion.p
+              className="mb-2 text-center text-xs italic text-slate-400 sm:mb-3 sm:text-sm md:mb-4 md:text-[15px]"
+              initial={embedded ? false : { opacity: 0, y: 16 }}
+              whileInView={embedded ? undefined : { opacity: 1, y: 0 }}
+              viewport={embedded ? undefined : { once: true }}
+              transition={embedded ? undefined : { duration: 0.45, delay: 0.1 }}
+            >
+              Trusted by engineers and manufacturers globally
+            </motion.p>
+            <div className={embedded ? "factory-contact__logos -mx-4 overflow-hidden md:mx-0" : undefined}>
+              <ClientsLogoMarquee compact={embedded} visibilityRootRef={sectionRef} />
+            </div>
+          </div>
         </div>
       </section>
     </>

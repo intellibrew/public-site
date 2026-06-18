@@ -23,6 +23,7 @@ import {
   type StorySnapshot,
 } from "@/lib/factory/flowOptimization";
 import { isPhoneViewport } from "@/lib/layoutBreakpoints";
+import { useFactoryStoryAutoplay } from "@/hooks/useFactoryStoryAutoplay";
 
 const SafeAnimatePresence = AnimatePresence as FC<
   PropsWithChildren<{ mode?: "wait" | "sync" | "popLayout" }>
@@ -125,6 +126,20 @@ export default function FactoryBuildExperience({
     setStoryPhase("bottleneck");
   }, []);
 
+  const {
+    identifyPressed,
+    optimizePressed,
+    stationTargeting,
+    autoplayActive,
+  } = useFactoryStoryAutoplay({
+    enabled: storyAnalysisEnabled,
+    scenePaused,
+    bottleneckStationId,
+    focusRequestRef,
+    onIdentifyBottlenecks: handleIdentifyBottlenecks,
+    onOptimizeFactory: handleOptimizeFactory,
+  });
+
   useEffect(() => {
     const check = () => setIsPhone(isPhoneViewport());
     check();
@@ -172,12 +187,22 @@ export default function FactoryBuildExperience({
 
   const hintText = (() => {
     if (isFocusActive) return null;
+    if (stationTargeting) {
+      return isPhone
+        ? `Opening ${constraintName}…`
+        : `Opening stalled ${constraintName} station…`;
+    }
+    if (storyPhase === "bottleneck" && autoplayActive) {
+      return isPhone
+        ? `Constraint at ${constraintName}`
+        : `Constraint detected at ${constraintName}`;
+    }
     if (storyPhase === "bottleneck") {
       return hoveredStation === bottleneckStationId
-        ? "Open bottleneck report"
+        ? "Opening bottleneck report"
         : isPhone
-          ? `Click stalled ${constraintName}`
-          : `Click the stalled ${constraintName} station`;
+          ? `Stalled at ${constraintName}`
+          : `Line stalled at ${constraintName}`;
     }
     if (storyPhase === "optimizing") return "Optimising factory flow…";
     if (storyPhase === "optimized") {
@@ -254,6 +279,8 @@ export default function FactoryBuildExperience({
           showBottleneckAnalysis
           storyPhase={storyPhase}
           bottleneckStationId={bottleneckStationId}
+          optimizePressed={optimizePressed}
+          dismissible={!autoplayActive}
           onClose={handleCloseFocus}
           onOptimize={
             storyAnalysisEnabled && storyPhase === "bottleneck"
@@ -285,7 +312,7 @@ export default function FactoryBuildExperience({
           <FactoryStoryActions
             storyPhase={storyPhase}
             visible={storyAnalysisEnabled && !isFocusActive}
-            onIdentifyBottlenecks={handleIdentifyBottlenecks}
+            pressed={identifyPressed}
           />
 
           <SafeAnimatePresence mode="sync">
@@ -299,7 +326,11 @@ export default function FactoryBuildExperience({
                 className="factory-machine-hint-wrap"
               >
                 <p
-                  className={`factory-machine-hint ${storyPhase === "bottleneck" ? "factory-machine-hint--alert" : ""}`}
+                  className={`factory-machine-hint ${
+                    storyPhase === "bottleneck" || stationTargeting
+                      ? "factory-machine-hint--alert"
+                      : ""
+                  }`}
                 >
                   <span className="factory-machine-hint-dot" aria-hidden />
                   <span className="factory-machine-hint-text">{hintText}</span>

@@ -254,12 +254,12 @@ export function flowCaption(
     case "underproduction":
       return {
         label: "Below target throughput",
-        detail: "Line running below capacity - identify bottlenecks to locate constraints",
+        detail: "Line running below capacity — NeoFab will locate constraints",
       };
     case "bottleneck":
       return {
         label: "Line stalled",
-        detail: `${constraintName} constraint - click the stalled station`,
+        detail: `${constraintName} constraint detected — opening station report`,
       };
     case "optimizing":
       return {
