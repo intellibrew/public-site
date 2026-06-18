@@ -132,9 +132,9 @@ function buildControlRoom(materials: Materials) {
     room.add(chair);
   };
 
-  addChair(-0.72, 0.05, Math.PI);
-  addChair(-0.32, 0.05, Math.PI);
-  addChair(0.08, 0.05, Math.PI);
+  addChair(-0.72, 0.05, 0);
+  addChair(-0.32, 0.05, 0);
+  addChair(0.08, 0.05, 0);
 
   const sideConsoleX = 0.66;
   room.add(box([0.52, 0.06, 0.34], [sideConsoleX, 0.32, 0.2], materials.machineDark, false));
@@ -227,8 +227,7 @@ function buildOutputStorageRacks(materials: Materials) {
 }
 
 export function buildFloor(materials: Materials) {
-  const group = prepGroup(new THREE.Group());
-  group.userData.buildFromLift = 0.44;
+  const group = prepGroup(new THREE.Group(), { revealStyle: "settle" });
 
   const hallWidth = 13.9;
   const hallDepth = 8.9;
@@ -265,11 +264,12 @@ export function buildFloor(materials: Materials) {
     )
   );
 
+  markKeepDuringPlacement(group);
   return group;
 }
 
 export function buildShell(materials: Materials) {
-  const group = prepGroup(new THREE.Group());
+  const group = prepGroup(new THREE.Group(), { revealStyle: "settle", lift: 0.18 });
 
   const wallHeight = 2.78;
   const wallMidY = wallHeight / 2;

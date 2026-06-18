@@ -19,18 +19,17 @@ export function FactoryHeroTitle({ scrollProgress, scrollReady }: FactoryHeroTit
 
   useEffect(() => {
     if (!scrollReady) return;
-    setHeroTextActive(scrollProgress.get() < JOURNEY.hero.fadeOut[0]);
+    setHeroTextActive(scrollProgress.get() < JOURNEY.hero.fadeOut[1]);
   }, [scrollReady, scrollProgress]);
 
   useMotionValueEvent(scrollProgress, "change", (p) => {
-    setHeroTextActive(p < JOURNEY.hero.fadeOut[0]);
+    if (p < JOURNEY.hero.fadeOut[1]) {
+      setHeroTextActive(true);
+    }
   });
 
   useEffect(() => {
-    if (!heroTextActive) {
-      prevHeroActive.current = false;
-      return;
-    }
+    if (!heroTextActive) return;
     if (!prevHeroActive.current) {
       setHeroCycle((c) => c + 1);
     }

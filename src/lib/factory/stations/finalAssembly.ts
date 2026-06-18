@@ -12,7 +12,7 @@ export function tickFinalAssembly(group: THREE.Group, progress: number, elapsedM
   const rig = group.userData.finalAssemblyRig as FinalAssemblyRig | undefined;
   if (!rig) return;
 
-  const baseLive = smoothstep(0.78, 0.95, progress);
+  const baseLive = smoothstep(0.51, 0.68, progress);
   const live = machineLiveMultiplier(baseLive, "finalAssembly");
   const animMs = stationAnimationTime(group, elapsedMs, "finalAssembly", baseLive);
   const phase = animMs * 0.00084;

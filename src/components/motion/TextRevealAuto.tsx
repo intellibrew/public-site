@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 
 type TextRevealAutoProps = {
@@ -32,10 +32,14 @@ export function TextRevealAuto({
   mode = "word",
   active = false,
   delay = 0,
-  stagger = 0.025,
-  duration = 0.22,
+  stagger = 0.018,
+  duration = 0.18,
   balance = true,
 }: TextRevealAutoProps) {
+  const latchedRef = useRef(false);
+  if (active) latchedRef.current = true;
+
+  const isActive = latchedRef.current;
   const items = useMemo(() => splitTextItems(text, mode), [text, mode]);
 
   let tokenIndex = 0;
@@ -49,7 +53,9 @@ export function TextRevealAuto({
         textWrap: balance ? "balance" : "wrap",
         whiteSpace: "pre-wrap",
         display: "block",
-        color: mutedColor,
+        color: isActive ? primaryColor : mutedColor,
+        transform: "translateZ(0)",
+        transition: `color ${duration}s ease`,
       }}
     >
       <span aria-hidden="true">
@@ -67,12 +73,12 @@ export function TextRevealAuto({
           return (
             <motion.span
               key={`token-${idx}`}
-              initial={{ color: mutedColor }}
-              animate={{ color: active ? primaryColor : mutedColor }}
+              initial={false}
+              animate={{ color: isActive ? primaryColor : mutedColor }}
               transition={{
                 duration,
-                delay: delay + index * stagger,
-                ease: [0.25, 0.46, 0.45, 0.94],
+                delay: isActive ? delay + index * stagger : 0,
+                ease: [0.22, 1, 0.36, 1],
               }}
             >
               {itemStr}

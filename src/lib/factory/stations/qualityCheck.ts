@@ -15,7 +15,7 @@ export function tickQualityCheck(
   const rig = group.userData.qualityCheckRig as QcRig | undefined;
   if (!rig) return;
 
-  const live = smoothstep(0.72, 0.88, progress);
+  const live = smoothstep(0.68, 0.86, progress);
   const passActivity = scanActivity * (1 - rejectActivity * 0.85);
   const scanSweep = scanActivity > 0.02 ? (Math.sin(elapsedMs * 0.009) * 0.5 + 0.5) * scanActivity : 0;
 

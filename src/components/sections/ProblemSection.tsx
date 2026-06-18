@@ -2,9 +2,9 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Clock3, GitBranch, FileText } from "lucide-react";
 import { AnimateInView } from "@/components/AnimateInView";
 import AdvancedFactoryAnimation from "@/components/AdvancedFactoryAnimation";
+import { ProblemBulletList } from "@/components/sections/ProblemBulletList";
 
 type ProblemSectionProps = {
   embedded?: boolean;
@@ -65,40 +65,7 @@ export function ProblemSection({ embedded = false }: ProblemSectionProps) {
             </h2>
           </AnimateInView>
           <AnimateInView delay={120}>
-            <ul className="mt-4 space-y-3 text-body">
-              {[
-                {
-                  label: "Weeks of back-and-forth.",
-                  icon: <Clock3 className="h-3.5 w-3.5" />,
-                },
-                {
-                  label: "Decisions scattered without a single model.",
-                  icon: <GitBranch className="h-3.5 w-3.5" />,
-                },
-                {
-                  label: "Design-to-RFQs start too late, costs drift.",
-                  icon: <FileText className="h-3.5 w-3.5" />,
-                },
-              ].map(({ label, icon }, index) => (
-                <motion.li
-                  key={label}
-                  className="flex items-center gap-3"
-                  initial={embedded ? false : { opacity: 0, x: -20 }}
-                  whileInView={embedded ? undefined : { opacity: 1, x: 0 }}
-                  viewport={embedded ? undefined : { once: true }}
-                  transition={embedded ? undefined : { duration: 0.5, delay: 0.2 + index * 0.1 }}
-                >
-                  <motion.span 
-                    className="mt-0.5 inline-flex h-8 w-8 flex-none items-center justify-center rounded-2xl border border-teal-500/50 bg-[radial-gradient(circle_at_30%_0%,rgba(94,234,212,0.35),rgba(20,184,166,0.2))] text-teal-200 shadow-[0_10px_30px_-18px_rgba(20,184,166,0.35)]"
-                  >
-                    <span className="text-teal-300">
-                      {icon}
-                    </span>
-                  </motion.span>
-                  <span>{label}</span>
-                </motion.li>
-              ))}
-            </ul>
+            <ProblemBulletList className="mt-4" embedded={embedded} />
           </AnimateInView>
         </div>
 

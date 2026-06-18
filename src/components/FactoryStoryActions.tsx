@@ -13,13 +13,13 @@ const SafeAnimatePresence = AnimatePresence as FC<
 type FactoryStoryActionsProps = {
   storyPhase: StoryPhase;
   visible: boolean;
-  onIdentifyBottlenecks: () => void;
+  pressed?: boolean;
 };
 
 export default function FactoryStoryActions({
   storyPhase,
   visible,
-  onIdentifyBottlenecks,
+  pressed = false,
 }: FactoryStoryActionsProps) {
   const showIdentify = visible && storyPhase === "underproduction";
   const [isPhone, setIsPhone] = useState(false);
@@ -32,8 +32,8 @@ export default function FactoryStoryActions({
   }, []);
 
   const identifyHint = isPhone
-    ? "Press Identify bottlenecks to scan"
-    : "Press Identify bottlenecks to scan the line for constraints";
+    ? "Scanning the line for constraints"
+    : "NeoFab is scanning the line for constraints";
 
   return (
     <div className="factory-story-actions pointer-events-none flex justify-center">
@@ -45,12 +45,20 @@ export default function FactoryStoryActions({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-            className="factory-story-identify-group pointer-events-auto flex w-fit max-w-full flex-col items-center text-center"
+            className="factory-story-identify-group flex w-fit max-w-full flex-col items-center text-center"
           >
-            <button
-              type="button"
-              onClick={onIdentifyBottlenecks}
-              className="factory-story-cta factory-story-cta--identify"
+            <motion.div
+              aria-hidden
+              tabIndex={-1}
+              animate={
+                pressed
+                  ? { scale: 0.96, y: 1 }
+                  : { scale: 1, y: 0 }
+              }
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className={`factory-story-cta factory-story-cta--identify factory-story-cta--demo ${
+                pressed ? "factory-story-cta--pressed" : ""
+              }`}
             >
               <span className="factory-story-cta-label">Identify bottlenecks</span>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -62,7 +70,8 @@ export default function FactoryStoryActions({
                 />
                 <circle cx="8" cy="8" r="2.25" stroke="currentColor" strokeWidth="1.5" />
               </svg>
-            </button>
+              <span className="factory-story-cta-ripple" aria-hidden />
+            </motion.div>
             <p className="factory-machine-hint factory-machine-hint--cta">
               <span className="factory-machine-hint-dot" aria-hidden />
               <span className="factory-machine-hint-text">{identifyHint}</span>

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, type RefObject } from "react";
 import type Lenis from "lenis";
 import { useLenis } from "@/hooks/useLenis";
 import {
+  isInTransitionBand,
+  JOURNEY_SNAPS,
   progressToScrollY,
   resolveSnapProgress,
   scrollYToProgress,
@@ -11,21 +13,30 @@ import {
   shouldDisableJourneySnap,
   SNAP_DURATION_S,
   SNAP_IDLE_MS,
+  SNAP_IDLE_MS_AGGRESSIVE,
   SNAP_MIN_DELTA,
+  SNAP_VELOCITY_COMMIT,
+  SNAP_VELOCITY_IDLE,
 } from "@/lib/factory/scrollJourney";
 
 type UseJourneySnapOptions = {
   journeyRef: RefObject<HTMLElement | null>;
   enabled?: boolean;
+  aggressive?: boolean;
 };
 
-export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOptions) {
+export function useJourneySnap({
+  journeyRef,
+  enabled = true,
+  aggressive = false,
+}: UseJourneySnapOptions) {
   const { scrollTo, getLenis, onScroll } = useLenis();
   const directionRef = useRef<0 | 1 | -1>(0);
   const isSnappingRef = useRef(false);
   const snapRunRef = useRef(0);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasUserScrolledRef = useRef(false);
+  const idleMs = aggressive ? SNAP_IDLE_MS_AGGRESSIVE : SNAP_IDLE_MS;
 
   const clearIdleTimer = useCallback(() => {
     if (!idleTimerRef.current) return;
@@ -55,8 +66,10 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
       const snapRun = snapRunRef.current + 1;
       snapRunRef.current = snapRun;
       isSnappingRef.current = true;
+      const snapToHero = progress === JOURNEY_SNAPS[0].progress;
       scrollTo(targetY, {
-        duration,
+        duration: snapToHero ? 0 : duration,
+        immediate: snapToHero,
         onComplete: () => {
           if (snapRunRef.current !== snapRun) return;
           isSnappingRef.current = false;
@@ -150,34 +163,42 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
 
       clearIdleTimer();
       idleTimerRef.current = setTimeout(() => {
-        if (Math.abs(lenis.velocity) > 0.015) {
+        if (Math.abs(lenis.velocity) > SNAP_VELOCITY_IDLE) {
           scheduleSnap(lenis);
           return;
         }
         trySnap(lenis, directionRef.current);
-      }, SNAP_IDLE_MS);
+      }, idleMs);
     };
 
     const unsubscribe = onScroll((lenis) => {
       if (isSnappingRef.current) return;
 
       const journeyEl = journeyRef.current;
-      if (journeyEl && hasUserScrolledRef.current && lenis.direction !== 0) {
+      if (journeyEl && hasUserScrolledRef.current) {
         const progress = scrollYToProgress(
           lenis.scroll,
           journeyEl.offsetHeight,
           window.innerHeight
         );
-        if (
-          !shouldDisableJourneySnap(progress) &&
-          shouldCommitTransition(progress, lenis.direction) &&
-          Math.abs(lenis.velocity) < 0.35
-        ) {
-          if (trySnap(lenis, lenis.direction)) return;
+        const snapDirection = lenis.direction || directionRef.current;
+        const canSnap = !shouldDisableJourneySnap(progress);
+        const lowVelocity = Math.abs(lenis.velocity) < SNAP_VELOCITY_COMMIT;
+
+        if (canSnap && lowVelocity && snapDirection !== 0) {
+          if (shouldCommitTransition(progress, snapDirection) && trySnap(lenis, snapDirection)) {
+            return;
+          }
+        }
+
+        if (canSnap && lowVelocity && isInTransitionBand(progress)) {
+          if (trySnap(lenis, snapDirection)) return;
         }
       }
 
-      directionRef.current = lenis.direction;
+      if (lenis.direction !== 0) {
+        directionRef.current = lenis.direction;
+      }
       scheduleSnap(lenis);
     });
 
@@ -185,7 +206,7 @@ export function useJourneySnap({ journeyRef, enabled = true }: UseJourneySnapOpt
       unsubscribe();
       clearIdleTimer();
     };
-  }, [clearIdleTimer, enabled, journeyRef, onScroll, trySnap]);
+  }, [clearIdleTimer, enabled, idleMs, journeyRef, onScroll, trySnap]);
 
   return { scrollToProgress, isSnappingRef };
 }

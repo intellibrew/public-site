@@ -6,10 +6,10 @@ import { getEffectivePixelRatio, SCENE_FOG } from "./sceneConfig";
 import { bindSceneInput } from "./sceneInput";
 import { disposeScene, fitRendererToMount, makeSceneRenderer } from "./sceneRenderer";
 import { makeMaterials } from "./materials";
-import { clamp } from "./math";
+import { clamp, smoothstep } from "./math";
 import { makeLightRig, updateLighting } from "./lighting";
 import { revealPart } from "./reveal";
-import { bindStationPicking } from "./scenePick";
+import { bindStationPicking, hitFactoryAt } from "./scenePick";
 import {
   focusIntensity,
   makeFocusRing,
@@ -28,6 +28,7 @@ export type FactorySceneHandle = {
   focusStation: (stationId: string | null, options?: { immediate?: boolean }) => void;
   getFocusPhase: () => "idle" | "entering" | "active" | "exiting";
   resetView: () => void;
+  setPreferPageScroll: (value: boolean) => void;
 };
 
 export type FactorySceneOptions = {
@@ -38,6 +39,7 @@ export type FactorySceneOptions = {
   onFocusChange?: (stationId: string | null, phase: "idle" | "entering" | "active" | "exiting") => void;
   onStationHover?: (stationId: string | null) => void;
   simplified?: boolean;
+  preferPageScroll?: boolean;
 };
 
 const BUILD_LIVE_DETAIL_PROGRESS = 0.985;
@@ -144,6 +146,7 @@ export function mountFactoryScene(
     onFocusChange,
     onStationHover,
     simplified = false,
+    preferPageScroll = false,
   } = options;
 
   const scene = new THREE.Scene();
@@ -209,6 +212,10 @@ export function mountFactoryScene(
   const getIsInteractive = () =>
     getProgress() >= 0.999 && !(getScenePaused?.() ?? false);
 
+  const factoryTargets = build.steps.map((step) => step.group);
+  const testFactoryHit = (clientX: number, clientY: number) =>
+    hitFactoryAt(clientX, clientY, camera, renderer.domElement, factoryTargets);
+
   const input = bindSceneInput({
     camera,
     controls,
@@ -216,6 +223,8 @@ export function mountFactoryScene(
     onResetView: resetFactoryView,
     getIsInteractive,
     enablePinchZoom: simplified,
+    preferPageScroll,
+    hitFactoryAt: testFactoryHit,
   });
 
   if (simplified) {
@@ -226,6 +235,7 @@ export function mountFactoryScene(
     camera,
     element: renderer.domElement,
     stationGroups: build.stationGroups,
+    factoryTargets,
     onHover: (id) => onStationHover?.(id),
     onSelect: (id) => {
       if (getStorySnapshot().phase === "optimizing") return;
@@ -238,7 +248,11 @@ export function mountFactoryScene(
       notifyFocus();
     },
     isFocusActive: () => focusState !== null,
-    isDragging: () => input.isDragging(),
+    interaction: {
+      isScrollIntent: () => input.isScrollIntent(),
+      isDragging: () => input.isDragging(),
+      isPointerDown: () => input.isPointerDown(),
+    },
   });
 
   const setSize = () => {
@@ -328,8 +342,13 @@ export function mountFactoryScene(
     lastFrameMs = now;
 
     const rawP = clamp(getProgress());
-    const lerpFactor = Math.min(1, deltaSec * 40);
-    smoothedP += (rawP - smoothedP) * lerpFactor;
+    const isBuilding = rawP < 0.999;
+    if (isBuilding) {
+      smoothedP = rawP;
+    } else {
+      const lerpFactor = Math.min(1, deltaSec * 40);
+      smoothedP += (rawP - smoothedP) * lerpFactor;
+    }
     if (rawP >= 0.999) smoothedP = 1;
     const p = smoothedP;
 
@@ -355,13 +374,14 @@ export function mountFactoryScene(
 
     factoryRoot.rotation.y = 0;
     factoryRoot.scale.setScalar(1);
-    factoryRoot.position.set(0, (1 - p) * -1.2, 0);
+    const rootLift = smoothstep(0, 0.12, p);
+    factoryRoot.position.set(0, (1 - rootLift) * -0.35, 0);
 
     updateShellWallFade(build.shell.group, camera, {
       hideWalls: false,
     });
 
-    const hasOverride = input.hasCameraOverride();
+    const hasOverride = input.hasCameraOverride() || input.hasUserOrbitView();
     if (!isPaused) {
       input.tickZoom();
     }
@@ -392,7 +412,11 @@ export function mountFactoryScene(
       }
     }
 
-    controls.update(deltaSec);
+    if (hasOverride) {
+      input.maintainUserOrbit();
+    } else {
+      controls.update(deltaSec);
+    }
     syncPlacementPerformanceMode(p);
     syncShadowUpdates(p);
     renderer.render(scene, camera);
@@ -420,6 +444,7 @@ export function mountFactoryScene(
     },
     getFocusPhase: () => focusState?.phase ?? "idle",
     resetView: resetFactoryView,
+    setPreferPageScroll: (value: boolean) => input.setPreferPageScroll(value),
     dispose: () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.cancelAnimationFrame(frameId);

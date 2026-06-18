@@ -1,6 +1,6 @@
 "use client";
 
-import Lenis from "lenis";
+import Lenis, { type VirtualScrollData } from "lenis";
 import {
   createContext,
   useCallback,
@@ -10,7 +10,36 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { isPhoneViewport } from "@/lib/layoutBreakpoints";
+import { prefersNativeTouchScroll } from "@/lib/layoutBreakpoints";
+
+const WHEEL_MAX_DELTA = 120;
+const DESKTOP_WHEEL_MULTIPLIER = 1.55;
+const LINE_HEIGHT_PX = 16;
+
+function clampDelta(delta: number, max: number) {
+  if (delta === 0) return 0;
+  return Math.sign(delta) * Math.min(Math.abs(delta), max);
+}
+
+function wheelDeltaToPixels(delta: number, deltaMode: number) {
+  switch (deltaMode) {
+    case WheelEvent.DOM_DELTA_LINE:
+      return delta * LINE_HEIGHT_PX;
+    case WheelEvent.DOM_DELTA_PAGE:
+      return delta * (typeof window !== "undefined" ? window.innerHeight : 800);
+    default:
+      return delta;
+  }
+}
+
+function normalizeVirtualScroll(data: VirtualScrollData) {
+  if (!(data.event instanceof WheelEvent)) return true;
+
+  const event = data.event;
+  data.deltaX = clampDelta(wheelDeltaToPixels(data.deltaX, event.deltaMode), WHEEL_MAX_DELTA);
+  data.deltaY = clampDelta(wheelDeltaToPixels(data.deltaY, event.deltaMode), WHEEL_MAX_DELTA);
+  return true;
+}
 
 type ScrollToOptions = {
   duration?: number;
@@ -43,16 +72,17 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
   const listenersRef = useRef(new Set<(lenis: Lenis) => void>());
 
   useEffect(() => {
-    const isPhone = isPhoneViewport();
+    const useNativeTouch = prefersNativeTouchScroll();
     const lenis = new Lenis({
       autoRaf: true,
-      lerp: 0.18,
-      smoothWheel: true,
-      syncTouch: !isPhone,
-      syncTouchLerp: 0.16,
-      wheelMultiplier: 0.92,
-      touchMultiplier: 1,
-      touchInertiaExponent: 22,
+      lerp: useNativeTouch ? 0.1 : 0.18,
+      smoothWheel: !useNativeTouch,
+      syncTouch: false,
+      syncTouchLerp: 0.1,
+      wheelMultiplier: useNativeTouch ? 1 : DESKTOP_WHEEL_MULTIPLIER,
+      touchMultiplier: useNativeTouch ? 0.82 : 1,
+      touchInertiaExponent: useNativeTouch ? 1.15 : 1.7,
+      virtualScroll: normalizeVirtualScroll,
       prevent: (node) => Boolean(node.closest("[data-lenis-prevent]")),
     });
     lenisRef.current = lenis;

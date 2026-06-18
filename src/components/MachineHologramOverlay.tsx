@@ -24,6 +24,8 @@ type MachineHologramOverlayProps = {
   showBottleneckAnalysis?: boolean;
   storyPhase?: StoryPhase;
   bottleneckStationId?: string | null;
+  optimizePressed?: boolean;
+  dismissible?: boolean;
   onClose: () => void;
   onOptimize?: () => void;
 };
@@ -307,6 +309,8 @@ type HoloTabletProps = {
   showBottleneckAnalysis: boolean;
   storyPhase?: StoryPhase;
   isConstraintStation: boolean;
+  optimizePressed?: boolean;
+  dismissible?: boolean;
   onClose: (event: React.PointerEvent | React.MouseEvent) => void;
   onOptimize?: () => void;
 };
@@ -318,6 +322,8 @@ function HoloTablet({
   showBottleneckAnalysis,
   storyPhase,
   isConstraintStation,
+  optimizePressed = false,
+  dismissible = true,
   onClose,
   onOptimize,
 }: HoloTabletProps) {
@@ -353,10 +359,12 @@ function HoloTablet({
         <header className="relative shrink-0 px-3 pt-3 md:px-5 md:pt-5">
           <button
             type="button"
-            onPointerDown={onClose}
-            onClick={onClose}
+            onPointerDown={dismissible ? onClose : undefined}
+            onClick={dismissible ? onClose : undefined}
             className="holo-dismiss absolute right-3 top-3 z-20 md:right-5 md:top-5"
             aria-label="Close machine detail view"
+            tabIndex={dismissible ? 0 : -1}
+            style={dismissible ? undefined : { pointerEvents: "none", opacity: 0.35 }}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
               <path
@@ -614,10 +622,18 @@ function HoloTablet({
             <p className="holo-footer-lead text-teal-100/72">
               Run NeoFab optimization to fix the constraint, recover lost throughput, and bring the line back to target rate.
             </p>
-            <button
-              type="button"
-              onClick={onOptimize}
-              className="holo-optimize-cta holo-optimize-cta--footer w-full md:w-auto"
+            <motion.div
+              aria-hidden
+              tabIndex={-1}
+              animate={
+                optimizePressed
+                  ? { scale: 0.96, y: 1 }
+                  : { scale: 1, y: 0 }
+              }
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className={`holo-optimize-cta holo-optimize-cta--footer holo-optimize-cta--demo w-full md:w-auto ${
+                optimizePressed ? "holo-optimize-cta--pressed" : ""
+              }`}
             >
               <span>Optimize factory with NeoFab</span>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -629,7 +645,8 @@ function HoloTablet({
                 strokeLinejoin="round"
               />
             </svg>
-            </button>
+              <span className="holo-optimize-cta-ripple" aria-hidden />
+            </motion.div>
           </div>
         </footer>
       ) : null}
@@ -645,6 +662,8 @@ export default function MachineHologramOverlay({
   showBottleneckAnalysis = true,
   storyPhase,
   bottleneckStationId,
+  optimizePressed = false,
+  dismissible = true,
   onClose,
   onOptimize,
 }: MachineHologramOverlayProps) {
@@ -673,13 +692,13 @@ export default function MachineHologramOverlay({
   }, []);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || !dismissible) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [visible, onClose]);
+  }, [visible, dismissible, onClose]);
 
   if (!mounted) return null;
 
@@ -688,18 +707,19 @@ export default function MachineHologramOverlay({
       {visible && machine && (
         <motion.div
           key={machine.id}
-          initial={false}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.12, ease: [0.4, 0, 1, 1] } }}
-          transition={{ duration: 0 }}
+          initial={{ opacity: 0, scale: 0.97, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.98, y: 6, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }}
+          transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
           className="holo-overlay holo-overlay--instant pointer-events-auto fixed inset-0 z-[110] flex items-start justify-center md:items-center"
           onWheel={stopOverlayScrollPropagation}
           onTouchMove={stopOverlayScrollPropagation}
         >
           <div
             className="holo-backdrop"
-            onPointerDown={handleClose}
-            onClick={handleClose}
+            onPointerDown={dismissible ? handleClose : undefined}
+            onClick={dismissible ? handleClose : undefined}
+            style={dismissible ? undefined : { pointerEvents: "none" }}
           />
           <div className="holo-vignette" aria-hidden />
           <div className="holo-grid" aria-hidden />
@@ -711,6 +731,8 @@ export default function MachineHologramOverlay({
             showBottleneckAnalysis={showBottleneckAnalysis}
             storyPhase={storyPhase}
             isConstraintStation={isConstraintStation}
+            optimizePressed={optimizePressed}
+            dismissible={dismissible}
             onClose={handleClose}
             onOptimize={showBottleneckAnalysis ? onOptimize : undefined}
           />

@@ -140,9 +140,6 @@ export function ClientsLogoMarquee({ compact = false, visibilityRootRef }: Clien
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
-      <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-16 bg-gradient-to-r from-[#060608] to-transparent sm:w-24" />
-      <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-16 bg-gradient-to-l from-[#060608] to-transparent sm:w-24" />
-
       <motion.div className="flex items-center gap-4 sm:gap-8 md:gap-10" style={{ x }}>
         {[0, 1, 2].map((copy) =>
           CLIENT_LOGOS.map((client, index) => (

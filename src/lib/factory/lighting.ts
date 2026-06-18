@@ -64,10 +64,10 @@ export function updateLighting(
   elapsedMs: number,
   renderer: THREE.WebGLRenderer
 ) {
-  const floorReveal = smoothstep(0, 0.12, progress);
-  const wallsReveal = smoothstep(0.06, 0.2, progress);
-  const machineReveal = smoothstep(0.2, 0.58, progress);
-  const conveyorReveal = smoothstep(0.62, 0.78, progress);
+  const floorReveal = smoothstep(0, 0.09, progress);
+  const wallsReveal = smoothstep(0.07, 0.17, progress);
+  const machineReveal = smoothstep(0.15, 0.65, progress);
+  const conveyorReveal = smoothstep(0.68, 0.86, progress);
   const flicker = 0.965 + 0.035 * Math.sin(elapsedMs * 0.0038 + 0.6);
 
   rig.key.intensity =
