@@ -340,21 +340,19 @@ export default function FactoryLanding() {
             className="factory-scroll-layer factory-scroll-layer--hero factory-hero-overlay"
             style={{ visibility: heroVisible, zIndex: heroZIndex }}
           >
-            {showHeroChrome && (
-              <div aria-hidden className="hero-beams-layer absolute inset-0 z-0 opacity-70">
-                <Beams
-                  active
-                  beamWidth={isCompact ? 2.5 : 3}
-                  beamHeight={isCompact ? 26 : 30}
-                  beamNumber={isCompact ? 16 : 20}
-                  lightColor="#22c59d"
-                  speed={2}
-                  noiseIntensity={isCompact ? 0.75 : 1.75}
-                  scale={isCompact ? 0.18 : 0.2}
-                  rotation={30}
-                />
-              </div>
-            )}
+            <div aria-hidden className="hero-beams-layer absolute inset-0 z-0 opacity-70">
+              <Beams
+                active={showHeroChrome}
+                beamWidth={isCompact ? 2.5 : 3}
+                beamHeight={isCompact ? 26 : 30}
+                beamNumber={isCompact ? 16 : 20}
+                lightColor="#22c59d"
+                speed={2}
+                noiseIntensity={isCompact ? 0.75 : 1.75}
+                scale={isCompact ? 0.18 : 0.2}
+                rotation={30}
+              />
+            </div>
             <div
               aria-hidden
               className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_center,transparent_0%,rgba(5,7,8,0.28)_48%,#050708_88%)]"

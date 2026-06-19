@@ -2,7 +2,7 @@
 
 /* eslint-disable react/no-unknown-property */
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
@@ -260,8 +260,28 @@ const DirLight = ({ position, color }: { position: [number, number, number]; col
   return <directionalLight ref={dir} color={color} intensity={1} position={position} />;
 };
 
+function ActiveFramePump({ active }: { active: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    if (!active) return;
+    let frames = 0;
+    let raf = 0;
+    const pump = () => {
+      invalidate();
+      if (++frames < 6) raf = requestAnimationFrame(pump);
+    };
+    pump();
+    return () => cancelAnimationFrame(raf);
+  }, [active, invalidate]);
+
+  return null;
+}
+
 function useBeamDpr() {
-  const [dpr, setDpr] = useState(1);
+  const [dpr, setDpr] = useState(() =>
+    typeof window !== "undefined" ? getEffectivePixelRatio() : 1
+  );
 
   useEffect(() => {
     const update = () => setDpr(getEffectivePixelRatio());
@@ -348,6 +368,7 @@ export default function Beams({
       className="h-full w-full"
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
+      <ActiveFramePump active={active} />
       <group rotation={[0, 0, degToRad(rotation)]}>
         <MergedPlanes
           material={beamMaterial}
