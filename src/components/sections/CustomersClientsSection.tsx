@@ -7,17 +7,17 @@ const teams = [
   {
     icon: <PenTool className="h-5 w-5" />,
     title: "Design Engineers",
-    items: ["Product integration", "Line specifications", "Technical drawings"],
+    items: ["Product integration", "Line specifications"],
   },
   {
     icon: <Settings className="h-5 w-5" />,
     title: "Industrial Engineering",
-    items: ["Station design", "Cycle time modeling", "Layout iteration"],
+    items: ["Station design", "Cycle time modeling"],
   },
   {
     icon: <Package className="h-5 w-5" />,
     title: "Manufacturing Ops",
-    items: ["RFQ packs", "Equipment selection", "Capacity & bottlenecks"],
+    items: ["RFQ packs", "Equipment selection"],
   },
 ];
 
@@ -98,30 +98,38 @@ export function CustomersClientsSection({ embedded = false }: CustomersClientsSe
               <motion.div
                 key={team.title}
                 {...revealProps(embedded, 0.08 + index * 0.06)}
-                className={`relative rounded-2xl border border-teal-500/20 ${embedded ? "p-3.5 md:p-5" : "p-6 md:p-6"}`}
+                className={`factory-customers__card relative rounded-2xl border border-teal-500/20 ${
+                  embedded ? "px-5 py-4 md:px-6 md:py-5" : "px-6 py-5 md:px-7 md:py-6"
+                }`}
                 style={{
                   background:
                     "linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)",
                   boxShadow: "0 0 25px rgba(20,184,166,0.05)",
                 }}
               >
-                <div className="mb-2.5 flex items-center gap-2.5 md:mb-4 md:gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-teal-500/30 bg-teal-500/15 text-teal-400 md:h-10 md:w-10">
+                <div className="flex items-center gap-4 md:gap-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-xl border border-teal-500/30 bg-teal-500/15 text-teal-400 md:h-11 md:w-11">
                     {team.icon}
                   </div>
-                  <h3 className="font-orbitron text-[14px] leading-tight text-white md:text-[18px]">
-                    {team.title}
-                  </h3>
-                </div>
 
-                <ul className="space-y-1.5 md:space-y-2.5">
-                  {team.items.map((item) => (
-                    <li key={item} className="flex items-center gap-2.5 text-[12px] text-teal-300/90 md:gap-3 md:text-[14px]">
-                      <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-teal-500/60" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                  <div className="flex min-w-0 flex-1 flex-col gap-2 md:gap-2.5">
+                    <h3 className="font-orbitron text-[14px] leading-tight text-white md:text-[17px]">
+                      {team.title}
+                    </h3>
+
+                    <ul className="factory-customers__items flex flex-nowrap items-center gap-x-4 sm:gap-x-5 md:gap-x-6">
+                      {team.items.map((item) => (
+                        <li
+                          key={item}
+                          className="flex min-w-0 items-center gap-2 text-[11px] text-teal-300/90 sm:text-[12px] md:gap-2.5 md:text-[13px]"
+                        >
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500/60" />
+                          <span className="truncate">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>

@@ -4044,8 +4044,12 @@ html.lenis body {
     line-height: 1.5 !important;
   }
 
-  .factory-customers__cards .rounded-2xl {
-    padding: 1rem !important;
+  .factory-customers__cards .factory-customers__card {
+    padding: 1.125rem 1.25rem !important;
+  }
+
+  .factory-customers__cards .factory-customers__items {
+    gap: 1rem;
   }
 
   .factory-contact__trusted p {

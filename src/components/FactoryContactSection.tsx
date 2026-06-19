@@ -8,10 +8,12 @@ import {
   useMotionValueEvent,
   type MotionValue,
 } from "framer-motion";
+import Beams from "@/components/Beams";
 import FactoryContactCue from "@/components/FactoryContactCue";
 import { ClientsLogoMarquee } from "@/components/sections/ClientsLogoMarquee";
 import { MaskedTextReveal } from "@/components/motion/MaskedTextReveal";
 import { TextRevealAuto } from "@/components/motion/TextRevealAuto";
+import { isCompactViewport } from "@/lib/layoutBreakpoints";
 import { JOURNEY } from "@/lib/factory/scrollJourney";
 
 type FactoryContactSectionProps = {
@@ -30,6 +32,8 @@ export default function FactoryContactSection({
   const [subtextActive, setSubtextActive] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
   const [contactCycle, setContactCycle] = useState(0);
+  const [isCompact, setIsCompact] = useState(false);
+  const [contactBeamsActive, setContactBeamsActive] = useState(false);
   const headingLatchedRef = useRef(false);
   const prevHeadingActive = useRef(false);
 
@@ -40,6 +44,7 @@ export default function FactoryContactSection({
 
   useMotionValueEvent(progressSource, "change", (p) => {
     if (!embedded || !scrollProgress) return;
+    setContactBeamsActive(p >= JOURNEY.customers.fadeIn[0] - 0.02);
     if (p >= JOURNEY.contact.fadeIn[0]) {
       if (!headingLatchedRef.current) {
         headingLatchedRef.current = true;
@@ -55,9 +60,21 @@ export default function FactoryContactSection({
   });
 
   useEffect(() => {
+    if (!embedded || !scrollProgress) return;
+    setContactBeamsActive(scrollProgress.get() >= JOURNEY.customers.fadeIn[0] - 0.02);
+  }, [embedded, scrollProgress]);
+
+  useEffect(() => {
     if (embedded && scrollProgress) return;
     setHeadingActive(inView);
   }, [embedded, inView, scrollProgress]);
+
+  useEffect(() => {
+    const check = () => setIsCompact(isCompactViewport());
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     if (!headingActive) {
@@ -82,6 +99,8 @@ export default function FactoryContactSection({
     ease: [0.22, 1, 0.36, 1] as number[],
   };
 
+  const beamsActive = embedded ? contactBeamsActive : inView;
+
   return (
     <>
       <section
@@ -93,6 +112,24 @@ export default function FactoryContactSection({
             : "factory-contact-section factory-contact-finale relative overflow-hidden py-24 md:py-28"
         }
       >
+        <div aria-hidden className="hero-beams-layer absolute inset-0 z-0 opacity-70">
+          <Beams
+            active={beamsActive}
+            beamWidth={isCompact ? 2.5 : 3}
+            beamHeight={isCompact ? 26 : 30}
+            beamNumber={isCompact ? 16 : 20}
+            lightColor="#22c59d"
+            speed={2}
+            noiseIntensity={isCompact ? 0.75 : 1.75}
+            scale={isCompact ? 0.18 : 0.2}
+            rotation={30}
+          />
+        </div>
+        <div
+          aria-hidden
+          className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_center,transparent_0%,rgba(5,7,8,0.28)_48%,#050708_88%)]"
+        />
+
         <div
           className={`factory-contact__stack relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-6 text-center ${
             embedded ? "py-[calc(var(--site-header-total)+1rem)]" : ""
