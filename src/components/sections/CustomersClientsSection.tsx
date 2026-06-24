@@ -120,7 +120,6 @@ export function CustomersClientsSection({
         <div
           key={`customers-${revealCycle}`}
           className={`${slideClass} relative z-10 mx-auto w-full max-w-7xl min-h-0 flex-1`}
-          data-lenis-prevent=""
         >
           {content}
         </div>
