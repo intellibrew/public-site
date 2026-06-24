@@ -1,50 +1,135 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { PenTool, Settings, Package } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useMotionValue, useMotionValueEvent, type MotionValue } from "framer-motion";
+import { NarrativeReveal } from "@/components/narrative/NarrativeReveal";
+import { PersonaViz } from "@/components/narrative/PersonaViz";
+import { JOURNEY } from "@/lib/factory/scrollJourney";
 
-const teams = [
+const personas = [
   {
-    icon: <PenTool className="h-5 w-5" />,
+    key: "design" as const,
     title: "Design Engineers",
-    items: ["Product integration", "Line specifications"],
+    label: "product → line spec",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 20h4l10.5-10.5a1.5 1.5 0 0 0-4-4L4 16v4" />
+        <path d="M13.5 6.5l4 4" />
+      </svg>
+    ),
   },
   {
-    icon: <Settings className="h-5 w-5" />,
-    title: "Industrial Engineering",
-    items: ["Station design", "Cycle time modeling"],
+    key: "mechanical" as const,
+    title: "Mechanical Engineering",
+    label: "stations + line balance",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10.3 4.3c.4-1.8 2.9-1.8 3.4 0a1.7 1.7 0 0 0 2.5 1.1c1.6-.9 3.3.8 2.4 2.4a1.7 1.7 0 0 0 1 2.5c1.8.4 1.8 2.9 0 3.4a1.7 1.7 0 0 0-1 2.5c.9 1.6-.8 3.3-2.4 2.4a1.7 1.7 0 0 0-2.5 1c-.4 1.8-2.9 1.8-3.4 0a1.7 1.7 0 0 0-2.5-1c-1.6.9-3.3-.8-2.4-2.4a1.7 1.7 0 0 0-1-2.5c-1.8-.4-1.8-2.9 0-3.4a1.7 1.7 0 0 0 1-2.5c-.9-1.6.8-3.3 2.4-2.4 1 .6 2.2.1 2.5-1z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    ),
   },
   {
-    icon: <Package className="h-5 w-5" />,
+    key: "manufacturing" as const,
     title: "Manufacturing Ops",
-    items: ["RFQ packs", "Equipment selection"],
+    label: "RFQ packs + equipment",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" />
+        <path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" />
+      </svg>
+    ),
   },
 ];
 
 type CustomersClientsSectionProps = {
   embedded?: boolean;
+  scrollProgress?: MotionValue<number>;
 };
 
-const revealProps = (embedded: boolean, delay = 0) =>
-  embedded
-    ? {}
-    : {
-        initial: { opacity: 0, y: 16 } as const,
-        whileInView: { opacity: 1, y: 0 } as const,
-        viewport: { once: true } as const,
-        transition: { duration: 0.45, delay },
-      };
+export function CustomersClientsSection({
+  embedded = false,
+  scrollProgress,
+}: CustomersClientsSectionProps = {}) {
+  const idleProgress = useMotionValue(0);
+  const progressSource = scrollProgress ?? idleProgress;
+  const revealLatchedRef = useRef(false);
+  const [revealActive, setRevealActive] = useState(false);
+  const [revealCycle, setRevealCycle] = useState(0);
 
-export function CustomersClientsSection({ embedded = false }: CustomersClientsSectionProps = {}) {
-  return (
-    <section
-      id="customers"
-      className={
-        embedded
-          ? "factory-scroll-panel factory-scroll-panel--customers relative flex h-full flex-col overflow-hidden bg-transparent"
-          : "relative overflow-hidden bg-[#060608] py-24"
+  useMotionValueEvent(progressSource, "change", (p) => {
+    if (!embedded || !scrollProgress) return;
+
+    if (p >= JOURNEY.customers.fadeIn[0]) {
+      if (!revealLatchedRef.current) {
+        revealLatchedRef.current = true;
+        setRevealCycle((c) => c + 1);
+        setRevealActive(true);
       }
-    >
+    } else if (p < JOURNEY.customers.fadeIn[0] - 0.03) {
+      revealLatchedRef.current = false;
+      setRevealActive(false);
+    }
+  });
+
+  useEffect(() => {
+    if (!embedded || !scrollProgress) {
+      setRevealActive(true);
+    }
+  }, [embedded, scrollProgress]);
+
+  const slideClass = `factory-narrative-slide factory-narrative-slide--teams factory-narrative ${
+    revealActive ? "factory-narrative-slide--in" : ""
+  }`;
+
+  const content = (
+    <>
+      <NarrativeReveal delay={0}>
+        <div className="factory-narrative-eyebrow">Who it serves</div>
+      </NarrativeReveal>
+
+      <NarrativeReveal delay={1}>
+        <h2 className="factory-narrative-headline">
+          Built for the teams that <span className="factory-narrative-accent">ship.</span>
+        </h2>
+      </NarrativeReveal>
+
+      <NarrativeReveal delay={2}>
+        <div className="factory-narrative-personas">
+          {personas.map((persona) => (
+            <div key={persona.key} className="factory-narrative-persona">
+              <div className="factory-narrative-persona-icon" aria-hidden="true">
+                {persona.icon}
+              </div>
+              <h3>{persona.title}</h3>
+              <div className="factory-narrative-persona-label">{persona.label}</div>
+              <PersonaViz variant={persona.key} />
+            </div>
+          ))}
+        </div>
+      </NarrativeReveal>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <section
+        id="customers"
+        className="factory-scroll-panel factory-scroll-panel--customers factory-narrative relative flex h-full flex-col overflow-hidden bg-transparent"
+      >
+        <div
+          key={`customers-${revealCycle}`}
+          className={`${slideClass} relative z-10 mx-auto w-full max-w-7xl min-h-0 flex-1`}
+          data-lenis-prevent=""
+        >
+          {content}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="customers" className="factory-narrative relative overflow-hidden bg-[#060608] py-24">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -53,88 +138,7 @@ export function CustomersClientsSection({ embedded = false }: CustomersClientsSe
             "radial-gradient(ellipse 70% 45% at 50% 0%, rgba(20,184,166,0.08) 0%, transparent 55%)",
         }}
       />
-
-      <div
-        className={
-          embedded
-            ? "factory-customers__shell relative z-10 mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-[calc(var(--site-header-total)+0.375rem)] md:px-6 md:py-[calc(var(--site-header-total)+0.75rem)] lg:px-10"
-            : "relative z-10 mx-auto max-w-7xl px-6 md:px-10"
-        }
-      >
-        <div
-          className={
-            embedded
-              ? "factory-customers__main flex min-h-0 flex-1 flex-col justify-start gap-4 md:flex-row md:items-center md:gap-8 lg:gap-10 md:justify-center"
-              : "mb-12 flex flex-col gap-8 md:flex-row md:items-center md:gap-10"
-          }
-        >
-          <div
-            className={
-              embedded
-                ? "factory-customers__text flex shrink-0 flex-col space-y-3 md:flex-[0_0_38%] lg:space-y-5"
-                : "flex flex-1 flex-col space-y-6 md:flex-[0_0_40%]"
-            }
-          >
-            <motion.div className="flex justify-start" {...revealProps(embedded)}>
-              <span className="shiny-badge">Customers</span>
-            </motion.div>
-
-            <motion.h2
-              className={`factory-customers__heading text-left font-orbitron leading-[1.12] text-white ${
-                embedded
-                  ? "text-[24px] sm:text-[30px] md:text-[48px] md:leading-tight"
-                  : "text-heading"
-              }`}
-              {...revealProps(embedded, 0.06)}
-            >
-              Built for manufacturing <span className="text-primary">teams that ship.</span>
-            </motion.h2>
-          </div>
-
-          <div
-            className="factory-customers__cards flex min-w-0 flex-col gap-2 md:flex-1 md:gap-4 lg:gap-5"
-          >
-            {teams.map((team, index) => (
-              <motion.div
-                key={team.title}
-                {...revealProps(embedded, 0.08 + index * 0.06)}
-                className={`factory-customers__card relative rounded-2xl border border-teal-500/20 ${
-                  embedded ? "px-5 py-4 md:px-6 md:py-5" : "px-6 py-5 md:px-7 md:py-6"
-                }`}
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(12,12,14,0.95) 0%, rgba(6,6,8,0.98) 100%)",
-                  boxShadow: "0 0 25px rgba(20,184,166,0.05)",
-                }}
-              >
-                <div className="flex items-center gap-4 md:gap-5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-xl border border-teal-500/30 bg-teal-500/15 text-teal-400 md:h-11 md:w-11">
-                    {team.icon}
-                  </div>
-
-                  <div className="flex min-w-0 flex-1 flex-col gap-2 md:gap-2.5">
-                    <h3 className="font-orbitron text-[14px] leading-tight text-white md:text-[17px]">
-                      {team.title}
-                    </h3>
-
-                    <ul className="factory-customers__items flex flex-nowrap items-center gap-x-4 sm:gap-x-5 md:gap-x-6">
-                      {team.items.map((item) => (
-                        <li
-                          key={item}
-                          className="flex min-w-0 items-center gap-2 text-[11px] text-teal-300/90 sm:text-[12px] md:gap-2.5 md:text-[13px]"
-                        >
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500/60" />
-                          <span className="truncate">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className={`${slideClass} relative z-10 mx-auto max-w-7xl px-6 md:px-10`}>{content}</div>
     </section>
   );
 }

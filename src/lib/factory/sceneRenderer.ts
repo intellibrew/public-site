@@ -24,6 +24,7 @@ export function makeSceneRenderer(mount: HTMLDivElement) {
   renderer.domElement.style.display = "block";
   renderer.domElement.style.width = "100%";
   renderer.domElement.style.height = "100%";
+  renderer.domElement.style.pointerEvents = "auto";
   mount.appendChild(renderer.domElement);
 
   return renderer;
