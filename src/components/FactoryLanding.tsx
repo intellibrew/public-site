@@ -39,7 +39,7 @@ export default function FactoryLanding() {
   const buildCompleteRef = useRef(false);
   const storyEnabledRef = useRef(false);
   const animationStartedRef = useRef(false);
-  const factoryPausedRef = useRef(false);
+  const factoryPausedRef = useRef(true);
   const dismissOverlaysRef = useRef<(() => void) | null>(null);
   const journeyPhaseRef = useRef<JourneyPhase>("hero");
   const factoryInteractiveRef = useRef(false);
@@ -143,17 +143,42 @@ export default function FactoryLanding() {
     return () => cancelAnimationFrame(frameId);
   }, [scrollTo]);
 
+  const syncFactoryScrollState = useCallback(
+    (progress: number) => {
+      const inFactory = isFactoryPhase(progress);
+      const nextPaused = !inFactory;
+      const wasPaused = factoryPausedRef.current;
+      factoryPausedRef.current = nextPaused;
+      setScenePaused((prev) => (prev === nextPaused ? prev : nextPaused));
+      if (nextPaused && !wasPaused) {
+        dismissOverlaysRef.current?.();
+      }
+      if (factoryInteractiveRef.current !== inFactory) {
+        factoryInteractiveRef.current = inFactory;
+        setFactoryInteractive(inFactory);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!scrollReady) return;
+    syncFactoryScrollState(scrollYProgress.get());
+  }, [scrollReady, scrollYProgress, syncFactoryScrollState]);
+
   useEffect(() => {
     const markUserScroll = () => {
       hasUserScrolledRef.current = true;
     };
 
     window.addEventListener("wheel", markUserScroll, { passive: true });
+    window.addEventListener("scroll", markUserScroll, { passive: true });
     window.addEventListener("touchmove", markUserScroll, { passive: true });
     window.addEventListener("keydown", markUserScroll);
 
     return () => {
       window.removeEventListener("wheel", markUserScroll);
+      window.removeEventListener("scroll", markUserScroll);
       window.removeEventListener("touchmove", markUserScroll);
       window.removeEventListener("keydown", markUserScroll);
     };
@@ -162,36 +187,22 @@ export default function FactoryLanding() {
   useMotionValueEvent(scrollYProgress, "change", (progress) => {
     setShowHeroChrome(progress < JOURNEY.hero.fadeOut[1]);
 
-    if (!hasUserScrolledRef.current && progress > 0.002) {
-      return;
-    }
-
     const phase = resolveJourneyPhase(progress);
     if (phase !== journeyPhaseRef.current) {
       journeyPhaseRef.current = phase;
       setJourneyPhase(phase);
     }
 
-    const inFactory = isFactoryPhase(progress);
+    syncFactoryScrollState(progress);
+
+    if (!hasUserScrolledRef.current && progress > 0.002) {
+      return;
+    }
+
     const canMountFactory = shouldMountFactory(progress, hasUserScrolledRef.current);
 
     if (canMountFactory) {
       setFactoryMounted(true);
-    }
-
-    const nextPaused = !inFactory;
-    if (factoryPausedRef.current !== nextPaused) {
-      factoryPausedRef.current = nextPaused;
-      setScenePaused(nextPaused);
-      if (nextPaused) {
-        dismissOverlaysRef.current?.();
-      }
-    }
-
-    const nextInteractive = inFactory && buildCompleteRef.current;
-    if (factoryInteractiveRef.current !== nextInteractive) {
-      factoryInteractiveRef.current = nextInteractive;
-      setFactoryInteractive(nextInteractive);
     }
 
     if (
@@ -272,6 +283,7 @@ export default function FactoryLanding() {
     : isCompact
       ? JOURNEY_TABLET_HEIGHT_VH
       : JOURNEY_HEIGHT_VH;
+  const factoryLayerActive = journeyPhase === "factory";
 
   return (
     <main
@@ -294,23 +306,21 @@ export default function FactoryLanding() {
 
           <motion.div
             className={`factory-scroll-layer factory-scroll-layer--factory ${
-              journeyPhase === "factory" ? "factory-scroll-layer--native-scroll" : ""
+              factoryLayerActive ? "factory-scroll-layer--native-scroll factory-scroll-layer--interactive" : ""
             }`}
-            data-lenis-prevent={journeyPhase === "factory" && !prefersNativeTouch ? "" : undefined}
+            data-lenis-prevent={factoryLayerActive && !prefersNativeTouch ? "" : undefined}
             style={{ opacity: factoryOpacity }}
           >
             {factoryMounted && (
-              <div
-                className={`absolute inset-0 ${factoryInteractive ? "pointer-events-auto" : "pointer-events-none"}`}
-              >
+              <div className="absolute inset-0">
                 <FactoryBuildExperience
                   getBuildProgress={getBuildProgress}
                   getStoryEnabled={getStoryEnabled}
-                  storyEnabled={storyEnabled && factoryInteractive}
+                  storyEnabled={storyEnabled}
                   simplified={isCompact}
                   scenePaused={scenePaused}
                   getScenePaused={getScenePaused}
-                  sceneInteractive={factoryInteractive}
+                  interactionEnabled={factoryLayerActive || factoryInteractive}
                   preferPageScroll={prefersNativeTouch}
                   showReturnToHero={false}
                   onReturnToHero={scrollToTop}
@@ -321,7 +331,11 @@ export default function FactoryLanding() {
           </motion.div>
 
           <motion.div
-            className="factory-scroll-layer factory-scroll-layer--story"
+            className={`factory-scroll-layer factory-scroll-layer--story ${
+              journeyPhase === "problem" || journeyPhase === "solution"
+                ? "factory-scroll-layer--interactive"
+                : ""
+            }`}
             style={{ opacity: storyLayerOpacity }}
           >
             <StitchedStorySection scrollProgress={scrollYProgress} />
@@ -333,7 +347,7 @@ export default function FactoryLanding() {
             }`}
             style={{ opacity: customersOpacity, y: customersY }}
           >
-            <CustomersClientsSection embedded />
+            <CustomersClientsSection embedded scrollProgress={scrollYProgress} />
           </motion.div>
 
           <motion.div

@@ -38,6 +38,7 @@ export type FactorySceneOptions = {
   getStorySnapshot: () => StorySnapshot;
   onFocusChange?: (stationId: string | null, phase: "idle" | "entering" | "active" | "exiting") => void;
   onStationHover?: (stationId: string | null) => void;
+  getAutoplayLocked?: () => boolean;
   simplified?: boolean;
   preferPageScroll?: boolean;
 };
@@ -145,6 +146,7 @@ export function mountFactoryScene(
     getStorySnapshot,
     onFocusChange,
     onStationHover,
+    getAutoplayLocked,
     simplified = false,
     preferPageScroll = false,
   } = options;
@@ -209,10 +211,12 @@ export function mountFactoryScene(
     controls.update();
   };
 
-  const getIsInteractive = () =>
-    getProgress() >= 0.999 && !(getScenePaused?.() ?? false);
+  const getIsInteractive = () => !(getScenePaused?.() ?? false);
 
-  const factoryTargets = build.steps.map((step) => step.group);
+  const factoryTargets = [
+    ...build.steps.map((step) => step.group),
+    ...Array.from(build.stationGroups.values()),
+  ];
   const testFactoryHit = (clientX: number, clientY: number) =>
     hitFactoryAt(clientX, clientY, camera, renderer.domElement, factoryTargets);
 
@@ -220,6 +224,7 @@ export function mountFactoryScene(
     camera,
     controls,
     element: renderer.domElement,
+    cursorElement: mount,
     onResetView: resetFactoryView,
     getIsInteractive,
     enablePinchZoom: simplified,
@@ -227,18 +232,16 @@ export function mountFactoryScene(
     hitFactoryAt: testFactoryHit,
   });
 
-  if (simplified) {
-    renderer.domElement.style.cursor = "default";
-  }
-
   const picker = bindStationPicking({
     camera,
-    element: renderer.domElement,
+    element: mount,
+    hitElement: renderer.domElement,
     stationGroups: build.stationGroups,
     factoryTargets,
     onHover: (id) => onStationHover?.(id),
     onSelect: (id) => {
       if (getStorySnapshot().phase === "optimizing") return;
+      if (getAutoplayLocked?.()) return;
       const group = build.stationGroups.get(id);
       if (!group) return;
       focusState = startFocus(focusState, id, camera, controls, group);
@@ -248,10 +251,12 @@ export function mountFactoryScene(
       notifyFocus();
     },
     isFocusActive: () => focusState !== null,
+    getIsInteractive,
     interaction: {
       isScrollIntent: () => input.isScrollIntent(),
       isDragging: () => input.isDragging(),
       isPointerDown: () => input.isPointerDown(),
+      hadDragGesture: () => input.hadDragGesture(),
     },
   });
 

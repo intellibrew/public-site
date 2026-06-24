@@ -16,6 +16,7 @@ type SceneInputOptions = {
   camera: THREE.PerspectiveCamera;
   controls: OrbitControls;
   element: HTMLCanvasElement;
+  cursorElement?: HTMLElement;
   onResetView?: () => void;
   getIsInteractive?: () => boolean;
   enablePinchZoom?: boolean;
@@ -32,12 +33,14 @@ export function bindSceneInput({
   camera,
   controls,
   element,
+  cursorElement,
   onResetView,
   getIsInteractive,
   enablePinchZoom = false,
   preferPageScroll = false,
   hitFactoryAt,
 }: SceneInputOptions) {
+  const cursorTarget = cursorElement ?? element;
   let cameraOverride = false;
   let isDragging = false;
   let scrollIntent = false;
@@ -52,6 +55,7 @@ export function bindSceneInput({
   let lastPinchDistance: number | null = null;
   let preferPageScrollEnabled = preferPageScroll;
   let userOrbitView = false;
+  let dragGesture = false;
   let touchOrbitLastClient: { x: number; y: number } | null = null;
   const activePointers = new Map<number, ActivePointer>();
   const zoomOffset = new THREE.Vector3();
@@ -118,9 +122,9 @@ export function bindSceneInput({
     activePointers.clear();
     lastPinchDistance = null;
     touchOrbitLastClient = null;
+    dragGesture = false;
     syncControlsEnabled(false);
     syncTouchAction();
-    element.style.cursor = "default";
   };
 
   const detectScrollIntent = (dx: number, dy: number) => {
@@ -191,12 +195,13 @@ export function bindSceneInput({
 
     touchOrbitActive = true;
     isDragging = true;
+    dragGesture = true;
     userOrbitView = true;
     cameraOverride = true;
     syncControlsFromCamera();
     syncControlsEnabled(false);
     syncTouchAction();
-    element.style.cursor = "grabbing";
+    cursorTarget.style.cursor = "grabbing";
     touchOrbitLastClient = { x: clientX, y: clientY };
   };
 
@@ -353,6 +358,7 @@ export function bindSceneInput({
     if (enablePinchZoom && activePointers.size === 2) {
       lastPinchDistance = getPinchDistance();
       isDragging = true;
+      dragGesture = true;
       orbitEligible = true;
       touchOrbitActive = false;
       syncControlsEnabled(false);
@@ -378,6 +384,7 @@ export function bindSceneInput({
       }
       lastPinchDistance = pinchDistance;
       isDragging = true;
+      dragGesture = true;
       syncTouchAction();
       return;
     }
@@ -412,6 +419,7 @@ export function bindSceneInput({
 
     if (dx * dx + dy * dy >= POINTER_DRAG_THRESHOLD_SQ) {
       isDragging = true;
+      dragGesture = true;
       syncTouchAction();
     }
   };
@@ -469,11 +477,10 @@ export function bindSceneInput({
 
   const onControlStart = () => {
     if (!orbitEligible || scrollIntent) return;
-    isDragging = true;
     userOrbitView = true;
     freezeCameraForGesture();
     controls.enableDamping = false;
-    element.style.cursor = "grabbing";
+    cursorTarget.style.cursor = "grabbing";
     syncTouchAction();
   };
   const onControlEnd = () => {
@@ -481,7 +488,6 @@ export function bindSceneInput({
     if (!pointerDown) {
       isDragging = false;
       touchOrbitActive = false;
-      element.style.cursor = "default";
       syncTouchAction();
     }
   };
@@ -521,7 +527,6 @@ export function bindSceneInput({
   syncControlsEnabled(false);
   controls.addEventListener("start", onControlStart);
   controls.addEventListener("end", onControlEnd);
-  element.style.cursor = "default";
   syncTouchAction();
   element.addEventListener("pointerdown", onPointerDownCapture, { capture: true });
   element.addEventListener("pointermove", onPointerMoveCapture, { capture: true });
@@ -542,6 +547,7 @@ export function bindSceneInput({
     isDragging: () => isDragging,
     isScrollIntent: () => scrollIntent,
     isPointerDown: () => pointerDown,
+    hadDragGesture: () => dragGesture,
     setPreferPageScroll: (value: boolean) => {
       preferPageScrollEnabled = value;
       syncTouchAction();

@@ -36,7 +36,7 @@ type FactoryBuildExperienceProps = {
   simplified?: boolean;
   scenePaused?: boolean;
   getScenePaused?: () => boolean;
-  sceneInteractive?: boolean;
+  interactionEnabled?: boolean;
   preferPageScroll?: boolean;
   showReturnToHero?: boolean;
   onReturnToHero?: () => void;
@@ -50,7 +50,7 @@ export default function FactoryBuildExperience({
   simplified = false,
   scenePaused = false,
   getScenePaused,
-  sceneInteractive = false,
+  interactionEnabled = true,
   preferPageScroll = false,
   showReturnToHero = false,
   onReturnToHero,
@@ -75,6 +75,7 @@ export default function FactoryBuildExperience({
     initialStorySnapshot(performance.now(), bottleneckStationId)
   );
   const pauseStartedAtRef = useRef<number | null>(null);
+  const autoplayLockedRef = useRef(false);
   const isFocusActive = focusPhase !== "idle";
   const isSubstationFocus = focusedStation === POWER_SUBSTATION_ID;
   const storyAnalysisEnabled = storyEnabled;
@@ -126,6 +127,8 @@ export default function FactoryBuildExperience({
     setStoryPhase("bottleneck");
   }, []);
 
+  const getAutoplayLocked = useCallback(() => autoplayLockedRef.current, []);
+
   const {
     identifyPressed,
     optimizePressed,
@@ -139,6 +142,10 @@ export default function FactoryBuildExperience({
     onIdentifyBottlenecks: handleIdentifyBottlenecks,
     onOptimizeFactory: handleOptimizeFactory,
   });
+
+  useEffect(() => {
+    autoplayLockedRef.current = autoplayActive;
+  }, [autoplayActive]);
 
   useEffect(() => {
     const check = () => setIsPhone(isPhoneViewport());
@@ -244,13 +251,11 @@ export default function FactoryBuildExperience({
         </button>
       )}
 
-      <div className="factory-stage pointer-events-none relative z-10 h-full w-full overflow-hidden">
+      <div className="factory-stage relative z-10 h-full w-full overflow-hidden">
         <div
           className={`factory-model-layer ${
-            sceneInteractive ? "factory-model-layer--interactive" : ""
-          } ${
-            sceneInteractive && preferPageScroll ? "factory-model-layer--page-scroll" : ""
-          }`}
+            interactionEnabled ? "factory-model-layer--interactive" : ""
+          } ${interactionEnabled && preferPageScroll ? "factory-model-layer--page-scroll" : ""}`}
         >
           <FactoryThreeScene
             getBuildProgress={getBuildProgress}
@@ -259,9 +264,9 @@ export default function FactoryBuildExperience({
             storyRef={storyRef}
             onFocusChange={handleFocusChange}
             onStationHover={handleStationHover}
+            getAutoplayLocked={getAutoplayLocked}
             focusRequestRef={focusRequestRef}
             simplified={simplified}
-            sceneInteractive={sceneInteractive}
             preferPageScroll={preferPageScroll}
           />
         </div>
@@ -297,7 +302,7 @@ export default function FactoryBuildExperience({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -8, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
               transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-              className="ffs-presence-wrap factory-website-flow-ui pointer-events-auto"
+              className="ffs-presence-wrap factory-website-flow-ui pointer-events-none"
             >
               <FactoryFlowStoryCard
                 phase={storyPhase}

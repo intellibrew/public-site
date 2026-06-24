@@ -23,6 +23,7 @@ function intersectTargets(
 ) {
   if (!targets.length) return [];
   setPointerFromClientPoint(clientX, clientY, element);
+  camera.updateMatrixWorld();
   raycaster.setFromCamera(pointer, camera);
   return raycaster.intersectObjects(targets, true);
 }
@@ -62,26 +63,31 @@ export type SceneInteractionBridge = {
   isScrollIntent: () => boolean;
   isDragging: () => boolean;
   isPointerDown: () => boolean;
+  hadDragGesture: () => boolean;
 };
 
 export function bindStationPicking(options: {
   camera: THREE.PerspectiveCamera;
-  element: HTMLCanvasElement;
+  element: HTMLElement;
+  hitElement: HTMLElement;
   stationGroups: Map<string, THREE.Group>;
   factoryTargets: THREE.Object3D[];
   onHover: (id: string | null) => void;
   onSelect: (id: string) => void;
   isFocusActive: () => boolean;
+  getIsInteractive?: () => boolean;
   interaction: SceneInteractionBridge;
 }) {
   const {
     camera,
     element,
+    hitElement,
     stationGroups,
     factoryTargets,
     onHover,
     onSelect,
     isFocusActive,
+    getIsInteractive,
     interaction,
   } = options;
   let hoveredId: string | null = null;
@@ -98,6 +104,10 @@ export function bindStationPicking(options: {
   };
 
   const updateCursor = (stationId: string | null, overFactory: boolean) => {
+    if (!(getIsInteractive?.() ?? true)) {
+      element.style.cursor = "default";
+      return;
+    }
     if (interaction.isDragging()) {
       element.style.cursor = "grabbing";
       return;
@@ -114,6 +124,12 @@ export function bindStationPicking(options: {
     const point = pendingPointer;
     pendingPointer = null;
     if (!point) return;
+
+    if (!(getIsInteractive?.() ?? true)) {
+      clearHover();
+      element.style.cursor = "default";
+      return;
+    }
 
     if (
       interaction.isScrollIntent() ||
@@ -137,7 +153,7 @@ export function bindStationPicking(options: {
       point.clientX,
       point.clientY,
       camera,
-      element,
+      hitElement,
       factoryTargets
     );
     const id = overFactory
@@ -145,7 +161,7 @@ export function bindStationPicking(options: {
           point.clientX,
           point.clientY,
           camera,
-          element,
+          hitElement,
           stationGroups,
           pickTargets
         )
@@ -160,6 +176,7 @@ export function bindStationPicking(options: {
   };
 
   const onPointerMove = (event: PointerEvent) => {
+    if (!(getIsInteractive?.() ?? true)) return;
     if (interaction.isDragging() || interaction.isScrollIntent() || interaction.isPointerDown()) {
       return;
     }
@@ -169,7 +186,7 @@ export function bindStationPicking(options: {
   };
 
   const onPointerDown = (event: PointerEvent) => {
-    if (event.button !== 0 || isFocusActive()) return;
+    if (event.button !== 0 || isFocusActive() || !(getIsInteractive?.() ?? true)) return;
     pendingClick = {
       x: event.clientX,
       y: event.clientY,
@@ -186,13 +203,14 @@ export function bindStationPicking(options: {
     pendingClick = null;
 
     if (interaction.isScrollIntent() || interaction.isDragging()) return;
+    if (interaction.hadDragGesture?.()) return;
     if (dx * dx + dy * dy > POINTER_DRAG_THRESHOLD_SQ) return;
 
     const id = pickStationIdAt(
       event.clientX,
       event.clientY,
       camera,
-      element,
+      hitElement,
       stationGroups,
       pickTargets
     );
@@ -207,18 +225,30 @@ export function bindStationPicking(options: {
     }
   };
 
-  element.addEventListener("pointermove", onPointerMove);
-  element.addEventListener("pointerdown", onPointerDown);
-  element.addEventListener("pointerup", onPointerUp);
-  element.addEventListener("pointercancel", onPointerCancel);
+  const onPointerLeave = () => {
+    pendingPointer = null;
+    if (pointerMoveFrame) {
+      window.cancelAnimationFrame(pointerMoveFrame);
+      pointerMoveFrame = 0;
+    }
+    clearHover();
+    element.style.cursor = "default";
+  };
+
+  hitElement.addEventListener("pointermove", onPointerMove);
+  hitElement.addEventListener("pointerdown", onPointerDown);
+  hitElement.addEventListener("pointerup", onPointerUp, { capture: true });
+  hitElement.addEventListener("pointercancel", onPointerCancel);
+  hitElement.addEventListener("pointerleave", onPointerLeave);
 
   return {
     dispose: () => {
       if (pointerMoveFrame) window.cancelAnimationFrame(pointerMoveFrame);
-      element.removeEventListener("pointermove", onPointerMove);
-      element.removeEventListener("pointerdown", onPointerDown);
-      element.removeEventListener("pointerup", onPointerUp);
-      element.removeEventListener("pointercancel", onPointerCancel);
+      hitElement.removeEventListener("pointermove", onPointerMove);
+      hitElement.removeEventListener("pointerdown", onPointerDown);
+      hitElement.removeEventListener("pointerup", onPointerUp, { capture: true });
+      hitElement.removeEventListener("pointercancel", onPointerCancel);
+      hitElement.removeEventListener("pointerleave", onPointerLeave);
     },
   };
 }

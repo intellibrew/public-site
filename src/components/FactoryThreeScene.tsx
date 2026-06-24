@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { mountFactoryScene, type FactorySceneHandle } from "@/lib/factory/runtime";
 import type { StorySnapshot } from "@/lib/factory/flowOptimization";
 
@@ -10,6 +10,7 @@ type FactoryThreeSceneProps = {
   getBuildProgress: () => number;
   getStoryActive: () => boolean;
   getScenePaused?: () => boolean;
+  getAutoplayLocked?: () => boolean;
   storyRef: React.MutableRefObject<StorySnapshot>;
   onFocusChange?: (stationId: string | null, phase: FocusPhase) => void;
   onStationHover?: (stationId: string | null) => void;
@@ -17,7 +18,6 @@ type FactoryThreeSceneProps = {
     ((id: string | null, options?: { immediate?: boolean }) => void) | null
   >;
   simplified?: boolean;
-  sceneInteractive?: boolean;
   preferPageScroll?: boolean;
 };
 
@@ -25,12 +25,12 @@ export default function FactoryThreeScene({
   getBuildProgress,
   getStoryActive,
   getScenePaused,
+  getAutoplayLocked,
   storyRef,
   onFocusChange,
   onStationHover,
   focusRequestRef,
   simplified = false,
-  sceneInteractive = false,
   preferPageScroll = false,
 }: FactoryThreeSceneProps) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -39,6 +39,7 @@ export default function FactoryThreeScene({
     getBuildProgress,
     getStoryActive,
     getScenePaused,
+    getAutoplayLocked,
     storyRef,
     onFocusChange,
     onStationHover,
@@ -48,28 +49,11 @@ export default function FactoryThreeScene({
     getBuildProgress,
     getStoryActive,
     getScenePaused,
+    getAutoplayLocked,
     storyRef,
     onFocusChange,
     onStationHover,
   };
-
-  const applyCanvasInteraction = useCallback(() => {
-    const canvas = mountRef.current?.querySelector("canvas");
-    if (!(canvas instanceof HTMLCanvasElement)) return;
-
-    canvas.style.pointerEvents = sceneInteractive ? "auto" : "none";
-    if (!sceneInteractive) {
-      canvas.style.touchAction = "auto";
-      return;
-    }
-    canvas.style.touchAction = preferPageScroll ? "pan-y" : "auto";
-  }, [preferPageScroll, sceneInteractive]);
-
-  useEffect(() => {
-    applyCanvasInteraction();
-    const frameId = requestAnimationFrame(applyCanvasInteraction);
-    return () => cancelAnimationFrame(frameId);
-  }, [applyCanvasInteraction]);
 
   useEffect(() => {
     sceneHandleRef.current?.setPreferPageScroll(preferPageScroll);
@@ -83,6 +67,7 @@ export default function FactoryThreeScene({
       getProgress: () => latestRefs.current.getBuildProgress(),
       getStoryActive: () => latestRefs.current.getStoryActive(),
       getScenePaused: () => latestRefs.current.getScenePaused?.() ?? false,
+      getAutoplayLocked: () => latestRefs.current.getAutoplayLocked?.() ?? false,
       getStorySnapshot: () => latestRefs.current.storyRef.current,
       onFocusChange: (stationId, phase) =>
         latestRefs.current.onFocusChange?.(stationId, phase),
@@ -103,14 +88,14 @@ export default function FactoryThreeScene({
         focusRequestRef.current = null;
       }
     };
-  }, [focusRequestRef, simplified]);
+  }, [focusRequestRef, simplified, preferPageScroll]);
 
   return (
     <div className="factory-model-mount relative h-full w-full overflow-hidden">
       <div
         ref={mountRef}
-        className={`absolute inset-0 ${sceneInteractive ? "pointer-events-auto" : "pointer-events-none"}`}
-        style={{ touchAction: sceneInteractive && preferPageScroll ? "pan-y" : "auto" }}
+        className="factory-model-mount-surface absolute inset-0 touch-manipulation"
+        style={{ touchAction: preferPageScroll ? "pan-y" : "auto" }}
         aria-label="Interactive 3D factory build"
       />
     </div>
