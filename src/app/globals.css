@@ -4828,33 +4828,37 @@ html.lenis body {
 }
 
 @media (max-width: 767px) {
-  .factory-scroll-panel--customers {
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .factory-narrative-slide--teams {
-    justify-content: flex-start;
-    align-items: stretch;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    touch-action: pan-y;
-    scrollbar-width: none;
+  .factory-narrative-slide--teams,
+  .factory-narrative-slide--story,
+  .factory-scroll-panel--contact .factory-narrative-slide {
+    justify-content: center;
     padding-top: calc(var(--site-header-total) + 0.35rem);
-    padding-bottom: max(0.75rem, var(--site-safe-bottom));
+    padding-bottom: max(var(--factory-bottom-chrome-total, 3.5rem), var(--site-safe-bottom));
     padding-left: max(1rem, var(--site-safe-left));
     padding-right: max(1rem, var(--site-safe-right));
   }
 
-  .factory-narrative-slide--teams::-webkit-scrollbar {
-    display: none;
-  }
-
-  .factory-narrative-slide--teams .factory-narrative-eyebrow {
+  .factory-narrative-slide--teams .factory-narrative-eyebrow,
+  .factory-narrative-slide--story .factory-narrative-eyebrow,
+  .factory-scroll-panel--contact .factory-narrative-eyebrow {
     font-size: 10px;
     letter-spacing: 0.22em;
+  }
+
+  .factory-narrative-slide--story .factory-narrative-ring-wrap {
+    margin-top: 1.125rem;
+  }
+
+  .factory-narrative-slide--story .factory-narrative-subhead {
+    margin-top: 0.75rem;
+  }
+
+  .factory-narrative-slide--story .factory-narrative-core-svg {
+    margin-top: 1.125rem;
+  }
+
+  .factory-narrative-slide--story .factory-narrative-footnote {
+    margin-top: 1.125rem;
   }
 
   .factory-narrative-personas {
@@ -4914,11 +4918,16 @@ html.lenis body {
 }
 
 @media (max-width: 767px) and (max-height: 740px) {
-  .factory-narrative-slide--teams {
+  .factory-narrative-slide--teams,
+  .factory-narrative-slide--story,
+  .factory-scroll-panel--contact .factory-narrative-slide {
     padding-top: calc(var(--site-header-total) + 0.15rem);
+    padding-bottom: max(var(--factory-bottom-chrome-total, 3rem), var(--site-safe-bottom));
   }
 
-  .factory-narrative-slide--teams .factory-narrative-headline {
+  .factory-narrative-slide--teams .factory-narrative-headline,
+  .factory-narrative-slide--story .factory-narrative-headline,
+  .factory-scroll-panel--contact .factory-narrative-headline {
     font-size: clamp(1.3rem, 5.8vw, 1.75rem);
     margin-top: 0.5rem;
   }

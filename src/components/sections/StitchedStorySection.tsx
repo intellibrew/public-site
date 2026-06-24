@@ -116,7 +116,7 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
         {showProblemContent ? (
           <motion.div
             key={`problem-${problemCycle}`}
-            className={`factory-narrative-slide${problemRevealActive ? " factory-narrative-slide--in" : ""} absolute inset-0${panelHidden(showProblemContent)}`}
+            className={`factory-narrative-slide factory-narrative-slide--story${problemRevealActive ? " factory-narrative-slide--in" : ""} absolute inset-0${panelHidden(showProblemContent)}`}
             style={{ opacity: problemOpacity }}
           >
             <NarrativeReveal delay={0}>
@@ -145,7 +145,7 @@ export function StitchedStorySection({ scrollProgress }: StitchedStorySectionPro
         {showSolutionContent ? (
           <motion.div
             key={`solution-${solutionCycle}`}
-            className={`factory-narrative-slide${solutionRevealActive ? " factory-narrative-slide--in" : ""} absolute inset-0${panelHidden(showSolutionContent)}`}
+            className={`factory-narrative-slide factory-narrative-slide--story${solutionRevealActive ? " factory-narrative-slide--in" : ""} absolute inset-0${panelHidden(showSolutionContent)}`}
             style={{ opacity: solutionOpacity }}
           >
             <NarrativeReveal delay={0}>
