@@ -38,11 +38,13 @@ const DISCONNECTS = [
   [161, 106],
 ] as const;
 
+const CHIP_MOTION_DURATION = "8s";
+
 const CHIPS = [
   { label: "CAD", path: ARCS[0], begin: "0s", width: 52, x: -26 },
-  { label: "BOM", path: ARCS[1], begin: "-1.25s", width: 52, x: -26 },
-  { label: "takt", path: ARCS[2], begin: "-2.5s", width: 48, x: -24 },
-  { label: "cost", path: ARCS[3], begin: "-3.75s", width: 52, x: -26 },
+  { label: "BOM", path: ARCS[1], begin: "-2s", width: 52, x: -26 },
+  { label: "takt", path: ARCS[2], begin: "-4s", width: 48, x: -24 },
+  { label: "cost", path: ARCS[3], begin: "-6s", width: 52, x: -26 },
 ] as const;
 
 export function ProblemRingDiagram({ className }: ProblemRingDiagramProps) {
@@ -218,7 +220,7 @@ export function ProblemRingDiagram({ className }: ProblemRingDiagramProps) {
                   {chip.label}
                 </text>
               </g>
-              <animateMotion dur="5s" begin={chip.begin} repeatCount="indefinite" path={chip.path} />
+              <animateMotion dur={CHIP_MOTION_DURATION} begin={chip.begin} repeatCount="indefinite" path={chip.path} />
             </g>
           ))}
         </g>

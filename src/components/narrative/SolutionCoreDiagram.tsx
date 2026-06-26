@@ -115,47 +115,47 @@ export function SolutionCoreDiagram() {
       </g>
       <g fill="var(--narrative-cyan)">
         <circle r="3">
-          <animateMotion dur="3s" repeatCount="indefinite">
+          <animateMotion dur="5s" repeatCount="indefinite">
             <mpath href="#narrativeIn0" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-0.7s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-1.2s" repeatCount="indefinite">
             <mpath href="#narrativeIn1" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-1.4s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-2.3s" repeatCount="indefinite">
             <mpath href="#narrativeIn2" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-2.1s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-3.5s" repeatCount="indefinite">
             <mpath href="#narrativeIn3" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-0.4s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-0.7s" repeatCount="indefinite">
             <mpath href="#narrativeOut0" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-1s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-1.7s" repeatCount="indefinite">
             <mpath href="#narrativeOut1" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-1.6s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-2.7s" repeatCount="indefinite">
             <mpath href="#narrativeOut2" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-2.2s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-3.7s" repeatCount="indefinite">
             <mpath href="#narrativeOut3" />
           </animateMotion>
         </circle>
         <circle r="3">
-          <animateMotion dur="3s" begin="-2.8s" repeatCount="indefinite">
+          <animateMotion dur="5s" begin="-4.7s" repeatCount="indefinite">
             <mpath href="#narrativeOut4" />
           </animateMotion>
         </circle>
