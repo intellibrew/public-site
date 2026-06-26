@@ -4387,6 +4387,20 @@ html.lenis body {
   transform: none;
 }
 
+.factory-narrative-slide--story .factory-narrative-reveal {
+  transition:
+    opacity 1.4s var(--narrative-ease),
+    transform 1.4s var(--narrative-ease);
+  transition-delay: calc(var(--d, 0) * 140ms);
+}
+
+.factory-narrative-slide--teams .factory-narrative-reveal {
+  transition:
+    opacity 1.4s var(--narrative-ease),
+    transform 1.4s var(--narrative-ease);
+  transition-delay: calc(var(--d, 0) * 140ms);
+}
+
 .factory-narrative-ring-wrap {
   position: relative;
   width: min(78vh, 740px);
@@ -4431,6 +4445,11 @@ html.lenis body {
   animation-delay: calc(0.22s + (var(--arc-i, 0) * 0.12s));
 }
 
+.factory-narrative-slide--story.factory-narrative-slide--in .factory-narrative-arc {
+  animation-duration: 2.4s;
+  animation-delay: calc(0.35s + (var(--arc-i, 0) * 0.18s));
+}
+
 @keyframes factory-narrative-draw {
   to {
     stroke-dashoffset: 0;
@@ -4442,6 +4461,11 @@ html.lenis body {
   transform-origin: center;
   animation: factory-narrative-node-pulse 4.8s ease-in-out infinite;
   animation-delay: calc(var(--node-i, 0) * -1.2s);
+}
+
+.factory-narrative-slide--story .factory-narrative-node-halo {
+  animation-duration: 7.5s;
+  animation-delay: calc(var(--node-i, 0) * -1.9s);
 }
 
 @keyframes factory-narrative-node-pulse {
@@ -4460,6 +4484,11 @@ html.lenis body {
   opacity: 0.72;
   animation: factory-narrative-disconnect-pulse 3.2s ease-in-out infinite;
   animation-delay: calc(var(--dc-i, 0) * -0.55s);
+}
+
+.factory-narrative-slide--story .factory-narrative-disconnect {
+  animation-duration: 5s;
+  animation-delay: calc(var(--dc-i, 0) * -0.85s);
 }
 
 @keyframes factory-narrative-disconnect-pulse {
@@ -4527,6 +4556,10 @@ html.lenis body {
   transform-origin: center;
 }
 
+.factory-narrative-slide--story .factory-narrative-corebreath {
+  animation-duration: 9s;
+}
+
 @keyframes factory-narrative-breath {
   0%,
   100% {
@@ -4540,6 +4573,10 @@ html.lenis body {
 .factory-narrative-flowline {
   stroke-dasharray: 2 13;
   animation: factory-narrative-flow 3s linear infinite;
+}
+
+.factory-narrative-slide--story .factory-narrative-flowline {
+  animation-duration: 5s;
 }
 
 @keyframes factory-narrative-flow {
@@ -4620,6 +4657,10 @@ html.lenis body {
   animation: factory-narrative-cad-draw 5s ease-in-out infinite;
 }
 
+.factory-narrative-slide--teams .factory-narrative-mvd {
+  animation-duration: 8s;
+}
+
 .factory-narrative-mvdot {
   fill: var(--narrative-cyan);
 }
@@ -4628,6 +4669,10 @@ html.lenis body {
   stroke: var(--narrative-teal);
   opacity: 0;
   animation: factory-narrative-dim-pulse 5s ease-in-out infinite;
+}
+
+.factory-narrative-slide--teams .factory-narrative-mvdim {
+  animation-duration: 8s;
 }
 
 @keyframes factory-narrative-cad-draw {
@@ -4685,6 +4730,14 @@ html.lenis body {
 
 .factory-narrative-mebar.b5 {
   animation: factory-narrative-me5 4.4s ease-in-out infinite;
+}
+
+.factory-narrative-slide--teams .factory-narrative-mebar.b1,
+.factory-narrative-slide--teams .factory-narrative-mebar.b2,
+.factory-narrative-slide--teams .factory-narrative-mebar.b3,
+.factory-narrative-slide--teams .factory-narrative-mebar.b4,
+.factory-narrative-slide--teams .factory-narrative-mebar.b5 {
+  animation-duration: 7s;
 }
 
 @keyframes factory-narrative-me1 {
@@ -4766,6 +4819,11 @@ html.lenis body {
 .factory-narrative-rfqck {
   opacity: 0;
   animation: factory-narrative-rfq-check 4.4s ease-in-out infinite;
+}
+
+.factory-narrative-slide--teams .factory-narrative-rfqf,
+.factory-narrative-slide--teams .factory-narrative-rfqck {
+  animation-duration: 7s;
 }
 
 @keyframes factory-narrative-rfq-fill {

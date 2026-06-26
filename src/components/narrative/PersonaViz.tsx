@@ -29,7 +29,7 @@ export function PersonaViz({ variant }: PersonaVizProps) {
         </g>
         <circle className="factory-narrative-mvdot" r="2.1">
           <animateMotion
-            dur="5s"
+            dur="8s"
             repeatCount="indefinite"
             path="M14,27 L14,13 L34,13 L44,6 L88,6 L88,17 L114,17 L114,27"
           />
@@ -92,7 +92,7 @@ export function PersonaViz({ variant }: PersonaVizProps) {
         width="98"
         height="5"
         rx="2.5"
-        style={{ animationDelay: "-1.5s" }}
+        style={{ animationDelay: "-2.4s" }}
       />
       <text
         className="factory-narrative-rfqck"
@@ -101,7 +101,7 @@ export function PersonaViz({ variant }: PersonaVizProps) {
         fontFamily="var(--font-fragment)"
         fontSize="8"
         fill="var(--narrative-teal)"
-        style={{ animationDelay: "-1.5s" }}
+        style={{ animationDelay: "-2.4s" }}
       >
         ✓
       </text>
@@ -113,7 +113,7 @@ export function PersonaViz({ variant }: PersonaVizProps) {
         width="98"
         height="5"
         rx="2.5"
-        style={{ animationDelay: "-3s" }}
+        style={{ animationDelay: "-4.8s" }}
       />
       <text
         className="factory-narrative-rfqck"
@@ -122,7 +122,7 @@ export function PersonaViz({ variant }: PersonaVizProps) {
         fontFamily="var(--font-fragment)"
         fontSize="8"
         fill="var(--narrative-teal)"
-        style={{ animationDelay: "-3s" }}
+        style={{ animationDelay: "-4.8s" }}
       >
         ✓
       </text>
